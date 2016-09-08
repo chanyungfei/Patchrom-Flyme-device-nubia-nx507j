@@ -10,6 +10,7 @@
         Lcom/android/server/pm/PackageManagerService$ClearStorageConnection;,
         Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;,
         Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;,
+        Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;,
         Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;,
         Lcom/android/server/pm/PackageManagerService$FileInstallArgs;,
         Lcom/android/server/pm/PackageManagerService$InstallArgs;,
@@ -217,6 +218,14 @@
 
 
 # instance fields
+.field mAccessActivity:Landroid/content/pm/ActivityInfo;
+
+.field mAccessComponentName:Landroid/content/ComponentName;
+
+.field mAccessInfo:Landroid/content/pm/ResolveInfo;
+
+.field mFlymePackageDOS:Lcom/android/server/pm/PackageDefaultOpService;
+
 .field final mActivities:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
 
 .field mAndroidApplication:Landroid/content/pm/ApplicationInfo;
@@ -929,14 +938,14 @@
 
     iput-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPackageUsage:Lcom/android/server/pm/PackageManagerService$PackageUsage;
 
-    .line 14009
     const/4 v4, 0x0
 
     move-object/from16 v0, p0
 
     iput-boolean v4, v0, Lcom/android/server/pm/PackageManagerService;->mMediaMounted:Z
 
-    .line 1386
+    invoke-static/range {p0 .. p0}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->flymeSetup(Lcom/android/server/pm/PackageManagerService;)V
+
     const/16 v4, 0xbf4
 
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
@@ -1853,7 +1862,7 @@
 
     move-result-object v4
 
-    const v6, 0x104010b
+    const v6, #android:string@config_customResolverActivity#t
 
     invoke-virtual {v4, v6}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
 
@@ -2473,6 +2482,8 @@
     move-object/from16 v0, v22
 
     invoke-virtual {v0, v4}, Landroid/util/ArraySet;->add(Ljava/lang/Object;)Z
+
+    invoke-static/range {v22 .. v22}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->addFlymeAlreadyDexOpted(Landroid/util/ArraySet;)V
 
     .line 1627
     invoke-virtual/range {v45 .. v45}, Ljava/io/File;->list()[Ljava/lang/String;
@@ -4026,7 +4037,7 @@
 
     move-result-object v4
 
-    const v6, 0x107004f
+    const v6, #android:array@config_disabledComponents#t
 
     invoke-virtual {v4, v6}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
@@ -4224,7 +4235,7 @@
 
     move-result-object v4
 
-    const v6, 0x1070050
+    const v6, #android:array@config_forceEnabledComponents#t
 
     invoke-virtual {v4, v6}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
@@ -4478,14 +4489,14 @@
 
     invoke-virtual {v4}, Lcom/android/server/pm/Settings;->updateInternalDatabaseVersion()V
 
-    .line 1963
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v4}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 1965
+    invoke-static/range {p0 .. p0}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->initFlymeDefaultOpService(Lcom/android/server/pm/PackageManagerService;)V
+
     const/16 v4, 0xc1c
 
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
@@ -7579,6 +7590,20 @@
     .end local v13    # "N":I
     :cond_a
     const/16 v16, 0x0
+
+    move-object/from16 v0, p0
+
+    move-object/from16 v1, p1
+
+    move-object/from16 v2, p2
+
+    move/from16 v3, p3
+
+    move/from16 v4, p5
+
+    invoke-static {v0, v1, v2, v3, v4}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->getResolveInfo(Lcom/android/server/pm/PackageManagerService;Landroid/content/Intent;Ljava/lang/String;II)Landroid/content/pm/ResolveInfo;
+
+    move-result-object v1
 
     goto/16 :goto_0
 .end method
@@ -16748,6 +16773,10 @@
     .line 8031
     .local v0, "allowed":Z
     :goto_0
+    invoke-static {p2, p3, v0}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->grantExternalSystemPackagePermission(Landroid/content/pm/PackageParser$Package;Lcom/android/server/pm/BasePermission;Z)Z
+
+    move-result v0
+
     if-nez v0, :cond_3
 
     iget v5, p3, Lcom/android/server/pm/BasePermission;->protectionLevel:I
@@ -21045,7 +21074,16 @@
     .param p3, "total"    # I
 
     .prologue
-    .line 5060
+    invoke-static/range {p0 .. p3}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->performFlymeBootDexOpt(Lcom/android/server/pm/PackageManagerService;Landroid/content/pm/PackageParser$Package;II)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_flyme_0
+
+    return-void
+
+    :cond_flyme_0
+
     :try_start_0
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
@@ -21057,7 +21095,7 @@
 
     move-result-object v2
 
-    const v3, 0x1040573
+    const v3, #android:string@android_upgrading_apk#t
 
     const/4 v4, 0x2
 
@@ -21089,17 +21127,14 @@
     :try_end_0
     .catch Landroid/os/RemoteException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 5065
     :goto_0
     move-object v1, p1
 
-    .line 5066
     .local v1, "p":Landroid/content/pm/PackageParser$Package;
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mInstallLock:Ljava/lang/Object;
 
     monitor-enter v6
 
-    .line 5067
     const/4 v2, 0x0
 
     const/4 v3, 0x0
@@ -21113,13 +21148,10 @@
     :try_start_1
     invoke-direct/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->performDexOptLI(Landroid/content/pm/PackageParser$Package;[Ljava/lang/String;ZZZ)I
 
-    .line 5069
     monitor-exit v6
 
-    .line 5070
     return-void
 
-    .line 5069
     :catchall_0
     move-exception v0
 
@@ -21129,7 +21161,6 @@
 
     throw v0
 
-    .line 5063
     .end local v1    # "p":Landroid/content/pm/PackageParser$Package;
     :catch_0
     move-exception v0
@@ -21158,18 +21189,15 @@
     .end annotation
 
     .prologue
-    .line 5172
     .local p5, "done":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     if-eqz p2, :cond_2
 
     move-object/from16 v3, p2
 
-    .line 5175
     .local v3, "instructionSets":[Ljava/lang/String;
     :goto_0
     if-eqz p5, :cond_1
 
-    .line 5176
     move-object/from16 v0, p1
 
     iget-object v1, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
@@ -21178,14 +21206,12 @@
 
     invoke-virtual {v0, v1}, Landroid/util/ArraySet;->add(Ljava/lang/Object;)Z
 
-    .line 5177
     move-object/from16 v0, p1
 
     iget-object v1, v0, Landroid/content/pm/PackageParser$Package;->usesLibraries:Ljava/util/ArrayList;
 
     if-eqz v1, :cond_0
 
-    .line 5178
     move-object/from16 v0, p1
 
     iget-object v2, v0, Landroid/content/pm/PackageParser$Package;->usesLibraries:Ljava/util/ArrayList;
@@ -21200,7 +21226,6 @@
 
     invoke-direct/range {v1 .. v6}, Lcom/android/server/pm/PackageManagerService;->performDexOptLibsLI(Ljava/util/ArrayList;[Ljava/lang/String;ZZLandroid/util/ArraySet;)V
 
-    .line 5180
     :cond_0
     move-object/from16 v0, p1
 
@@ -21208,7 +21233,6 @@
 
     if-eqz v1, :cond_1
 
-    .line 5181
     move-object/from16 v0, p1
 
     iget-object v2, v0, Landroid/content/pm/PackageParser$Package;->usesOptionalLibraries:Ljava/util/ArrayList;
@@ -21223,7 +21247,6 @@
 
     invoke-direct/range {v1 .. v6}, Lcom/android/server/pm/PackageManagerService;->performDexOptLibsLI(Ljava/util/ArrayList;[Ljava/lang/String;ZZLandroid/util/ArraySet;)V
 
-    .line 5185
     :cond_1
     move-object/from16 v0, p1
 
@@ -21235,14 +21258,11 @@
 
     if-nez v1, :cond_3
 
-    .line 5186
     const/4 v1, 0x0
 
-    .line 5281
     :goto_1
     return v1
 
-    .line 5172
     .end local v3    # "instructionSets":[Ljava/lang/String;
     :cond_2
     move-object/from16 v0, p1
@@ -21255,7 +21275,6 @@
 
     goto :goto_0
 
-    .line 5189
     .restart local v3    # "instructionSets":[Ljava/lang/String;
     :cond_3
     move-object/from16 v0, p1
@@ -21270,24 +21289,20 @@
 
     const/4 v10, 0x1
 
-    .line 5191
     .local v10, "vmSafeMode":Z
     :goto_2
     invoke-virtual/range {p1 .. p1}, Landroid/content/pm/PackageParser$Package;->getAllCodePathsExcludingResourceOnly()Ljava/util/List;
 
     move-result-object v18
 
-    .line 5192
     .local v18, "paths":Ljava/util/List;, "Ljava/util/List<Ljava/lang/String;>;"
     const/16 v19, 0x0
 
-    .line 5197
     .local v19, "performedDexOpt":Z
     invoke-static {v3}, Lcom/android/server/pm/PackageManagerService;->getDexCodeInstructionSets([Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v12
 
-    .line 5198
     .local v12, "dexCodeInstructionSets":[Ljava/lang/String;
     move-object v11, v12
 
@@ -21311,7 +21326,6 @@
 
     aget-object v9, v11, v15
 
-    .line 5199
     .local v9, "dexCodeInstructionSet":Ljava/lang/String;
     if-nez p3, :cond_5
 
@@ -21325,7 +21339,6 @@
 
     if-eqz v1, :cond_5
 
-    .line 5198
     .end local v15    # "i$":I
     :goto_4
     add-int/lit8 v14, v15, 0x1
@@ -21337,7 +21350,6 @@
     .restart local v15    # "i$":I
     goto :goto_3
 
-    .line 5189
     .end local v9    # "dexCodeInstructionSet":Ljava/lang/String;
     .end local v10    # "vmSafeMode":Z
     .end local v11    # "arr$":[Ljava/lang/String;
@@ -21351,7 +21363,6 @@
 
     goto :goto_2
 
-    .line 5203
     .restart local v9    # "dexCodeInstructionSet":Ljava/lang/String;
     .restart local v10    # "vmSafeMode":Z
     .restart local v11    # "arr$":[Ljava/lang/String;
@@ -21380,7 +21391,6 @@
 
     check-cast v5, Ljava/lang/String;
 
-    .line 5210
     .local v5, "path":Ljava/lang/String;
     :try_start_0
     move-object/from16 v0, p1
@@ -21393,7 +21403,6 @@
 
     move-result v16
 
-    .line 5212
     .local v16, "isDexOptNeeded":B
     if-nez p3, :cond_7
 
@@ -21405,7 +21414,6 @@
 
     if-ne v0, v1, :cond_c
 
-    .line 5213
     :cond_7
     const-string v1, "PackageManager"
 
@@ -21465,7 +21473,6 @@
 
     invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5216
     move-object/from16 v0, p1
 
     iget-object v1, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -21476,7 +21483,6 @@
 
     move-result v6
 
-    .line 5217
     .local v6, "sharedGid":I
     move-object/from16 v0, p0
 
@@ -21499,28 +21505,23 @@
 
     move-result v20
 
-    .line 5220
     .local v20, "ret":I
     if-gez v20, :cond_9
 
-    .line 5224
     const/4 v1, -0x1
 
     goto/16 :goto_1
 
-    .line 5217
     .end local v20    # "ret":I
     :cond_8
     const/4 v7, 0x0
 
     goto :goto_5
 
-    .line 5227
     .restart local v20    # "ret":I
     :cond_9
     const/16 v19, 0x1
 
-    .line 5247
     .end local v6    # "sharedGid":I
     .end local v20    # "ret":I
     :cond_a
@@ -21529,14 +21530,12 @@
 
     if-eqz v16, :cond_6
 
-    .line 5248
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/android/server/pm/PackageManagerService;->mDeferredDexOpt:Landroid/util/ArraySet;
 
     if-nez v1, :cond_b
 
-    .line 5249
     new-instance v1, Landroid/util/ArraySet;
 
     invoke-direct {v1}, Landroid/util/ArraySet;-><init>()V
@@ -21545,7 +21544,6 @@
 
     iput-object v1, v0, Lcom/android/server/pm/PackageManagerService;->mDeferredDexOpt:Landroid/util/ArraySet;
 
-    .line 5251
     :cond_b
     move-object/from16 v0, p0
 
@@ -21555,12 +21553,10 @@
 
     invoke-virtual {v1, v0}, Landroid/util/ArraySet;->add(Ljava/lang/Object;)Z
 
-    .line 5252
     const/4 v1, 0x2
 
     goto/16 :goto_1
 
-    .line 5228
     :cond_c
     if-nez p4, :cond_a
 
@@ -21570,7 +21566,6 @@
 
     if-ne v0, v1, :cond_a
 
-    .line 5229
     const-string v1, "PackageManager"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -21599,7 +21594,6 @@
 
     invoke-static {v1, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5230
     move-object/from16 v0, p1
 
     iget-object v1, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -21610,7 +21604,6 @@
 
     move-result v6
 
-    .line 5231
     .restart local v6    # "sharedGid":I
     move-object/from16 v0, p0
 
@@ -21638,37 +21631,31 @@
 
     move-result v20
 
-    .line 5234
     .restart local v20    # "ret":I
     if-gez v20, :cond_e
 
-    .line 5238
     const/4 v1, -0x1
 
     goto/16 :goto_1
 
-    .line 5231
     .end local v20    # "ret":I
     :cond_d
     const/4 v7, 0x0
 
     goto :goto_7
 
-    .line 5241
     .restart local v20    # "ret":I
     :cond_e
     const/16 v19, 0x1
 
     goto :goto_6
 
-    .line 5254
     .end local v6    # "sharedGid":I
     .end local v16    # "isDexOptNeeded":B
     .end local v20    # "ret":I
     :catch_0
     move-exception v13
 
-    .line 5255
     .local v13, "e":Ljava/io/FileNotFoundException;
     const-string v1, "PackageManager"
 
@@ -21692,17 +21679,14 @@
 
     invoke-static {v1, v2}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5256
     const/4 v1, -0x1
 
     goto/16 :goto_1
 
-    .line 5257
     .end local v13    # "e":Ljava/io/FileNotFoundException;
     :catch_1
     move-exception v13
 
-    .line 5258
     .local v13, "e":Ljava/io/IOException;
     const-string v1, "PackageManager"
 
@@ -21726,17 +21710,14 @@
 
     invoke-static {v1, v2, v13}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 5259
     const/4 v1, -0x1
 
     goto/16 :goto_1
 
-    .line 5260
     .end local v13    # "e":Ljava/io/IOException;
     :catch_2
     move-exception v13
 
-    .line 5261
     .local v13, "e":Ldalvik/system/StaleDexCacheError;
     const-string v1, "PackageManager"
 
@@ -21760,17 +21741,14 @@
 
     invoke-static {v1, v2, v13}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 5262
     const/4 v1, -0x1
 
     goto/16 :goto_1
 
-    .line 5263
     .end local v13    # "e":Ldalvik/system/StaleDexCacheError;
     :catch_3
     move-exception v13
 
-    .line 5264
     .local v13, "e":Ljava/lang/Exception;
     const-string v1, "PackageManager"
 
@@ -21778,12 +21756,10 @@
 
     invoke-static {v1, v2, v13}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 5265
     const/4 v1, -0x1
 
     goto/16 :goto_1
 
-    .line 5274
     .end local v5    # "path":Ljava/lang/String;
     .end local v13    # "e":Ljava/lang/Exception;
     :cond_f
@@ -21795,7 +21771,6 @@
 
     goto/16 :goto_4
 
-    .line 5281
     .end local v9    # "dexCodeInstructionSet":Ljava/lang/String;
     .end local v14    # "i$":Ljava/util/Iterator;
     .restart local v15    # "i$":I
@@ -21821,7 +21796,6 @@
     .param p5, "inclDependencies"    # Z
 
     .prologue
-    .line 5390
     if-eqz p5, :cond_1
 
     iget-object v0, p1, Landroid/content/pm/PackageParser$Package;->usesLibraries:Ljava/util/ArrayList;
@@ -21832,13 +21806,11 @@
 
     if-eqz v0, :cond_1
 
-    .line 5391
     :cond_0
     new-instance v5, Landroid/util/ArraySet;
 
     invoke-direct {v5}, Landroid/util/ArraySet;-><init>()V
 
-    .line 5392
     .local v5, "done":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     iget-object v0, p1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
@@ -21855,14 +21827,12 @@
 
     move v4, p4
 
-    .line 5396
     invoke-direct/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->performDexOptLI(Landroid/content/pm/PackageParser$Package;[Ljava/lang/String;ZZLandroid/util/ArraySet;)I
 
     move-result v0
 
     return v0
 
-    .line 5394
     .end local v5    # "done":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     :cond_1
     const/4 v5, 0x0
@@ -21893,7 +21863,6 @@
     .end annotation
 
     .prologue
-    .line 5147
     .local p1, "libs":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     .local p5, "done":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     const/4 v6, 0x0
@@ -21906,12 +21875,10 @@
 
     if-ge v6, v0, :cond_2
 
-    .line 5150
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 5151
     :try_start_0
     invoke-virtual {p1, v6}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
@@ -21919,7 +21886,6 @@
 
     check-cast v8, Ljava/lang/String;
 
-    .line 5152
     .local v8, "libName":Ljava/lang/String;
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSharedLibraries:Landroid/util/ArrayMap;
 
@@ -21929,7 +21895,6 @@
 
     check-cast v7, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
 
-    .line 5153
     .local v7, "lib":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     if-eqz v7, :cond_1
 
@@ -21937,7 +21902,6 @@
 
     if-eqz v0, :cond_1
 
-    .line 5154
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     iget-object v3, v7, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;->apk:Ljava/lang/String;
@@ -21948,14 +21912,12 @@
 
     check-cast v1, Landroid/content/pm/PackageParser$Package;
 
-    .line 5158
     .local v1, "libPkg":Landroid/content/pm/PackageParser$Package;
     :goto_1
     monitor-exit v2
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 5159
     if-eqz v1, :cond_0
 
     invoke-virtual {p5, v8}, Landroid/util/ArraySet;->contains(Ljava/lang/Object;)Z
@@ -21974,16 +21936,13 @@
 
     move-object v5, p5
 
-    .line 5160
     invoke-direct/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->performDexOptLI(Landroid/content/pm/PackageParser$Package;[Ljava/lang/String;ZZLandroid/util/ArraySet;)I
 
-    .line 5147
     :cond_0
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_0
 
-    .line 5156
     .end local v1    # "libPkg":Landroid/content/pm/PackageParser$Package;
     :cond_1
     const/4 v1, 0x0
@@ -21991,7 +21950,6 @@
     .restart local v1    # "libPkg":Landroid/content/pm/PackageParser$Package;
     goto :goto_1
 
-    .line 5158
     .end local v1    # "libPkg":Landroid/content/pm/PackageParser$Package;
     .end local v7    # "lib":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     .end local v8    # "libName":Ljava/lang/String;
@@ -22005,7 +21963,6 @@
 
     throw v0
 
-    .line 5163
     :cond_2
     return-void
 .end method
@@ -22016,7 +21973,6 @@
     .param p2, "currentStatus"    # I
 
     .prologue
-    .line 9708
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     new-instance v1, Lcom/android/server/pm/PackageManagerService$5;
@@ -22025,7 +21981,6 @@
 
     invoke-virtual {v0, v1}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->post(Ljava/lang/Runnable;)Z
 
-    .line 9781
     return-void
 .end method
 
@@ -22034,7 +21989,6 @@
     .param p1, "pkgName"    # Ljava/lang/String;
 
     .prologue
-    .line 15047
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v2, "themes"
@@ -22045,14 +21999,11 @@
 
     check-cast v0, Landroid/content/res/ThemeManager;
 
-    .line 15049
     .local v0, "tm":Landroid/content/res/ThemeManager;
     if-eqz v0, :cond_0
 
-    .line 15050
     invoke-virtual {v0, p1}, Landroid/content/res/ThemeManager;->processThemeResources(Ljava/lang/String;)Z
 
-    .line 15052
     :cond_0
     return-void
 .end method
@@ -22078,22 +22029,18 @@
     .end annotation
 
     .prologue
-    .line 3709
     .local p1, "matchingFilters":Ljava/util/List;, "Ljava/util/List<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
     if-eqz p1, :cond_2
 
-    .line 3713
     new-instance v6, Landroid/util/SparseBooleanArray;
 
     invoke-direct {v6}, Landroid/util/SparseBooleanArray;-><init>()V
 
-    .line 3714
     .local v6, "alreadyTriedUserIds":Landroid/util/SparseBooleanArray;
     invoke-interface {p1}, Ljava/util/List;->size()I
 
     move-result v9
 
-    .line 3715
     .local v9, "size":I
     const/4 v7, 0x0
 
@@ -22101,20 +22048,17 @@
     :goto_0
     if-ge v7, v9, :cond_2
 
-    .line 3716
     invoke-interface {p1, v7}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Lcom/android/server/pm/CrossProfileIntentFilter;
 
-    .line 3717
     .local v1, "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     invoke-virtual {v1}, Lcom/android/server/pm/CrossProfileIntentFilter;->getTargetUserId()I
 
     move-result v10
 
-    .line 3718
     .local v10, "targetUserId":I
     invoke-virtual {v1}, Lcom/android/server/pm/CrossProfileIntentFilter;->getFlags()I
 
@@ -22140,16 +22084,13 @@
 
     move/from16 v5, p5
 
-    .line 3722
     invoke-direct/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->checkTargetCanHandle(Lcom/android/server/pm/CrossProfileIntentFilter;Landroid/content/Intent;Ljava/lang/String;II)Landroid/content/pm/ResolveInfo;
 
     move-result-object v8
 
-    .line 3724
     .local v8, "resolveInfo":Landroid/content/pm/ResolveInfo;
     if-eqz v8, :cond_0
 
-    .line 3729
     .end local v1    # "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     .end local v6    # "alreadyTriedUserIds":Landroid/util/SparseBooleanArray;
     .end local v7    # "i":I
@@ -22159,7 +22100,6 @@
     :goto_1
     return-object v8
 
-    .line 3725
     .restart local v1    # "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     .restart local v6    # "alreadyTriedUserIds":Landroid/util/SparseBooleanArray;
     .restart local v7    # "i":I
@@ -22171,14 +22111,12 @@
 
     invoke-virtual {v6, v10, v0}, Landroid/util/SparseBooleanArray;->put(IZ)V
 
-    .line 3715
     .end local v8    # "resolveInfo":Landroid/content/pm/ResolveInfo;
     :cond_1
     add-int/lit8 v7, v7, 0x1
 
     goto :goto_0
 
-    .line 3729
     .end local v1    # "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     .end local v6    # "alreadyTriedUserIds":Landroid/util/SparseBooleanArray;
     .end local v7    # "i":I
@@ -22211,16 +22149,13 @@
     .end annotation
 
     .prologue
-    .line 3687
     .local p1, "matchingFilters":Ljava/util/List;, "Ljava/util/List<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
     if-eqz p1, :cond_1
 
-    .line 3688
     invoke-interface {p1}, Ljava/util/List;->size()I
 
     move-result v8
 
-    .line 3689
     .local v8, "size":I
     const/4 v6, 0x0
 
@@ -22228,14 +22163,12 @@
     :goto_0
     if-ge v6, v8, :cond_1
 
-    .line 3690
     invoke-interface {p1, v6}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Lcom/android/server/pm/CrossProfileIntentFilter;
 
-    .line 3691
     .local v1, "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     invoke-virtual {v1}, Lcom/android/server/pm/CrossProfileIntentFilter;->getFlags()I
 
@@ -22255,16 +22188,13 @@
 
     move v5, p5
 
-    .line 3694
     invoke-direct/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->checkTargetCanHandle(Lcom/android/server/pm/CrossProfileIntentFilter;Landroid/content/Intent;Ljava/lang/String;II)Landroid/content/pm/ResolveInfo;
 
     move-result-object v7
 
-    .line 3696
     .local v7, "resolveInfo":Landroid/content/pm/ResolveInfo;
     if-eqz v7, :cond_0
 
-    .line 3702
     .end local v1    # "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     .end local v6    # "i":I
     .end local v7    # "resolveInfo":Landroid/content/pm/ResolveInfo;
@@ -22272,7 +22202,6 @@
     :goto_1
     return-object v7
 
-    .line 3689
     .restart local v1    # "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     .restart local v6    # "i":I
     .restart local v8    # "size":I
@@ -22281,7 +22210,6 @@
 
     goto :goto_0
 
-    .line 3702
     .end local v1    # "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     .end local v6    # "i":I
     .end local v8    # "size":I
@@ -22296,14 +22224,12 @@
     .param p1, "f"    # Ljava/io/File;
 
     .prologue
-    .line 7164
     invoke-virtual {p1}, Ljava/io/File;->isDirectory()Z
 
     move-result v4
 
     if-eqz v4, :cond_0
 
-    .line 7165
     invoke-virtual {p1}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
     move-result-object v0
@@ -22320,16 +22246,13 @@
 
     aget-object v1, v0, v2
 
-    .line 7166
     .local v1, "c":Ljava/io/File;
     invoke-direct {p0, v1}, Lcom/android/server/pm/PackageManagerService;->recursiveDelete(Ljava/io/File;)V
 
-    .line 7165
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_0
 
-    .line 7168
     .end local v0    # "arr$":[Ljava/io/File;
     .end local v1    # "c":Ljava/io/File;
     .end local v2    # "i$":I
@@ -22337,7 +22260,6 @@
     :cond_0
     invoke-virtual {p1}, Ljava/io/File;->delete()Z
 
-    .line 7169
     return-void
 .end method
 
@@ -22346,18 +22268,15 @@
     .param p1, "packageName"    # Ljava/lang/String;
 
     .prologue
-    .line 5451
     sget-object v7, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v7}, Lcom/android/server/pm/UserManagerService;->getUserIds()[I
 
     move-result-object v6
 
-    .line 5452
     .local v6, "users":[I
     const/4 v3, 0x0
 
-    .line 5453
     .local v3, "res":I
     move-object v0, v6
 
@@ -22373,7 +22292,6 @@
 
     aget v5, v0, v1
 
-    .line 5454
     .local v5, "user":I
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mInstaller:Lcom/android/server/pm/Installer;
 
@@ -22381,20 +22299,16 @@
 
     move-result v4
 
-    .line 5455
     .local v4, "resInner":I
     if-gez v4, :cond_0
 
-    .line 5456
     move v3, v4
 
-    .line 5453
     :cond_0
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_0
 
-    .line 5460
     .end local v4    # "resInner":I
     .end local v5    # "user":I
     :cond_1
@@ -22407,21 +22321,16 @@
     .param p1, "rem"    # [I
 
     .prologue
-    .line 2077
     if-nez p1, :cond_1
 
-    .line 2083
     :cond_0
     return-object p0
 
-    .line 2078
     :cond_1
     if-eqz p0, :cond_0
 
-    .line 2079
     array-length v0, p1
 
-    .line 2080
     .local v0, "N":I
     const/4 v1, 0x0
 
@@ -22429,14 +22338,12 @@
     :goto_0
     if-ge v1, v0, :cond_0
 
-    .line 2081
     aget v2, p1, v1
 
     invoke-static {p0, v2}, Lcom/android/internal/util/ArrayUtils;->removeInt([II)[I
 
     move-result-object p0
 
-    .line 2080
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_0
@@ -22448,30 +22355,24 @@
     .param p1, "appId"    # I
 
     .prologue
-    .line 12652
     if-gez p1, :cond_1
 
-    .line 12668
     :cond_0
     :goto_0
     return-void
 
-    .line 12656
     :cond_1
     invoke-static {}, Landroid/security/KeyStore;->getInstance()Landroid/security/KeyStore;
 
     move-result-object v3
 
-    .line 12657
     .local v3, "keyStore":Landroid/security/KeyStore;
     if-eqz v3, :cond_3
 
-    .line 12658
     const/4 v5, -0x1
 
     if-ne p0, v5, :cond_2
 
-    .line 12659
     sget-object v5, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v5}, Lcom/android/server/pm/UserManagerService;->getUserIds()[I
@@ -22490,7 +22391,6 @@
 
     aget v2, v0, v1
 
-    .line 12660
     .local v2, "individual":I
     invoke-static {v2, p1}, Landroid/os/UserHandle;->getUid(II)I
 
@@ -22498,12 +22398,10 @@
 
     invoke-virtual {v3, v5}, Landroid/security/KeyStore;->clearUid(I)Z
 
-    .line 12659
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1
 
-    .line 12663
     .end local v0    # "arr$":[I
     .end local v1    # "i$":I
     .end local v2    # "individual":I
@@ -22517,7 +22415,6 @@
 
     goto :goto_0
 
-    .line 12666
     :cond_3
     const-string v5, "PackageManager"
 
@@ -22548,14 +22445,12 @@
     .locals 7
 
     .prologue
-    .line 15071
     new-instance v1, Ljava/io/File;
 
     const-string v5, "/data/resource-cache/"
 
     invoke-direct {v1, v5}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 15072
     .local v1, "cacheDir":Ljava/io/File;
     invoke-virtual {v1}, Ljava/io/File;->exists()Z
 
@@ -22563,7 +22458,6 @@
 
     if-eqz v5, :cond_0
 
-    .line 15073
     invoke-virtual {v1}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
     move-result-object v0
@@ -22580,7 +22474,6 @@
 
     aget-object v2, v0, v3
 
-    .line 15074
     .local v2, "f":Ljava/io/File;
     invoke-virtual {v2}, Ljava/io/File;->getName()Ljava/lang/String;
 
@@ -22594,14 +22487,12 @@
 
     if-eqz v5, :cond_1
 
-    .line 15075
     const-string v5, "PackageManager"
 
     const-string v6, "Removing old resource cache"
 
     invoke-static {v5, v6}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 15076
     new-instance v5, Ljava/io/File;
 
     const-string v6, "/data/resource-cache/"
@@ -22610,7 +22501,6 @@
 
     invoke-static {v5}, Landroid/os/FileUtils;->deleteContents(Ljava/io/File;)Z
 
-    .line 15081
     .end local v0    # "arr$":[Ljava/io/File;
     .end local v2    # "f":Ljava/io/File;
     .end local v3    # "i$":I
@@ -22618,7 +22508,6 @@
     :cond_0
     return-void
 
-    .line 15073
     .restart local v0    # "arr$":[Ljava/io/File;
     .restart local v2    # "f":Ljava/io/File;
     .restart local v3    # "i$":I
@@ -22647,10 +22536,8 @@
 
     const/4 v7, -0x1
 
-    .line 12142
     iget-object v2, p1, Lcom/android/server/pm/PackageSetting;->name:Ljava/lang/String;
 
-    .line 12144
     .local v2, "packageName":Ljava/lang/String;
     const/high16 v6, 0x10000
 
@@ -22663,12 +22550,10 @@
     :cond_0
     invoke-virtual {p0, p1, v3}, Lcom/android/server/pm/PackageManagerService;->removePackageLI(Lcom/android/server/pm/PackageSetting;Z)V
 
-    .line 12148
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v6
 
-    .line 12149
     :try_start_0
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -22680,14 +22565,11 @@
 
     check-cast v0, Lcom/android/server/pm/PackageSetting;
 
-    .line 12150
     .local v0, "deletedPs":Lcom/android/server/pm/PackageSetting;
     if-eqz p4, :cond_1
 
-    .line 12151
     iput-object v2, p4, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->removedPackage:Ljava/lang/String;
 
-    .line 12152
     if-eqz v0, :cond_6
 
     sget-object v3, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
@@ -22705,41 +22587,32 @@
     :goto_0
     iput-object v3, p4, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->removedUsers:[I
 
-    .line 12156
     :cond_1
     monitor-exit v6
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 12157
     and-int/lit8 v3, p5, 0x1
 
     if-nez v3, :cond_2
 
-    .line 12158
     invoke-direct {p0, v2}, Lcom/android/server/pm/PackageManagerService;->removeDataDirsLI(Ljava/lang/String;)I
 
-    .line 12159
     invoke-virtual {p0, v2, v7, v4}, Lcom/android/server/pm/PackageManagerService;->schedulePackageCleaning(Ljava/lang/String;IZ)V
 
-    .line 12162
     :cond_2
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 12163
     if-eqz v0, :cond_7
 
-    .line 12164
     and-int/lit8 v3, p5, 0x1
 
     if-nez v3, :cond_5
 
-    .line 12165
     if-eqz p4, :cond_3
 
-    .line 12166
     :try_start_1
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -22747,7 +22620,6 @@
 
     invoke-virtual {v3, v2}, Lcom/android/server/pm/KeySetManagerService;->removeAppKeySetDataLPw(Ljava/lang/String;)V
 
-    .line 12167
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v3, v2}, Lcom/android/server/pm/Settings;->removePackageLPw(Ljava/lang/String;)I
@@ -22756,11 +22628,9 @@
 
     iput v3, p4, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->removedAppId:I
 
-    .line 12169
     :cond_3
     if-eqz v0, :cond_4
 
-    .line 12170
     iget-object v3, v0, Lcom/android/server/pm/PackageSetting;->name:Ljava/lang/String;
 
     const/4 v5, 0x0
@@ -22769,19 +22639,16 @@
 
     invoke-direct {p0, v3, v5, v6}, Lcom/android/server/pm/PackageManagerService;->updatePermissionsLPw(Ljava/lang/String;Landroid/content/pm/PackageParser$Package;I)V
 
-    .line 12171
     iget-object v3, v0, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v3, :cond_4
 
-    .line 12173
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mGlobalGids:[I
 
     invoke-virtual {v3, v0, v5}, Lcom/android/server/pm/Settings;->updateSharedUserPermsLPw(Lcom/android/server/pm/PackageSetting;[I)V
 
-    .line 12176
     :cond_4
     iget-object v3, v0, Lcom/android/server/pm/PackageSetting;->name:Ljava/lang/String;
 
@@ -22789,13 +22656,11 @@
 
     invoke-virtual {p0, v3, v5}, Lcom/android/server/pm/PackageManagerService;->clearPackagePreferredActivitiesLPw(Ljava/lang/String;I)Z
 
-    .line 12180
     :cond_5
     if-eqz p2, :cond_7
 
     if-eqz p3, :cond_7
 
-    .line 12184
     const/4 v1, 0x0
 
     .local v1, "i":I
@@ -22804,7 +22669,6 @@
 
     if-ge v1, v3, :cond_7
 
-    .line 12189
     aget-boolean v3, p3, v1
 
     aget v5, p2, v1
@@ -22813,7 +22677,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 12184
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1
@@ -22822,10 +22685,8 @@
     :cond_6
     move-object v3, v5
 
-    .line 12152
     goto :goto_0
 
-    .line 12156
     .end local v0    # "deletedPs":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v3
@@ -22837,36 +22698,29 @@
 
     throw v3
 
-    .line 12194
     .restart local v0    # "deletedPs":Lcom/android/server/pm/PackageSetting;
     :cond_7
     if-eqz p6, :cond_8
 
-    .line 12196
     :try_start_3
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v3}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 12198
     :cond_8
     monitor-exit v4
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 12199
     if-eqz p4, :cond_9
 
-    .line 12202
     iget v3, p4, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->removedAppId:I
 
     invoke-static {v7, v3}, Lcom/android/server/pm/PackageManagerService;->removeKeystoreDataIfNeeded(II)V
 
-    .line 12204
     :cond_9
     return-void
 
-    .line 12198
     :catchall_1
     move-exception v3
 
@@ -22884,16 +22738,13 @@
     .param p2, "userHandle"    # I
 
     .prologue
-    .line 14552
     const/4 v0, 0x0
 
-    .line 14553
     .local v0, "DEBUG_CLEAN_APKS":Z
     invoke-virtual {p1}, Lcom/android/server/pm/UserManagerService;->getUserIdsLPr()[I
 
     move-result-object v6
 
-    .line 14554
     .local v6, "users":[I
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -22907,7 +22758,6 @@
 
     move-result-object v5
 
-    .line 14555
     .local v5, "psit":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PackageSetting;>;"
     :cond_0
     :goto_0
@@ -22917,25 +22767,21 @@
 
     if-eqz v7, :cond_3
 
-    .line 14556
     invoke-interface {v5}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v4
 
     check-cast v4, Lcom/android/server/pm/PackageSetting;
 
-    .line 14557
     .local v4, "ps":Lcom/android/server/pm/PackageSetting;
     iget-object v7, v4, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
     if-eqz v7, :cond_0
 
-    .line 14560
     iget-object v7, v4, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
     iget-object v3, v7, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
-    .line 14562
     .local v3, "packageName":Ljava/lang/String;
     iget v7, v4, Lcom/android/server/pm/PackageSetting;->pkgFlags:I
 
@@ -22943,10 +22789,8 @@
 
     if-nez v7, :cond_0
 
-    .line 14568
     const/4 v2, 0x0
 
-    .line 14569
     .local v2, "keep":Z
     const/4 v1, 0x0
 
@@ -22956,7 +22800,6 @@
 
     if-ge v1, v7, :cond_1
 
-    .line 14570
     aget v7, v6, v1
 
     if-eq v7, p2, :cond_2
@@ -22969,14 +22812,11 @@
 
     if-eqz v7, :cond_2
 
-    .line 14571
     const/4 v2, 0x1
 
-    .line 14579
     :cond_1
     if-nez v2, :cond_0
 
-    .line 14583
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     new-instance v8, Lcom/android/server/pm/PackageManagerService$13;
@@ -22987,13 +22827,11 @@
 
     goto :goto_0
 
-    .line 14569
     :cond_2
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1
 
-    .line 14590
     .end local v1    # "i":I
     .end local v2    # "keep":Z
     .end local v3    # "packageName":Ljava/lang/String;
@@ -23015,20 +22853,16 @@
     .param p9, "res"    # Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;
 
     .prologue
-    .line 11361
     move-object/from16 v0, p1
 
     iget-object v3, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
-    .line 11362
     .local v3, "pkgName":Ljava/lang/String;
     const/16 v20, 0x1
 
-    .line 11363
     .local v20, "deletedPkg":Z
     const/16 v23, 0x0
 
-    .line 11368
     .local v23, "updatedSettings":Z
     move-object/from16 v0, p2
 
@@ -23036,7 +22870,6 @@
 
     if-eqz v2, :cond_2
 
-    .line 11369
     move-object/from16 v0, p2
 
     iget-object v2, v0, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
@@ -23047,7 +22880,6 @@
 
     move-wide/from16 v24, v0
 
-    .line 11375
     .local v24, "origUpdateTime":J
     :goto_0
     const/4 v4, 0x0
@@ -23074,7 +22906,6 @@
 
     if-nez v2, :cond_3
 
-    .line 11378
     const/16 v2, -0xa
 
     const-string v4, "replaceNonSystemPackageLI"
@@ -23083,10 +22914,8 @@
 
     invoke-virtual {v0, v2, v4}, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->setError(ILjava/lang/String;)V
 
-    .line 11379
     const/16 v20, 0x0
 
-    .line 11406
     :goto_1
     move-object/from16 v0, p9
 
@@ -23096,10 +22925,8 @@
 
     if-eq v2, v4, :cond_1
 
-    .line 11411
     if-eqz v23, :cond_0
 
-    .line 11413
     const/4 v13, 0x0
 
     const/4 v14, 0x1
@@ -23124,11 +22951,9 @@
 
     invoke-direct/range {v11 .. v19}, Lcom/android/server/pm/PackageManagerService;->deletePackageLI(Ljava/lang/String;Landroid/os/UserHandle;Z[I[ZILcom/android/server/pm/PackageManagerService$PackageRemovedInfo;Z)Z
 
-    .line 11420
     :cond_0
     if-eqz v20, :cond_1
 
-    .line 11422
     new-instance v13, Ljava/io/File;
 
     move-object/from16 v0, p1
@@ -23137,13 +22962,11 @@
 
     invoke-direct {v13, v2}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 11424
     .local v13, "restoreFile":Ljava/io/File;
     invoke-static/range {p1 .. p1}, Lcom/android/server/pm/PackageManagerService;->isExternal(Landroid/content/pm/PackageParser$Package;)Z
 
     move-result v22
 
-    .line 11425
     .local v22, "oldOnSd":Z
     move-object/from16 v0, p0
 
@@ -23169,11 +22992,9 @@
     :goto_3
     or-int v14, v4, v2
 
-    .line 11428
     .local v14, "oldParseFlags":I
     const/16 v15, 0x48
 
-    .line 11430
     .local v15, "oldScanFlags":I
     const/16 v18, 0x0
 
@@ -23186,14 +23007,12 @@
     :try_end_0
     .catch Lcom/android/server/pm/PackageManagerException; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 11438
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 11439
     :try_start_1
     move-object/from16 v0, p1
 
@@ -23207,19 +23026,16 @@
 
     invoke-direct {v0, v2, v1, v5}, Lcom/android/server/pm/PackageManagerService;->updatePermissionsLPw(Ljava/lang/String;Landroid/content/pm/PackageParser$Package;I)V
 
-    .line 11442
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v2}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 11443
     monitor-exit v4
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 11444
     const-string v2, "PackageManager"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -23248,7 +23064,6 @@
 
     invoke-static {v2, v4}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 11447
     .end local v13    # "restoreFile":Ljava/io/File;
     .end local v14    # "oldParseFlags":I
     .end local v15    # "oldScanFlags":I
@@ -23257,7 +23072,6 @@
     :goto_4
     return-void
 
-    .line 11371
     .end local v24    # "origUpdateTime":J
     :cond_2
     const-wide/16 v24, 0x0
@@ -23265,7 +23079,6 @@
     .restart local v24    # "origUpdateTime":J
     goto/16 :goto_0
 
-    .line 11385
     :cond_3
     invoke-static/range {p1 .. p1}, Lcom/android/server/pm/PackageManagerService;->isForwardLocked(Landroid/content/pm/PackageParser$Package;)Z
 
@@ -23279,7 +23092,6 @@
 
     if-eqz v2, :cond_5
 
-    .line 11389
     :cond_4
     const/4 v2, 0x1
 
@@ -23295,7 +23107,6 @@
 
     aput v4, v8, v2
 
-    .line 11390
     .local v8, "uidArray":[I
     new-instance v7, Ljava/util/ArrayList;
 
@@ -23303,7 +23114,6 @@
 
     invoke-direct {v7, v2}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 11391
     .local v7, "pkgList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     move-object/from16 v0, p1
 
@@ -23313,7 +23123,6 @@
 
     invoke-virtual {v7, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 11392
     const/4 v5, 0x0
 
     const/4 v6, 0x1
@@ -23324,7 +23133,6 @@
 
     invoke-direct/range {v4 .. v9}, Lcom/android/server/pm/PackageManagerService;->sendResourcesChangedBroadcast(ZZLjava/util/ArrayList;[ILandroid/content/IIntentReceiver;)V
 
-    .line 11395
     .end local v7    # "pkgList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     .end local v8    # "uidArray":[I
     :cond_5
@@ -23332,7 +23140,6 @@
 
     invoke-direct {v0, v3}, Lcom/android/server/pm/PackageManagerService;->deleteCodeCacheDirsLI(Ljava/lang/String;)I
 
-    .line 11397
     or-int/lit8 v13, p4, 0x40
 
     :try_start_2
@@ -23363,22 +23170,18 @@
 
     move-object/from16 v14, p9
 
-    .line 11399
     invoke-direct/range {v9 .. v14}, Lcom/android/server/pm/PackageManagerService;->updateSettingsLI(Landroid/content/pm/PackageParser$Package;Ljava/lang/String;[I[ZLcom/android/server/pm/PackageManagerService$PackageInstalledInfo;)V
     :try_end_2
     .catch Lcom/android/server/pm/PackageManagerException; {:try_start_2 .. :try_end_2} :catch_0
 
-    .line 11400
     const/16 v23, 0x1
 
     goto/16 :goto_1
 
-    .line 11401
     .end local v10    # "newPackage":Landroid/content/pm/PackageParser$Package;
     :catch_0
     move-exception v21
 
-    .line 11402
     .local v21, "e":Lcom/android/server/pm/PackageManagerException;
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -23410,7 +23213,6 @@
 
     goto/16 :goto_1
 
-    .line 11425
     .end local v21    # "e":Lcom/android/server/pm/PackageManagerException;
     .restart local v13    # "restoreFile":Ljava/io/File;
     .restart local v22    # "oldOnSd":Z
@@ -23424,13 +23226,11 @@
 
     goto/16 :goto_3
 
-    .line 11431
     .restart local v14    # "oldParseFlags":I
     .restart local v15    # "oldScanFlags":I
     :catch_1
     move-exception v21
 
-    .line 11432
     .restart local v21    # "e":Lcom/android/server/pm/PackageManagerException;
     const-string v2, "PackageManager"
 
@@ -23470,7 +23270,6 @@
 
     goto/16 :goto_4
 
-    .line 11443
     .end local v21    # "e":Lcom/android/server/pm/PackageManagerException;
     :catchall_0
     move-exception v2
@@ -23493,18 +23292,15 @@
     .param p6, "res"    # Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;
 
     .prologue
-    .line 11313
     move-object/from16 v0, p1
 
     iget-object v12, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
-    .line 11318
     .local v12, "pkgName":Ljava/lang/String;
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 11319
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -23514,7 +23310,6 @@
 
     check-cast v2, Landroid/content/pm/PackageParser$Package;
 
-    .line 11321
     .local v2, "oldPackage":Landroid/content/pm/PackageParser$Package;
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -23526,7 +23321,6 @@
 
     check-cast v13, Lcom/android/server/pm/PackageSetting;
 
-    .line 11322
     .local v13, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v13, :cond_0
 
@@ -23542,7 +23336,6 @@
 
     if-eqz v1, :cond_1
 
-    .line 11324
     :cond_0
     iget-object v1, v2, Landroid/content/pm/PackageParser$Package;->mSignatures:[Landroid/content/pm/Signature;
 
@@ -23556,7 +23349,6 @@
 
     if-eqz v1, :cond_2
 
-    .line 11326
     const/4 v1, -0x7
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -23581,14 +23373,11 @@
 
     invoke-virtual {v0, v1, v4}, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->setError(ILjava/lang/String;)V
 
-    .line 11328
     monitor-exit v3
 
-    .line 11355
     :goto_0
     return-void
 
-    .line 11331
     :cond_1
     move-object/from16 v0, p1
 
@@ -23598,7 +23387,6 @@
 
     if-nez v1, :cond_2
 
-    .line 11332
     const/4 v1, -0x7
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -23623,12 +23411,10 @@
 
     invoke-virtual {v0, v1, v4}, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->setError(ILjava/lang/String;)V
 
-    .line 11335
     monitor-exit v3
 
     goto :goto_0
 
-    .line 11345
     .end local v2    # "oldPackage":Landroid/content/pm/PackageParser$Package;
     .end local v13    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -23640,7 +23426,6 @@
 
     throw v1
 
-    .line 11340
     .restart local v2    # "oldPackage":Landroid/content/pm/PackageParser$Package;
     .restart local v13    # "ps":Lcom/android/server/pm/PackageSetting;
     :cond_2
@@ -23651,13 +23436,11 @@
 
     move-result-object v7
 
-    .line 11341
     .local v7, "allUsers":[I
     array-length v1, v7
 
     new-array v8, v1, [Z
 
-    .line 11342
     .local v8, "perUserInstalled":[Z
     const/4 v11, 0x0
 
@@ -23667,7 +23450,6 @@
 
     if-ge v11, v1, :cond_4
 
-    .line 11343
     if-eqz v13, :cond_3
 
     aget v1, v7, v11
@@ -23679,29 +23461,24 @@
     :goto_2
     aput-boolean v1, v8, v11
 
-    .line 11342
     add-int/lit8 v11, v11, 0x1
 
     goto :goto_1
 
-    .line 11343
     :cond_3
     const/4 v1, 0x0
 
     goto :goto_2
 
-    .line 11345
     :cond_4
     monitor-exit v3
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 11347
     invoke-static {v2}, Lcom/android/server/pm/PackageManagerService;->isSystemApp(Landroid/content/pm/PackageParser$Package;)Z
 
     move-result v14
 
-    .line 11348
     .local v14, "sysPkg":Z
     if-eqz v14, :cond_5
 
@@ -23719,7 +23496,6 @@
 
     move-object/from16 v10, p6
 
-    .line 11349
     invoke-direct/range {v1 .. v10}, Lcom/android/server/pm/PackageManagerService;->replaceSystemPackageLI(Landroid/content/pm/PackageParser$Package;Landroid/content/pm/PackageParser$Package;IILandroid/os/UserHandle;[I[ZLjava/lang/String;Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;)V
 
     goto :goto_0
@@ -23739,7 +23515,6 @@
 
     move-object/from16 v10, p6
 
-    .line 11352
     invoke-direct/range {v1 .. v10}, Lcom/android/server/pm/PackageManagerService;->replaceNonSystemPackageLI(Landroid/content/pm/PackageParser$Package;Landroid/content/pm/PackageParser$Package;IILandroid/os/UserHandle;[I[ZLjava/lang/String;Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;)V
 
     goto :goto_0
@@ -23758,18 +23533,14 @@
     .param p9, "res"    # Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;
 
     .prologue
-    .line 11455
     const/4 v11, 0x0
 
-    .line 11456
     .local v11, "disabledSystem":Z
     const/16 v18, 0x0
 
-    .line 11457
     .local v18, "updatedSettings":Z
     or-int/lit8 p3, p3, 0x1
 
-    .line 11458
     move-object/from16 v0, p1
 
     iget-object v2, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -23782,14 +23553,12 @@
 
     if-eqz v2, :cond_0
 
-    .line 11459
     move/from16 v0, p3
 
     or-int/lit16 v0, v0, 0x80
 
     move/from16 p3, v0
 
-    .line 11461
     :cond_0
     move-object/from16 v0, p1
 
@@ -23797,11 +23566,9 @@
 
     move-object/from16 v17, v0
 
-    .line 11462
     .local v17, "packageName":Ljava/lang/String;
     if-nez v17, :cond_2
 
-    .line 11463
     const/16 v2, -0xa
 
     const-string v4, "Attempt to delete null packageName."
@@ -23810,12 +23577,10 @@
 
     invoke-virtual {v0, v2, v4}, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->setError(ILjava/lang/String;)V
 
-    .line 11560
     :cond_1
     :goto_0
     return-void
 
-    .line 11470
     :cond_2
     move-object/from16 v0, p0
 
@@ -23823,7 +23588,6 @@
 
     monitor-enter v4
 
-    .line 11471
     :try_start_0
     move-object/from16 v0, p0
 
@@ -23837,7 +23601,6 @@
 
     check-cast v15, Landroid/content/pm/PackageParser$Package;
 
-    .line 11472
     .local v15, "oldPkg":Landroid/content/pm/PackageParser$Package;
     move-object/from16 v0, p0
 
@@ -23853,7 +23616,6 @@
 
     check-cast v16, Lcom/android/server/pm/PackageSetting;
 
-    .line 11473
     .local v16, "oldPkgSetting":Lcom/android/server/pm/PackageSetting;
     if-eqz v15, :cond_3
 
@@ -23863,7 +23625,6 @@
 
     if-nez v16, :cond_4
 
-    .line 11475
     :cond_3
     const/16 v2, -0xa
 
@@ -23897,12 +23658,10 @@
 
     invoke-virtual {v0, v2, v5}, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->setError(ILjava/lang/String;)V
 
-    .line 11477
     monitor-exit v4
 
     goto :goto_0
 
-    .line 11479
     .end local v15    # "oldPkg":Landroid/content/pm/PackageParser$Package;
     .end local v16    # "oldPkgSetting":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -23922,7 +23681,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 11481
     iget-object v2, v15, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iget v2, v2, Landroid/content/pm/ApplicationInfo;->uid:I
@@ -23935,7 +23693,6 @@
 
     invoke-direct {v0, v1, v2, v4}, Lcom/android/server/pm/PackageManagerService;->killApplication(Ljava/lang/String;ILjava/lang/String;)V
 
-    .line 11483
     move-object/from16 v0, p9
 
     iget-object v2, v0, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->removedInfo:Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;
@@ -23946,7 +23703,6 @@
 
     iput v4, v2, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->uid:I
 
-    .line 11484
     move-object/from16 v0, p9
 
     iget-object v2, v0, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->removedInfo:Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;
@@ -23955,7 +23711,6 @@
 
     iput-object v0, v2, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->removedPackage:Ljava/lang/String;
 
-    .line 11486
     const/4 v2, 0x1
 
     move-object/from16 v0, p0
@@ -23964,14 +23719,12 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/android/server/pm/PackageManagerService;->removePackageLI(Lcom/android/server/pm/PackageSetting;Z)V
 
-    .line 11488
     move-object/from16 v0, p0
 
     iget-object v8, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v8
 
-    .line 11489
     :try_start_2
     move-object/from16 v0, p0
 
@@ -23983,12 +23736,10 @@
 
     move-result v11
 
-    .line 11490
     if-nez v11, :cond_a
 
     if-eqz p1, :cond_a
 
-    .line 11494
     move-object/from16 v0, p9
 
     iget-object v9, v0, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->removedInfo:Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;
@@ -24033,27 +23784,23 @@
 
     iput-object v2, v9, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->args:Lcom/android/server/pm/PackageManagerService$InstallArgs;
 
-    .line 11502
     :goto_1
     monitor-exit v8
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_2
 
-    .line 11505
     move-object/from16 v0, p0
 
     move-object/from16 v1, v17
 
     invoke-direct {v0, v1}, Lcom/android/server/pm/PackageManagerService;->deleteCodeCacheDirsLI(Ljava/lang/String;)I
 
-    .line 11507
     const/4 v2, 0x1
 
     move-object/from16 v0, p9
 
     iput v2, v0, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->returnCode:I
 
-    .line 11508
     move-object/from16 v0, p2
 
     iget-object v2, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -24064,10 +23811,8 @@
 
     iput v4, v2, Landroid/content/pm/ApplicationInfo;->flags:I
 
-    .line 11510
     const/4 v13, 0x0
 
-    .line 11512
     .local v13, "newPackage":Landroid/content/pm/PackageParser$Package;
     const-wide/16 v6, 0x0
 
@@ -24088,7 +23833,6 @@
 
     move-result-object v3
 
-    .line 11513
     .end local v13    # "newPackage":Landroid/content/pm/PackageParser$Package;
     .local v3, "newPackage":Landroid/content/pm/PackageParser$Package;
     :try_start_4
@@ -24096,12 +23840,10 @@
 
     if-eqz v2, :cond_5
 
-    .line 11514
     iget-object v14, v3, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     check-cast v14, Lcom/android/server/pm/PackageSetting;
 
-    .line 11515
     .local v14, "newPkgSetting":Lcom/android/server/pm/PackageSetting;
     move-object/from16 v0, v16
 
@@ -24109,14 +23851,12 @@
 
     iput-wide v4, v14, Lcom/android/server/pm/PackageSetting;->firstInstallTime:J
 
-    .line 11516
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
 
     iput-wide v4, v14, Lcom/android/server/pm/PackageSetting;->lastUpdateTime:J
 
-    .line 11519
     move-object/from16 v0, v16
 
     iget-object v2, v0, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
@@ -24125,7 +23865,6 @@
 
     if-eq v2, v4, :cond_5
 
-    .line 11520
     const/4 v2, -0x8
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -24166,10 +23905,8 @@
 
     invoke-virtual {v0, v2, v4}, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->setError(ILjava/lang/String;)V
 
-    .line 11523
     const/16 v18, 0x1
 
-    .line 11527
     .end local v14    # "newPkgSetting":Lcom/android/server/pm/PackageSetting;
     :cond_5
     move-object/from16 v0, p9
@@ -24190,15 +23927,12 @@
 
     move-object/from16 v7, p9
 
-    .line 11528
     invoke-direct/range {v2 .. v7}, Lcom/android/server/pm/PackageManagerService;->updateSettingsLI(Landroid/content/pm/PackageParser$Package;Ljava/lang/String;[I[ZLcom/android/server/pm/PackageManagerService$PackageInstalledInfo;)V
     :try_end_4
     .catch Lcom/android/server/pm/PackageManagerException; {:try_start_4 .. :try_end_4} :catch_2
 
-    .line 11529
     const/16 v18, 0x1
 
-    .line 11536
     :cond_6
     :goto_2
     move-object/from16 v0, p9
@@ -24209,17 +23943,14 @@
 
     if-eq v2, v4, :cond_1
 
-    .line 11539
     if-eqz v3, :cond_7
 
-    .line 11540
     const/4 v2, 0x1
 
     move-object/from16 v0, p0
 
     invoke-virtual {v0, v3, v2}, Lcom/android/server/pm/PackageManagerService;->removeInstalledPackageLI(Landroid/content/pm/PackageParser$Package;Z)V
 
-    .line 11544
     :cond_7
     const/16 v7, 0x8
 
@@ -24238,7 +23969,6 @@
     :try_end_5
     .catch Lcom/android/server/pm/PackageManagerException; {:try_start_5 .. :try_end_5} :catch_1
 
-    .line 11549
     :goto_3
     move-object/from16 v0, p0
 
@@ -24246,10 +23976,8 @@
 
     monitor-enter v4
 
-    .line 11550
     if-eqz v11, :cond_8
 
-    .line 11551
     :try_start_6
     move-object/from16 v0, p0
 
@@ -24259,11 +23987,9 @@
 
     invoke-virtual {v2, v0}, Lcom/android/server/pm/Settings;->enableSystemPackageLPw(Ljava/lang/String;)Lcom/android/server/pm/PackageSetting;
 
-    .line 11553
     :cond_8
     if-eqz v18, :cond_9
 
-    .line 11554
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -24276,7 +24002,6 @@
 
     invoke-virtual {v2, v0, v5}, Lcom/android/server/pm/Settings;->setInstallerPackageName(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 11557
     :cond_9
     move-object/from16 v0, p0
 
@@ -24284,7 +24009,6 @@
 
     invoke-virtual {v2}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 11558
     monitor-exit v4
 
     goto/16 :goto_0
@@ -24298,7 +24022,6 @@
 
     throw v2
 
-    .line 11500
     .end local v3    # "newPackage":Landroid/content/pm/PackageParser$Package;
     :cond_a
     :try_start_7
@@ -24312,7 +24035,6 @@
 
     goto/16 :goto_1
 
-    .line 11502
     :catchall_2
     move-exception v2
 
@@ -24322,14 +24044,12 @@
 
     throw v2
 
-    .line 11532
     .restart local v13    # "newPackage":Landroid/content/pm/PackageParser$Package;
     :catch_0
     move-exception v12
 
     move-object v3, v13
 
-    .line 11533
     .end local v13    # "newPackage":Landroid/content/pm/PackageParser$Package;
     .restart local v3    # "newPackage":Landroid/content/pm/PackageParser$Package;
     .local v12, "e":Lcom/android/server/pm/PackageManagerException;
@@ -24362,12 +24082,10 @@
 
     goto :goto_2
 
-    .line 11545
     .end local v12    # "e":Lcom/android/server/pm/PackageManagerException;
     :catch_1
     move-exception v12
 
-    .line 11546
     .restart local v12    # "e":Lcom/android/server/pm/PackageManagerException;
     const-string v2, "PackageManager"
 
@@ -24397,7 +24115,6 @@
 
     goto :goto_3
 
-    .line 11532
     .end local v12    # "e":Lcom/android/server/pm/PackageManagerException;
     :catch_2
     move-exception v12
@@ -24411,10 +24128,8 @@
     .param p1, "msg"    # Ljava/lang/String;
 
     .prologue
-    .line 4476
     invoke-static {p0, p1}, Lcom/android/server/pm/PackageManagerService;->logCriticalInfo(ILjava/lang/String;)V
 
-    .line 4477
     return-void
 .end method
 
@@ -24427,12 +24142,10 @@
     .param p6, "user"    # Landroid/os/UserHandle;
 
     .prologue
-    .line 4393
     invoke-virtual/range {p1 .. p1}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
     move-result-object v11
 
-    .line 4394
     .local v11, "files":[Ljava/io/File;
     invoke-static {v11}, Lcom/android/internal/util/ArrayUtils;->isEmpty([Ljava/lang/Object;)Z
 
@@ -24440,7 +24153,6 @@
 
     if-eqz v2, :cond_1
 
-    .line 4395
     const-string v2, "PackageManager"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -24465,18 +24177,15 @@
 
     invoke-static {v2, v4}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 4466
     :cond_0
     :goto_0
     return-void
 
-    .line 4404
     :cond_1
     if-nez p6, :cond_5
 
     const/16 v18, 0x0
 
-    .line 4405
     .local v18, "prebundledUserId":I
     :goto_1
     move/from16 v0, p2
@@ -24487,19 +24196,16 @@
 
     const/4 v15, 0x1
 
-    .line 4406
     .local v15, "isPrebundled":Z
     :goto_2
     if-eqz v15, :cond_2
 
-    .line 4407
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 4410
     :try_start_0
     move-object/from16 v0, p0
 
@@ -24509,12 +24215,10 @@
 
     invoke-virtual {v2, v0}, Lcom/android/server/pm/Settings;->readPrebundledPackagesLPr(I)V
 
-    .line 4411
     monitor-exit v4
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 4414
     :cond_2
     move-object v9, v11
 
@@ -24538,7 +24242,6 @@
 
     aget-object v3, v9, v13
 
-    .line 4415
     .local v3, "file":Ljava/io/File;
     invoke-static {v3}, Landroid/content/pm/PackageParser;->isApkFile(Ljava/io/File;)Z
 
@@ -24565,12 +24268,10 @@
 
     const/4 v14, 0x1
 
-    .line 4417
     .local v14, "isPackage":Z
     :goto_4
     if-nez v14, :cond_8
 
-    .line 4414
     .end local v13    # "i$":I
     :cond_4
     :goto_5
@@ -24583,7 +24284,6 @@
     .restart local v13    # "i$":I
     goto :goto_3
 
-    .line 4404
     .end local v3    # "file":Ljava/io/File;
     .end local v9    # "arr$":[Ljava/io/File;
     .end local v13    # "i$":I
@@ -24598,14 +24298,12 @@
 
     goto :goto_1
 
-    .line 4405
     .restart local v18    # "prebundledUserId":I
     :cond_6
     const/4 v15, 0x0
 
     goto :goto_2
 
-    .line 4411
     .restart local v15    # "isPrebundled":Z
     :catchall_0
     move-exception v2
@@ -24617,7 +24315,6 @@
 
     throw v2
 
-    .line 4415
     .restart local v3    # "file":Ljava/io/File;
     .restart local v9    # "arr$":[Ljava/io/File;
     .restart local v13    # "i$":I
@@ -24627,7 +24324,6 @@
 
     goto :goto_4
 
-    .line 4422
     .restart local v14    # "isPackage":Z
     :cond_8
     or-int/lit8 v4, p2, 0x4
@@ -24645,10 +24341,8 @@
     :try_end_2
     .catch Lcom/android/server/pm/PackageManagerException; {:try_start_2 .. :try_end_2} :catch_0
 
-    .line 4424
     if-eqz v15, :cond_4
 
-    .line 4427
     :try_start_3
     new-instance v2, Landroid/content/pm/PackageParser;
 
@@ -24663,7 +24357,6 @@
 
     move-result-object v17
 
-    .line 4431
     .local v17, "pkg":Landroid/content/pm/PackageParser$Package;
     :try_start_4
     move-object/from16 v0, p0
@@ -24674,7 +24367,6 @@
     :try_end_4
     .catch Lcom/android/server/pm/PackageManagerException; {:try_start_4 .. :try_end_4} :catch_0
 
-    .line 4434
     :try_start_5
     move-object/from16 v0, p0
 
@@ -24688,7 +24380,6 @@
 
     invoke-virtual {v2, v0, v5}, Lcom/android/server/pm/Settings;->markPrebundledPackageInstalledLPr(ILjava/lang/String;)V
 
-    .line 4437
     sget-object v2, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     const/4 v5, 0x1
@@ -24717,7 +24408,6 @@
 
     check-cast v19, Landroid/content/pm/UserInfo;
 
-    .line 4438
     .local v19, "userInfo":Landroid/content/pm/UserInfo;
     move-object/from16 v0, v19
 
@@ -24727,7 +24417,6 @@
 
     if-eq v2, v0, :cond_9
 
-    .line 4439
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -24744,7 +24433,6 @@
 
     goto :goto_6
 
-    .line 4442
     .end local v12    # "i$":Ljava/util/Iterator;
     .end local v19    # "userInfo":Landroid/content/pm/UserInfo;
     :catchall_1
@@ -24759,12 +24447,10 @@
     :try_end_6
     .catch Lcom/android/server/pm/PackageManagerException; {:try_start_6 .. :try_end_6} :catch_0
 
-    .line 4444
     .end local v17    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catch_0
     move-exception v10
 
-    .line 4445
     .local v10, "e":Lcom/android/server/pm/PackageManagerException;
     const-string v2, "PackageManager"
 
@@ -24802,7 +24488,6 @@
 
     invoke-static {v2, v4}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 4448
     and-int/lit8 v2, p2, 0x1
 
     if-nez v2, :cond_4
@@ -24813,7 +24498,6 @@
 
     if-ne v2, v4, :cond_4
 
-    .line 4450
     const/4 v2, 0x5
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -24836,29 +24520,24 @@
 
     invoke-static {v2, v4}, Lcom/android/server/pm/PackageManagerService;->logCriticalInfo(ILjava/lang/String;)V
 
-    .line 4451
     invoke-virtual {v3}, Ljava/io/File;->isDirectory()Z
 
     move-result v2
 
     if-eqz v2, :cond_a
 
-    .line 4452
     invoke-static {v3}, Landroid/os/FileUtils;->deleteContents(Ljava/io/File;)Z
 
-    .line 4454
     :cond_a
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
     goto/16 :goto_5
 
-    .line 4428
     .end local v10    # "e":Lcom/android/server/pm/PackageManagerException;
     .restart local v13    # "i$":I
     :catch_1
     move-exception v10
 
-    .line 4429
     .local v10, "e":Landroid/content/pm/PackageParser$PackageParserException;
     :try_start_7
     invoke-static {v10}, Lcom/android/server/pm/PackageManagerException;->from(Landroid/content/pm/PackageParser$PackageParserException;)Lcom/android/server/pm/PackageManagerException;
@@ -24869,7 +24548,6 @@
     :try_end_7
     .catch Lcom/android/server/pm/PackageManagerException; {:try_start_7 .. :try_end_7} :catch_0
 
-    .line 4442
     .end local v10    # "e":Landroid/content/pm/PackageParser$PackageParserException;
     .end local v13    # "i$":I
     .restart local v12    # "i$":Ljava/util/Iterator;
@@ -24882,7 +24560,6 @@
 
     goto/16 :goto_5
 
-    .line 4459
     .end local v3    # "file":Ljava/io/File;
     .end local v12    # "i$":Ljava/util/Iterator;
     .end local v14    # "isPackage":Z
@@ -24891,14 +24568,12 @@
     :cond_c
     if-eqz v15, :cond_0
 
-    .line 4460
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 4463
     :try_start_9
     move-object/from16 v0, p0
 
@@ -24908,7 +24583,6 @@
 
     invoke-virtual {v2, v0}, Lcom/android/server/pm/Settings;->writePrebundledPackagesLPr(I)V
 
-    .line 4464
     monitor-exit v4
 
     goto/16 :goto_0
@@ -24937,7 +24611,6 @@
     .end annotation
 
     .prologue
-    .line 5609
     new-instance v92, Ljava/io/File;
 
     move-object/from16 v0, p1
@@ -24948,7 +24621,6 @@
 
     invoke-direct {v0, v4}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 5610
     .local v92, "scanFile":Ljava/io/File;
     move-object/from16 v0, p1
 
@@ -24970,7 +24642,6 @@
 
     if-nez v4, :cond_1
 
-    .line 5613
     :cond_0
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
@@ -24982,13 +24653,11 @@
 
     throw v4
 
-    .line 5617
     :cond_1
     and-int/lit8 v4, p2, 0x1
 
     if-eqz v4, :cond_5
 
-    .line 5618
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -24999,7 +24668,6 @@
 
     iput v5, v4, Landroid/content/pm/ApplicationInfo;->flags:I
 
-    .line 5624
     :goto_0
     move/from16 v0, p2
 
@@ -25007,7 +24675,6 @@
 
     if-eqz v4, :cond_2
 
-    .line 5625
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -25020,7 +24687,6 @@
 
     iput v5, v4, Landroid/content/pm/ApplicationInfo;->flags:I
 
-    .line 5628
     :cond_2
     move-object/from16 v0, p0
 
@@ -25046,10 +24712,8 @@
 
     if-eqz v4, :cond_3
 
-    .line 5630
     invoke-direct/range {p0 .. p1}, Lcom/android/server/pm/PackageManagerService;->setUpCustomResolverActivity(Landroid/content/pm/PackageParser$Package;)V
 
-    .line 5634
     :cond_3
     move-object/from16 v0, p0
 
@@ -25075,10 +24739,8 @@
 
     if-eqz v4, :cond_4
 
-    .line 5636
     invoke-direct/range {p0 .. p1}, Lcom/android/server/pm/PackageManagerService;->setUpCustomPreLaunchCheckActivity(Landroid/content/pm/PackageParser$Package;)V
 
-    .line 5639
     :cond_4
     move-object/from16 v0, p1
 
@@ -25092,14 +24754,12 @@
 
     if-eqz v4, :cond_8
 
-    .line 5640
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 5641
     :try_start_0
     move-object/from16 v0, p0
 
@@ -25107,21 +24767,18 @@
 
     if-eqz v4, :cond_6
 
-    .line 5642
     const-string v4, "PackageManager"
 
     const-string v11, "*************************************************"
 
     invoke-static {v4, v11}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5643
     const-string v4, "PackageManager"
 
     const-string v11, "Core android package being redefined.  Skipping."
 
     invoke-static {v4, v11}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5644
     const-string v4, "PackageManager"
 
     new-instance v11, Ljava/lang/StringBuilder;
@@ -25146,14 +24803,12 @@
 
     invoke-static {v4, v11}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5645
     const-string v4, "PackageManager"
 
     const-string v11, "*************************************************"
 
     invoke-static {v4, v11}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5646
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/4 v11, -0x5
@@ -25164,7 +24819,6 @@
 
     throw v4
 
-    .line 5673
     :catchall_0
     move-exception v4
 
@@ -25174,7 +24828,6 @@
 
     throw v4
 
-    .line 5621
     :cond_5
     const/4 v4, 0x0
 
@@ -25184,7 +24837,6 @@
 
     goto/16 :goto_0
 
-    .line 5651
     :cond_6
     :try_start_1
     move-object/from16 v0, p1
@@ -25193,7 +24845,6 @@
 
     iput-object v0, v1, Lcom/android/server/pm/PackageManagerService;->mPlatformPackage:Landroid/content/pm/PackageParser$Package;
 
-    .line 5652
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/android/server/pm/PackageManagerService;->mSdkVersion:I
@@ -25202,7 +24853,6 @@
 
     iput v4, v0, Landroid/content/pm/PackageParser$Package;->mVersionCode:I
 
-    .line 5653
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -25211,14 +24861,12 @@
 
     iput-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mAndroidApplication:Landroid/content/pm/ApplicationInfo;
 
-    .line 5655
     move-object/from16 v0, p0
 
     iget-boolean v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolverReplaced:Z
 
     if-nez v4, :cond_7
 
-    .line 5656
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
@@ -25229,12 +24877,11 @@
 
     iput-object v11, v4, Landroid/content/pm/ActivityInfo;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
-    .line 5657
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
-    const-class v11, Lcom/android/internal/app/ResolverActivity;
+    const-class v11, Lcom/android/internal/app/MzResolverActivity;
 
     invoke-virtual {v11}, Ljava/lang/Class;->getName()Ljava/lang/String;
 
@@ -25242,7 +24889,6 @@
 
     iput-object v11, v4, Landroid/content/pm/ActivityInfo;->name:Ljava/lang/String;
 
-    .line 5658
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
@@ -25255,7 +24901,6 @@
 
     iput-object v11, v4, Landroid/content/pm/ActivityInfo;->packageName:Ljava/lang/String;
 
-    .line 5659
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
@@ -25264,7 +24909,6 @@
 
     iput-object v11, v4, Landroid/content/pm/ActivityInfo;->processName:Ljava/lang/String;
 
-    .line 5660
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
@@ -25273,7 +24917,6 @@
 
     iput v11, v4, Landroid/content/pm/ActivityInfo;->launchMode:I
 
-    .line 5661
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
@@ -25282,7 +24925,6 @@
 
     iput v11, v4, Landroid/content/pm/ActivityInfo;->documentLaunchMode:I
 
-    .line 5662
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
@@ -25291,16 +24933,14 @@
 
     iput v11, v4, Landroid/content/pm/ActivityInfo;->flags:I
 
-    .line 5663
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
-    const v11, 0x1030486
+    const v11, #android:style@Theme.Holo.Dialog.Alert#t
 
     iput v11, v4, Landroid/content/pm/ActivityInfo;->theme:I
 
-    .line 5664
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
@@ -25309,7 +24949,6 @@
 
     iput-boolean v11, v4, Landroid/content/pm/ActivityInfo;->exported:Z
 
-    .line 5665
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
@@ -25318,7 +24957,6 @@
 
     iput-boolean v11, v4, Landroid/content/pm/ActivityInfo;->enabled:Z
 
-    .line 5666
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveInfo:Landroid/content/pm/ResolveInfo;
@@ -25329,7 +24967,6 @@
 
     iput-object v11, v4, Landroid/content/pm/ResolveInfo;->activityInfo:Landroid/content/pm/ActivityInfo;
 
-    .line 5667
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveInfo:Landroid/content/pm/ResolveInfo;
@@ -25338,7 +24975,6 @@
 
     iput v11, v4, Landroid/content/pm/ResolveInfo;->priority:I
 
-    .line 5668
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveInfo:Landroid/content/pm/ResolveInfo;
@@ -25347,7 +24983,6 @@
 
     iput v11, v4, Landroid/content/pm/ResolveInfo;->preferredOrder:I
 
-    .line 5669
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveInfo:Landroid/content/pm/ResolveInfo;
@@ -25356,7 +24991,6 @@
 
     iput v11, v4, Landroid/content/pm/ResolveInfo;->match:I
 
-    .line 5670
     new-instance v4, Landroid/content/ComponentName;
 
     move-object/from16 v0, p0
@@ -25377,13 +25011,13 @@
 
     iput-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveComponentName:Landroid/content/ComponentName;
 
-    .line 5673
+    invoke-static/range {p0 .. p0}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->scanPackageForAccessControl(Lcom/android/server/pm/PackageManagerService;)V
+
     :cond_7
     monitor-exit v5
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 5681
     :cond_8
     move-object/from16 v0, p0
 
@@ -25413,7 +25047,6 @@
 
     if-eqz v4, :cond_a
 
-    .line 5683
     :cond_9
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
@@ -25451,7 +25084,6 @@
 
     throw v4
 
-    .line 5688
     :cond_a
     sget-object v4, Landroid/os/Build;->TAGS:Ljava/lang/String;
 
@@ -25497,7 +25129,6 @@
 
     if-nez v4, :cond_c
 
-    .line 5691
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -25508,11 +25139,9 @@
 
     move-result-object v70
 
-    .line 5692
     .local v70, "obj":Ljava/lang/Object;
     const/16 v91, 0x0
 
-    .line 5693
     .local v91, "s1":[Landroid/content/pm/Signature;
     move-object/from16 v0, v70
 
@@ -25520,7 +25149,6 @@
 
     if-eqz v4, :cond_b
 
-    .line 5694
     check-cast v70, Lcom/android/server/pm/SharedUserSetting;
 
     .end local v70    # "obj":Ljava/lang/Object;
@@ -25532,7 +25160,6 @@
 
     move-object/from16 v91, v0
 
-    .line 5696
     :cond_b
     move-object/from16 v0, p1
 
@@ -25546,7 +25173,6 @@
 
     if-nez v4, :cond_c
 
-    .line 5697
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v5, -0x13
@@ -25557,7 +25183,6 @@
 
     throw v4
 
-    .line 5706
     .end local v91    # "s1":[Landroid/content/pm/Signature;
     :cond_c
     move/from16 v0, p3
@@ -25566,7 +25191,6 @@
 
     if-eqz v4, :cond_e
 
-    .line 5707
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -25579,11 +25203,9 @@
 
     move-result-object v60
 
-    .line 5708
     .local v60, "known":Lcom/android/server/pm/PackageSetting;
     if-eqz v60, :cond_e
 
-    .line 5714
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -25620,7 +25242,6 @@
 
     if-nez v4, :cond_e
 
-    .line 5716
     :cond_d
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
@@ -25690,7 +25311,6 @@
 
     throw v4
 
-    .line 5725
     .end local v60    # "known":Lcom/android/server/pm/PackageSetting;
     :cond_e
     new-instance v9, Ljava/io/File;
@@ -25705,7 +25325,6 @@
 
     invoke-direct {v9, v4}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 5726
     .local v9, "destCodeFile":Ljava/io/File;
     new-instance v10, Ljava/io/File;
 
@@ -25719,15 +25338,12 @@
 
     invoke-direct {v10, v4}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 5728
     .local v10, "destResourceFile":Ljava/io/File;
     const/4 v8, 0x0
 
-    .line 5729
     .local v8, "suid":Lcom/android/server/pm/SharedUserSetting;
     const/16 v81, 0x0
 
-    .line 5731
     .local v81, "pkgSetting":Lcom/android/server/pm/PackageSetting;
     invoke-static/range {p1 .. p1}, Lcom/android/server/pm/PackageManagerService;->isSystemApp(Landroid/content/pm/PackageParser$Package;)Z
 
@@ -25735,28 +25351,24 @@
 
     if-nez v4, :cond_f
 
-    .line 5733
     const/4 v4, 0x0
 
     move-object/from16 v0, p1
 
     iput-object v4, v0, Landroid/content/pm/PackageParser$Package;->mOriginalPackages:Ljava/util/ArrayList;
 
-    .line 5734
     const/4 v4, 0x0
 
     move-object/from16 v0, p1
 
     iput-object v4, v0, Landroid/content/pm/PackageParser$Package;->mRealPackage:Ljava/lang/String;
 
-    .line 5735
     const/4 v4, 0x0
 
     move-object/from16 v0, p1
 
     iput-object v4, v0, Landroid/content/pm/PackageParser$Package;->mAdoptPermissions:Ljava/util/ArrayList;
 
-    .line 5739
     :cond_f
     move-object/from16 v0, p1
 
@@ -25770,13 +25382,11 @@
 
     if-nez v4, :cond_11
 
-    .line 5740
     :cond_10
     new-instance v82, Landroid/content/pm/PackageParser;
 
     invoke-direct/range {v82 .. v82}, Landroid/content/pm/PackageParser;-><init>()V
 
-    .line 5742
     .local v82, "pp":Landroid/content/pm/PackageParser;
     :try_start_2
     move-object/from16 v0, v82
@@ -25787,7 +25397,6 @@
     :try_end_2
     .catch Landroid/content/pm/PackageParser$PackageParserException; {:try_start_2 .. :try_end_2} :catch_0
 
-    .line 5749
     .end local v82    # "pp":Landroid/content/pm/PackageParser;
     :cond_11
     :goto_1
@@ -25799,7 +25408,6 @@
 
     monitor-enter v17
 
-    .line 5750
     :try_start_3
     move-object/from16 v0, p1
 
@@ -25807,7 +25415,6 @@
 
     if-eqz v4, :cond_12
 
-    .line 5751
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -25824,10 +25431,8 @@
 
     move-result-object v8
 
-    .line 5752
     if-nez v8, :cond_12
 
-    .line 5753
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/4 v5, -0x4
@@ -25864,7 +25469,6 @@
 
     throw v4
 
-    .line 5960
     :catchall_1
     move-exception v4
 
@@ -25874,12 +25478,10 @@
 
     throw v4
 
-    .line 5743
     .restart local v82    # "pp":Landroid/content/pm/PackageParser;
     :catch_0
     move-exception v43
 
-    .line 5744
     .local v43, "e":Landroid/content/pm/PackageParser$PackageParserException;
     const-string v4, "PackageManager"
 
@@ -25891,17 +25493,14 @@
 
     goto :goto_1
 
-    .line 5765
     .end local v43    # "e":Landroid/content/pm/PackageParser$PackageParserException;
     .end local v82    # "pp":Landroid/content/pm/PackageParser;
     :cond_12
     const/4 v6, 0x0
 
-    .line 5766
     .local v6, "origPackage":Lcom/android/server/pm/PackageSetting;
     const/4 v7, 0x0
 
-    .line 5767
     .local v7, "realName":Ljava/lang/String;
     :try_start_4
     move-object/from16 v0, p1
@@ -25910,7 +25509,6 @@
 
     if-eqz v4, :cond_13
 
-    .line 5770
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -25927,7 +25525,6 @@
 
     check-cast v88, Ljava/lang/String;
 
-    .line 5771
     .local v88, "renamed":Ljava/lang/String;
     move-object/from16 v0, p1
 
@@ -25941,12 +25538,10 @@
 
     if-eqz v4, :cond_15
 
-    .line 5776
     move-object/from16 v0, p1
 
     iget-object v7, v0, Landroid/content/pm/PackageParser$Package;->mRealPackage:Ljava/lang/String;
 
-    .line 5777
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
@@ -25959,14 +25554,12 @@
 
     if-nez v4, :cond_13
 
-    .line 5781
     move-object/from16 v0, p1
 
     move-object/from16 v1, v88
 
     invoke-virtual {v0, v1}, Landroid/content/pm/PackageParser$Package;->setPackageName(Ljava/lang/String;)V
 
-    .line 5814
     .end local v88    # "renamed":Ljava/lang/String;
     :cond_13
     move-object/from16 v0, p0
@@ -25983,7 +25576,6 @@
 
     if-eqz v4, :cond_14
 
-    .line 5815
     const-string v4, "PackageManager"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -26016,7 +25608,6 @@
 
     invoke-static {v4, v5}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5821
     :cond_14
     move-object/from16 v0, p0
 
@@ -26056,10 +25647,8 @@
 
     move-result-object v81
 
-    .line 5826
     if-nez v81, :cond_18
 
-    .line 5827
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/4 v5, -0x4
@@ -26096,7 +25685,6 @@
 
     throw v4
 
-    .line 5785
     .restart local v88    # "renamed":Ljava/lang/String;
     :cond_15
     move-object/from16 v0, p1
@@ -26113,7 +25701,6 @@
     :goto_2
     if-ltz v47, :cond_13
 
-    .line 5786
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -26136,7 +25723,6 @@
 
     if-eqz v6, :cond_16
 
-    .line 5790
     move-object/from16 v0, p0
 
     move-object/from16 v1, p1
@@ -26147,23 +25733,19 @@
 
     if-nez v4, :cond_17
 
-    .line 5792
     const/4 v6, 0x0
 
-    .line 5785
     :cond_16
     :goto_3
     add-int/lit8 v47, v47, -0x1
 
     goto :goto_2
 
-    .line 5794
     :cond_17
     iget-object v4, v6, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v4, :cond_13
 
-    .line 5796
     iget-object v4, v6, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     iget-object v4, v4, Lcom/android/server/pm/SharedUserSetting;->name:Ljava/lang/String;
@@ -26178,7 +25760,6 @@
 
     if-nez v4, :cond_13
 
-    .line 5797
     const-string v4, "PackageManager"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -26245,12 +25826,10 @@
 
     invoke-static {v4, v5}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5801
     const/4 v6, 0x0
 
     goto :goto_3
 
-    .line 5831
     .end local v47    # "i":I
     .end local v88    # "renamed":Ljava/lang/String;
     :cond_18
@@ -26260,14 +25839,12 @@
 
     if-eqz v4, :cond_19
 
-    .line 5836
     iget-object v4, v6, Lcom/android/server/pm/PackageSetting;->name:Ljava/lang/String;
 
     move-object/from16 v0, p1
 
     invoke-virtual {v0, v4}, Landroid/content/pm/PackageParser$Package;->setPackageName(Ljava/lang/String;)V
 
-    .line 5839
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -26304,7 +25881,6 @@
 
     move-result-object v63
 
-    .line 5841
     .local v63, "msg":Ljava/lang/String;
     const/4 v4, 0x5
 
@@ -26312,7 +25888,6 @@
 
     invoke-static {v4, v0}, Lcom/android/server/pm/PackageManagerService;->reportSettingsProblem(ILjava/lang/String;)V
 
-    .line 5844
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mTransferedPackages:Landroid/util/ArraySet;
@@ -26321,19 +25896,16 @@
 
     invoke-virtual {v4, v5}, Landroid/util/ArraySet;->add(Ljava/lang/Object;)Z
 
-    .line 5847
     const/4 v4, 0x0
 
     move-object/from16 v0, v81
 
     iput-object v4, v0, Lcom/android/server/pm/PackageSetting;->origPackage:Lcom/android/server/pm/PackageSettingBase;
 
-    .line 5850
     .end local v63    # "msg":Ljava/lang/String;
     :cond_19
     if-eqz v7, :cond_1a
 
-    .line 5852
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mTransferedPackages:Landroid/util/ArraySet;
@@ -26344,7 +25916,6 @@
 
     invoke-virtual {v4, v5}, Landroid/util/ArraySet;->add(Ljava/lang/Object;)Z
 
-    .line 5855
     :cond_1a
     move-object/from16 v0, p0
 
@@ -26360,7 +25931,6 @@
 
     if-eqz v4, :cond_1b
 
-    .line 5856
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -26371,13 +25941,11 @@
 
     iput v5, v4, Landroid/content/pm/ApplicationInfo;->flags:I
 
-    .line 5859
     :cond_1b
     and-int/lit8 v4, p2, 0x40
 
     if-nez v4, :cond_1c
 
-    .line 5865
     const/4 v4, 0x0
 
     move-object/from16 v0, p0
@@ -26386,7 +25954,6 @@
 
     invoke-direct {v0, v1, v4}, Lcom/android/server/pm/PackageManagerService;->updateSharedLibrariesLPw(Landroid/content/pm/PackageParser$Package;Landroid/content/pm/PackageParser$Package;)V
 
-    .line 5868
     :cond_1c
     move-object/from16 v0, p0
 
@@ -26394,10 +25961,8 @@
 
     if-eqz v4, :cond_1d
 
-    .line 5869
     invoke-static/range {p1 .. p1}, Lcom/android/server/pm/SELinuxMMAC;->assignSeinfoValue(Landroid/content/pm/PackageParser$Package;)Z
 
-    .line 5872
     :cond_1d
     move-object/from16 v0, p1
 
@@ -26409,14 +25974,12 @@
 
     iput v5, v4, Landroid/content/pm/ApplicationInfo;->uid:I
 
-    .line 5873
     move-object/from16 v0, v81
 
     move-object/from16 v1, p1
 
     iput-object v0, v1, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
-    .line 5874
     move-object/from16 v0, v81
 
     iget-object v4, v0, Lcom/android/server/pm/PackageSetting;->keySetData:Lcom/android/server/pm/PackageKeySetData;
@@ -26435,7 +25998,6 @@
 
     if-eqz v4, :cond_21
 
-    .line 5876
     :cond_1e
     :try_start_5
     move-object/from16 v0, p0
@@ -26446,7 +26008,6 @@
 
     invoke-direct {v0, v1, v2}, Lcom/android/server/pm/PackageManagerService;->verifySignaturesLP(Lcom/android/server/pm/PackageSetting;Landroid/content/pm/PackageParser$Package;)V
 
-    .line 5879
     move-object/from16 v0, v81
 
     iget-object v4, v0, Lcom/android/server/pm/PackageSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
@@ -26460,13 +26021,11 @@
     .catch Lcom/android/server/pm/PackageManagerException; {:try_start_5 .. :try_end_5} :catch_1
     .catchall {:try_start_5 .. :try_end_5} :catchall_1
 
-    .line 5921
     :goto_4
     and-int/lit8 v4, p3, 0x10
 
     if-eqz v4, :cond_26
 
-    .line 5922
     :try_start_6
     move-object/from16 v0, p1
 
@@ -26476,7 +26035,6 @@
 
     move-result v24
 
-    .line 5924
     .local v24, "N":I
     const/16 v47, 0x0
 
@@ -26488,7 +26046,6 @@
 
     if-ge v0, v1, :cond_26
 
-    .line 5925
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->providers:Ljava/util/ArrayList;
@@ -26501,7 +26058,6 @@
 
     check-cast v75, Landroid/content/pm/PackageParser$Provider;
 
-    .line 5926
     .local v75, "p":Landroid/content/pm/PackageParser$Provider;
     move-object/from16 v0, v75
 
@@ -26511,7 +26067,6 @@
 
     if-eqz v4, :cond_25
 
-    .line 5927
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
@@ -26524,7 +26079,6 @@
 
     move-result-object v65
 
-    .line 5928
     .local v65, "names":[Ljava/lang/String;
     const/16 v59, 0x0
 
@@ -26538,7 +26092,6 @@
 
     if-ge v0, v4, :cond_25
 
-    .line 5929
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mProvidersByAuthority:Landroid/util/ArrayMap;
@@ -26551,7 +26104,6 @@
 
     if-eqz v4, :cond_24
 
-    .line 5930
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mProvidersByAuthority:Landroid/util/ArrayMap;
@@ -26564,7 +26116,6 @@
 
     check-cast v73, Landroid/content/pm/PackageParser$Provider;
 
-    .line 5931
     .local v73, "other":Landroid/content/pm/PackageParser$Provider;
     if-eqz v73, :cond_23
 
@@ -26582,7 +26133,6 @@
 
     move-result-object v74
 
-    .line 5934
     .local v74, "otherPackageName":Ljava/lang/String;
     :goto_7
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
@@ -26641,7 +26191,6 @@
 
     throw v4
 
-    .line 5880
     .end local v24    # "N":I
     .end local v47    # "i":I
     .end local v59    # "j":I
@@ -26652,16 +26201,13 @@
     :catch_1
     move-exception v43
 
-    .line 5881
     .local v43, "e":Lcom/android/server/pm/PackageManagerException;
     and-int/lit8 v4, p2, 0x40
 
     if-nez v4, :cond_1f
 
-    .line 5882
     throw v43
 
-    .line 5886
     :cond_1f
     move-object/from16 v0, v81
 
@@ -26673,14 +26219,12 @@
 
     iput-object v5, v4, Lcom/android/server/pm/PackageSignatures;->mSignatures:[Landroid/content/pm/Signature;
 
-    .line 5892
     move-object/from16 v0, v81
 
     iget-object v4, v0, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v4, :cond_20
 
-    .line 5893
     move-object/from16 v0, v81
 
     iget-object v4, v0, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
@@ -26699,7 +26243,6 @@
 
     if-eqz v4, :cond_20
 
-    .line 5895
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v5, -0x68
@@ -26730,7 +26273,6 @@
 
     throw v4
 
-    .line 5902
     :cond_20
     new-instance v4, Ljava/lang/StringBuilder;
 
@@ -26760,7 +26302,6 @@
 
     move-result-object v63
 
-    .line 5904
     .restart local v63    # "msg":Ljava/lang/String;
     const/4 v4, 0x5
 
@@ -26770,7 +26311,6 @@
 
     goto/16 :goto_4
 
-    .line 5907
     .end local v43    # "e":Lcom/android/server/pm/PackageManagerException;
     .end local v63    # "msg":Ljava/lang/String;
     :cond_21
@@ -26786,7 +26326,6 @@
 
     if-nez v4, :cond_22
 
-    .line 5908
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/4 v5, -0x7
@@ -26829,7 +26368,6 @@
 
     throw v4
 
-    .line 5914
     :cond_22
     move-object/from16 v0, v81
 
@@ -26843,7 +26381,6 @@
 
     goto/16 :goto_4
 
-    .line 5931
     .restart local v24    # "N":I
     .restart local v47    # "i":I
     .restart local v59    # "j":I
@@ -26855,14 +26392,12 @@
 
     goto/16 :goto_7
 
-    .line 5928
     .end local v73    # "other":Landroid/content/pm/PackageParser$Provider;
     :cond_24
     add-int/lit8 v59, v59, 0x1
 
     goto/16 :goto_6
 
-    .line 5924
     .end local v59    # "j":I
     .end local v65    # "names":[Ljava/lang/String;
     :cond_25
@@ -26870,7 +26405,6 @@
 
     goto/16 :goto_5
 
-    .line 5945
     .end local v24    # "N":I
     .end local v47    # "i":I
     .end local v75    # "p":Landroid/content/pm/PackageParser$Provider;
@@ -26881,7 +26415,6 @@
 
     if-eqz v4, :cond_28
 
-    .line 5948
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->mAdoptPermissions:Ljava/util/ArrayList;
@@ -26896,7 +26429,6 @@
     :goto_8
     if-ltz v47, :cond_28
 
-    .line 5949
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->mAdoptPermissions:Ljava/util/ArrayList;
@@ -26909,7 +26441,6 @@
 
     check-cast v72, Ljava/lang/String;
 
-    .line 5950
     .local v72, "origName":Ljava/lang/String;
     move-object/from16 v0, p0
 
@@ -26921,11 +26452,9 @@
 
     move-result-object v71
 
-    .line 5951
     .local v71, "orig":Lcom/android/server/pm/PackageSetting;
     if-eqz v71, :cond_27
 
-    .line 5952
     move-object/from16 v0, p0
 
     move-object/from16 v1, v71
@@ -26938,7 +26467,6 @@
 
     if-eqz v4, :cond_27
 
-    .line 5953
     const-string v4, "PackageManager"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -26977,7 +26505,6 @@
 
     invoke-static {v4, v5}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5955
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -26990,13 +26517,11 @@
 
     invoke-virtual {v4, v0, v5}, Lcom/android/server/pm/Settings;->transferPermissionsLPw(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 5948
     :cond_27
     add-int/lit8 v47, v47, -0x1
 
     goto :goto_8
 
-    .line 5960
     .end local v47    # "i":I
     .end local v71    # "orig":Lcom/android/server/pm/PackageSetting;
     .end local v72    # "origName":Ljava/lang/String;
@@ -27005,20 +26530,17 @@
     :try_end_6
     .catchall {:try_start_6 .. :try_end_6} :catchall_1
 
-    .line 5962
     move-object/from16 v0, p1
 
     iget-object v0, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
     move-object/from16 v80, v0
 
-    .line 5964
     .local v80, "pkgName":Ljava/lang/String;
     invoke-virtual/range {v92 .. v92}, Ljava/io/File;->lastModified()J
 
     move-result-wide v94
 
-    .line 5965
     .local v94, "scanFileTime":J
     and-int/lit8 v4, p3, 0x4
 
@@ -27026,7 +26548,6 @@
 
     const/4 v14, 0x1
 
-    .line 5966
     .local v14, "forceDex":Z
     :goto_9
     move-object/from16 v0, p1
@@ -27057,7 +26578,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ApplicationInfo;->processName:Ljava/lang/String;
 
-    .line 5972
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPlatformPackage:Landroid/content/pm/PackageParser$Package;
@@ -27066,7 +26586,6 @@
 
     if-ne v4, v0, :cond_2e
 
-    .line 5974
     new-instance v40, Ljava/io/File;
 
     invoke-static {}, Landroid/os/Environment;->getDataDirectory()Ljava/io/File;
@@ -27079,7 +26598,6 @@
 
     invoke-direct {v0, v4, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 5976
     .local v40, "dataPath":Ljava/io/File;
     move-object/from16 v0, p1
 
@@ -27091,13 +26609,11 @@
 
     iput-object v5, v4, Landroid/content/pm/ApplicationInfo;->dataDir:Ljava/lang/String;
 
-    .line 6100
     :goto_a
     invoke-virtual/range {v92 .. v92}, Ljava/io/File;->getPath()Ljava/lang/String;
 
     move-result-object v77
 
-    .line 6101
     .local v77, "path":Ljava/lang/String;
     move-object/from16 v0, p1
 
@@ -27107,7 +26623,6 @@
 
     move-result-object v34
 
-    .line 6102
     .local v34, "codePath":Ljava/lang/String;
     move-object/from16 v0, p1
 
@@ -27119,7 +26634,6 @@
 
     move-result-object v36
 
-    .line 6103
     .local v36, "cpuAbiOverride":Ljava/lang/String;
     invoke-static/range {p1 .. p1}, Lcom/android/server/pm/PackageManagerService;->isSystemApp(Landroid/content/pm/PackageParser$Package;)Z
 
@@ -27133,7 +26647,6 @@
 
     if-nez v4, :cond_3b
 
-    .line 6104
     move-object/from16 v0, p0
 
     move-object/from16 v1, p1
@@ -27142,7 +26655,6 @@
 
     invoke-direct {v0, v1, v2}, Lcom/android/server/pm/PackageManagerService;->setBundledAppAbisAndRoots(Landroid/content/pm/PackageParser$Package;Lcom/android/server/pm/PackageSetting;)V
 
-    .line 6109
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -27165,24 +26677,20 @@
 
     if-lez v4, :cond_2a
 
-    .line 6112
     const/16 v46, 0x0
 
-    .line 6114
     .local v46, "handle":Lcom/android/internal/content/NativeLibraryHelper$Handle;
     :try_start_7
     invoke-static/range {v92 .. v92}, Lcom/android/internal/content/NativeLibraryHelper$Handle;->create(Ljava/io/File;)Lcom/android/internal/content/NativeLibraryHelper$Handle;
 
     move-result-object v46
 
-    .line 6115
     invoke-static/range {v46 .. v46}, Lcom/android/internal/content/NativeLibraryHelper;->hasRenderscriptBitcode(Lcom/android/internal/content/NativeLibraryHelper$Handle;)Z
 
     move-result v4
 
     if-eqz v4, :cond_29
 
-    .line 6116
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -27198,17 +26706,14 @@
     .catch Ljava/io/IOException; {:try_start_7 .. :try_end_7} :catch_3
     .catchall {:try_start_7 .. :try_end_7} :catchall_3
 
-    .line 6121
     :cond_29
     invoke-static/range {v46 .. v46}, Llibcore/io/IoUtils;->closeQuietly(Ljava/lang/AutoCloseable;)V
 
-    .line 6125
     .end local v46    # "handle":Lcom/android/internal/content/NativeLibraryHelper$Handle;
     :cond_2a
     :goto_b
     invoke-direct/range {p0 .. p2}, Lcom/android/server/pm/PackageManagerService;->setNativeLibraryPaths(Landroid/content/pm/PackageParser$Package;I)V
 
-    .line 6297
     :goto_c
     move-object/from16 v0, p0
 
@@ -27218,7 +26723,6 @@
 
     if-ne v4, v0, :cond_2b
 
-    .line 6298
     move-object/from16 v0, p1
 
     iget-object v5, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -27242,7 +26746,6 @@
     :goto_d
     iput-object v4, v5, Landroid/content/pm/ApplicationInfo;->primaryCpuAbi:Ljava/lang/String;
 
-    .line 6302
     :cond_2b
     move-object/from16 v0, p1
 
@@ -27254,7 +26757,6 @@
 
     iput-object v4, v0, Lcom/android/server/pm/PackageSetting;->primaryCpuAbiString:Ljava/lang/String;
 
-    .line 6303
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -27265,21 +26767,18 @@
 
     iput-object v4, v0, Lcom/android/server/pm/PackageSetting;->secondaryCpuAbiString:Ljava/lang/String;
 
-    .line 6304
     move-object/from16 v0, v36
 
     move-object/from16 v1, v81
 
     iput-object v0, v1, Lcom/android/server/pm/PackageSetting;->cpuAbiOverrideString:Ljava/lang/String;
 
-    .line 6307
     move-object/from16 v0, v36
 
     move-object/from16 v1, p1
 
     iput-object v0, v1, Landroid/content/pm/PackageParser$Package;->cpuAbiOverride:Ljava/lang/String;
 
-    .line 6317
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -27290,7 +26789,6 @@
 
     iput-object v4, v0, Lcom/android/server/pm/PackageSetting;->legacyNativeLibraryPathString:Ljava/lang/String;
 
-    .line 6325
     move/from16 v0, p3
 
     and-int/lit16 v4, v0, 0x100
@@ -27303,7 +26801,6 @@
 
     if-eqz v4, :cond_2c
 
-    .line 6332
     move-object/from16 v0, v81
 
     iget-object v4, v0, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
@@ -27325,13 +26822,11 @@
 
     invoke-direct {v0, v5, v1, v14, v4}, Lcom/android/server/pm/PackageManagerService;->adjustCpuAbisForSharedUserLPw(Ljava/util/Set;Landroid/content/pm/PackageParser$Package;ZZ)V
 
-    .line 6336
     :cond_2c
     and-int/lit8 v4, p3, 0x2
 
     if-nez v4, :cond_58
 
-    .line 6337
     const/4 v13, 0x0
 
     move/from16 v0, p3
@@ -27357,7 +26852,6 @@
 
     if-ne v4, v5, :cond_58
 
-    .line 6339
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v5, -0xb
@@ -27368,7 +26862,6 @@
 
     throw v4
 
-    .line 5965
     .end local v14    # "forceDex":Z
     .end local v34    # "codePath":Ljava/lang/String;
     .end local v36    # "cpuAbiOverride":Ljava/lang/String;
@@ -27379,7 +26872,6 @@
 
     goto/16 :goto_9
 
-    .line 5980
     .restart local v14    # "forceDex":Z
     :cond_2e
     move-object/from16 v0, p1
@@ -27394,11 +26886,9 @@
 
     move-result-object v40
 
-    .line 5982
     .restart local v40    # "dataPath":Ljava/io/File;
     const/16 v101, 0x0
 
-    .line 5983
     .local v101, "uidError":Z
     invoke-virtual/range {v40 .. v40}, Ljava/io/File;->exists()Z
 
@@ -27406,10 +26896,8 @@
 
     if-eqz v4, :cond_38
 
-    .line 5984
     const/16 v39, 0x0
 
-    .line 5986
     .local v39, "currentUid":I
     :try_start_8
     invoke-virtual/range {v40 .. v40}, Ljava/io/File;->getPath()Ljava/lang/String;
@@ -27420,7 +26908,6 @@
 
     move-result-object v93
 
-    .line 5987
     .local v93, "stat":Landroid/system/StructStat;
     move-object/from16 v0, v93
 
@@ -27430,7 +26917,6 @@
     :try_end_8
     .catch Landroid/system/ErrnoException; {:try_start_8 .. :try_end_8} :catch_2
 
-    .line 5993
     .end local v93    # "stat":Landroid/system/StructStat;
     :goto_10
     move-object/from16 v0, p1
@@ -27443,14 +26929,11 @@
 
     if-eq v0, v4, :cond_35
 
-    .line 5994
     const/16 v87, 0x0
 
-    .line 5995
     .local v87, "recovered":Z
     if-nez v39, :cond_2f
 
-    .line 6000
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mInstaller:Lcom/android/server/pm/Installer;
@@ -27473,14 +26956,11 @@
 
     move-result v89
 
-    .line 6002
     .local v89, "ret":I
     if-ltz v89, :cond_2f
 
-    .line 6003
     const/16 v87, 0x1
 
-    .line 6004
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -27519,7 +26999,6 @@
 
     move-result-object v63
 
-    .line 6007
     .restart local v63    # "msg":Ljava/lang/String;
     const/4 v4, 0x5
 
@@ -27527,7 +27006,6 @@
 
     invoke-static {v4, v0}, Lcom/android/server/pm/PackageManagerService;->reportSettingsProblem(ILjava/lang/String;)V
 
-    .line 6010
     .end local v63    # "msg":Ljava/lang/String;
     .end local v89    # "ret":I
     :cond_2f
@@ -27543,7 +27021,6 @@
 
     if-eqz v4, :cond_37
 
-    .line 6014
     :cond_30
     move-object/from16 v0, p0
 
@@ -27553,18 +27030,15 @@
 
     move-result v89
 
-    .line 6015
     .restart local v89    # "ret":I
     if-ltz v89, :cond_32
 
-    .line 6018
     and-int/lit8 v4, p2, 0x1
 
     if-eqz v4, :cond_31
 
     const-string v84, "System package "
 
-    .line 6020
     .local v84, "prefix":Ljava/lang/String;
     :goto_11
     new-instance v4, Ljava/lang/StringBuilder;
@@ -27623,7 +27097,6 @@
 
     move-result-object v63
 
-    .line 6024
     .restart local v63    # "msg":Ljava/lang/String;
     const/4 v4, 0x5
 
@@ -27631,10 +27104,8 @@
 
     invoke-static {v4, v0}, Lcom/android/server/pm/PackageManagerService;->reportSettingsProblem(ILjava/lang/String;)V
 
-    .line 6025
     const/16 v87, 0x1
 
-    .line 6028
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -27655,14 +27126,12 @@
 
     move-result v89
 
-    .line 6030
     const/4 v4, -0x1
 
     move/from16 v0, v89
 
     if-ne v0, v4, :cond_32
 
-    .line 6032
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -27691,14 +27160,12 @@
 
     move-result-object v63
 
-    .line 6034
     const/4 v4, 0x5
 
     move-object/from16 v0, v63
 
     invoke-static {v4, v0}, Lcom/android/server/pm/PackageManagerService;->reportSettingsProblem(ILjava/lang/String;)V
 
-    .line 6035
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/4 v5, -0x4
@@ -27709,7 +27176,6 @@
 
     throw v4
 
-    .line 5988
     .end local v63    # "msg":Ljava/lang/String;
     .end local v84    # "prefix":Ljava/lang/String;
     .end local v87    # "recovered":Z
@@ -27717,7 +27183,6 @@
     :catch_2
     move-exception v43
 
-    .line 5989
     .local v43, "e":Landroid/system/ErrnoException;
     const-string v4, "PackageManager"
 
@@ -27749,7 +27214,6 @@
 
     goto/16 :goto_10
 
-    .line 6018
     .end local v43    # "e":Landroid/system/ErrnoException;
     .restart local v87    # "recovered":Z
     .restart local v89    # "ret":I
@@ -27758,23 +27222,19 @@
 
     goto/16 :goto_11
 
-    .line 6039
     :cond_32
     if-nez v87, :cond_33
 
-    .line 6040
     const/4 v4, 0x1
 
     move-object/from16 v0, p0
 
     iput-boolean v4, v0, Lcom/android/server/pm/PackageManagerService;->mHasSystemUidErrors:Z
 
-    .line 6048
     .end local v89    # "ret":I
     :cond_33
     if-nez v87, :cond_35
 
-    .line 6049
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -27817,7 +27277,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ApplicationInfo;->dataDir:Ljava/lang/String;
 
-    .line 6052
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -27830,7 +27289,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ApplicationInfo;->nativeLibraryDir:Ljava/lang/String;
 
-    .line 6053
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -27843,7 +27301,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootDir:Ljava/lang/String;
 
-    .line 6054
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -27900,7 +27357,6 @@
 
     move-result-object v63
 
-    .line 6059
     .restart local v63    # "msg":Ljava/lang/String;
     move-object/from16 v0, p0
 
@@ -27908,7 +27364,6 @@
 
     monitor-enter v5
 
-    .line 6060
     :try_start_9
     move-object/from16 v0, p0
 
@@ -27920,7 +27375,6 @@
 
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6061
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -27931,30 +27385,25 @@
 
     invoke-virtual {v4, v11}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 6062
     const/16 v101, 0x1
 
-    .line 6063
     move-object/from16 v0, v81
 
     iget-boolean v4, v0, Lcom/android/server/pm/PackageSetting;->uidError:Z
 
     if-nez v4, :cond_34
 
-    .line 6064
     const/4 v4, 0x6
 
     move-object/from16 v0, v63
 
     invoke-static {v4, v0}, Lcom/android/server/pm/PackageManagerService;->reportSettingsProblem(ILjava/lang/String;)V
 
-    .line 6066
     :cond_34
     monitor-exit v5
     :try_end_9
     .catchall {:try_start_9 .. :try_end_9} :catchall_2
 
-    .line 6069
     .end local v63    # "msg":Ljava/lang/String;
     .end local v87    # "recovered":Z
     :cond_35
@@ -27968,14 +27417,12 @@
 
     iput-object v5, v4, Landroid/content/pm/ApplicationInfo;->dataDir:Ljava/lang/String;
 
-    .line 6070
     move-object/from16 v0, p0
 
     iget-boolean v4, v0, Lcom/android/server/pm/PackageManagerService;->mShouldRestoreconData:Z
 
     if-eqz v4, :cond_36
 
-    .line 6071
     const-string v4, "PackageManager"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -28008,7 +27455,6 @@
 
     invoke-static {v4, v5}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 6072
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mInstaller:Lcom/android/server/pm/Installer;
@@ -28031,7 +27477,6 @@
 
     invoke-virtual {v4, v5, v11, v13}, Lcom/android/server/pm/Installer;->restoreconData(Ljava/lang/String;Ljava/lang/String;I)Z
 
-    .line 6097
     .end local v39    # "currentUid":I
     :cond_36
     :goto_12
@@ -28043,13 +27488,11 @@
 
     goto/16 :goto_a
 
-    .line 6042
     .restart local v39    # "currentUid":I
     .restart local v87    # "recovered":Z
     :cond_37
     if-nez v87, :cond_33
 
-    .line 6045
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v5, -0x18
@@ -28060,7 +27503,6 @@
 
     throw v4
 
-    .line 6066
     .restart local v63    # "msg":Ljava/lang/String;
     :catchall_2
     move-exception v4
@@ -28072,7 +27514,6 @@
 
     throw v4
 
-    .line 6081
     .end local v39    # "currentUid":I
     .end local v63    # "msg":Ljava/lang/String;
     .end local v87    # "recovered":Z
@@ -28097,11 +27538,9 @@
 
     move-result v89
 
-    .line 6083
     .restart local v89    # "ret":I
     if-gez v89, :cond_39
 
-    .line 6085
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/4 v5, -0x4
@@ -28136,7 +27575,6 @@
 
     throw v4
 
-    .line 6089
     :cond_39
     invoke-virtual/range {v40 .. v40}, Ljava/io/File;->exists()Z
 
@@ -28144,7 +27582,6 @@
 
     if-eqz v4, :cond_3a
 
-    .line 6090
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -28157,7 +27594,6 @@
 
     goto :goto_12
 
-    .line 6092
     :cond_3a
     const-string v4, "PackageManager"
 
@@ -28183,7 +27619,6 @@
 
     invoke-static {v4, v5}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 6093
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -28194,7 +27629,6 @@
 
     goto/16 :goto_12
 
-    .line 6118
     .end local v89    # "ret":I
     .end local v101    # "uidError":Z
     .restart local v34    # "codePath":Ljava/lang/String;
@@ -28204,7 +27638,6 @@
     :catch_3
     move-exception v51
 
-    .line 6119
     .local v51, "ioe":Ljava/io/IOException;
     :try_start_b
     const-string v4, "PackageManager"
@@ -28233,7 +27666,6 @@
     :try_end_b
     .catchall {:try_start_b .. :try_end_b} :catchall_3
 
-    .line 6121
     invoke-static/range {v46 .. v46}, Llibcore/io/IoUtils;->closeQuietly(Ljava/lang/AutoCloseable;)V
 
     goto/16 :goto_b
@@ -28246,12 +27678,10 @@
 
     throw v4
 
-    .line 6134
     .end local v46    # "handle":Lcom/android/internal/content/NativeLibraryHelper$Handle;
     :cond_3b
     invoke-direct/range {p0 .. p2}, Lcom/android/server/pm/PackageManagerService;->setNativeLibraryPaths(Landroid/content/pm/PackageParser$Package;I)V
 
-    .line 6136
     invoke-static/range {p1 .. p1}, Lcom/android/server/pm/PackageManagerService;->isForwardLocked(Landroid/content/pm/PackageParser$Package;)Z
 
     move-result v4
@@ -28267,7 +27697,6 @@
     :cond_3c
     const/16 v52, 0x1
 
-    .line 6137
     .local v52, "isAsec":Z
     :goto_13
     move-object/from16 v0, p1
@@ -28278,7 +27707,6 @@
 
     move-object/from16 v68, v0
 
-    .line 6138
     .local v68, "nativeLibraryRootStr":Ljava/lang/String;
     move-object/from16 v0, p1
 
@@ -28288,23 +27716,19 @@
 
     move/from16 v103, v0
 
-    .line 6140
     .local v103, "useIsaSpecificSubdirs":Z
     const/16 v46, 0x0
 
-    .line 6142
     .restart local v46    # "handle":Lcom/android/internal/content/NativeLibraryHelper$Handle;
     :try_start_c
     invoke-static/range {v92 .. v92}, Lcom/android/internal/content/NativeLibraryHelper$Handle;->create(Ljava/io/File;)Lcom/android/internal/content/NativeLibraryHelper$Handle;
 
     move-result-object v46
 
-    .line 6149
     new-instance v67, Ljava/io/File;
 
     invoke-direct/range {v67 .. v68}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 6152
     .local v67, "nativeLibraryRoot":Ljava/io/File;
     move-object/from16 v0, p1
 
@@ -28314,7 +27738,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ApplicationInfo;->primaryCpuAbi:Ljava/lang/String;
 
-    .line 6153
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -28323,7 +27746,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ApplicationInfo;->secondaryCpuAbi:Ljava/lang/String;
 
-    .line 6154
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -28334,7 +27756,6 @@
 
     if-eqz v4, :cond_46
 
-    .line 6158
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->cpuAbiOverride:Ljava/lang/String;
@@ -28353,22 +27774,18 @@
 
     if-nez v4, :cond_3d
 
-    .line 6160
     const-string v4, "PackageManager"
 
     const-string v5, "Ignoring abiOverride for multi arch application."
 
     invoke-static {v4, v5}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 6163
     :cond_3d
     const/16 v27, -0x72
 
-    .line 6164
     .local v27, "abi32":I
     const/16 v28, -0x72
 
-    .line 6165
     .local v28, "abi64":I
     sget-object v4, Landroid/os/Build;->SUPPORTED_32_BIT_ABIS:[Ljava/lang/String;
 
@@ -28376,10 +27793,8 @@
 
     if-lez v4, :cond_3e
 
-    .line 6166
     if-eqz v52, :cond_43
 
-    .line 6167
     sget-object v4, Landroid/os/Build;->SUPPORTED_32_BIT_ABIS:[Ljava/lang/String;
 
     move-object/from16 v0, v46
@@ -28388,7 +27803,6 @@
 
     move-result v27
 
-    .line 6175
     :cond_3e
     :goto_14
     const-string v4, "Error unpackaging 32 bit native libs for multiarch app."
@@ -28397,17 +27811,14 @@
 
     invoke-static {v4, v0}, Lcom/android/server/pm/PackageManagerService;->maybeThrowExceptionForMultiArchCopy(Ljava/lang/String;I)V
 
-    .line 6178
     sget-object v4, Landroid/os/Build;->SUPPORTED_64_BIT_ABIS:[Ljava/lang/String;
 
     array-length v4, v4
 
     if-lez v4, :cond_3f
 
-    .line 6179
     if-eqz v52, :cond_44
 
-    .line 6180
     sget-object v4, Landroid/os/Build;->SUPPORTED_64_BIT_ABIS:[Ljava/lang/String;
 
     move-object/from16 v0, v46
@@ -28416,7 +27827,6 @@
 
     move-result v28
 
-    .line 6188
     :cond_3f
     :goto_15
     const-string v4, "Error unpackaging 64 bit native libs for multiarch app."
@@ -28425,10 +27835,8 @@
 
     invoke-static {v4, v0}, Lcom/android/server/pm/PackageManagerService;->maybeThrowExceptionForMultiArchCopy(Ljava/lang/String;I)V
 
-    .line 6191
     if-ltz v28, :cond_40
 
-    .line 6192
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -28439,20 +27847,16 @@
 
     iput-object v5, v4, Landroid/content/pm/ApplicationInfo;->primaryCpuAbi:Ljava/lang/String;
 
-    .line 6195
     :cond_40
     if-ltz v27, :cond_41
 
-    .line 6196
     sget-object v4, Landroid/os/Build;->SUPPORTED_32_BIT_ABIS:[Ljava/lang/String;
 
     aget-object v26, v4, v27
 
-    .line 6197
     .local v26, "abi":Ljava/lang/String;
     if-ltz v28, :cond_45
 
-    .line 6198
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -28464,7 +27868,6 @@
     .catch Ljava/io/IOException; {:try_start_c .. :try_end_c} :catch_4
     .catchall {:try_start_c .. :try_end_c} :catchall_5
 
-    .line 6267
     .end local v26    # "abi":Ljava/lang/String;
     .end local v27    # "abi32":I
     .end local v28    # "abi64":I
@@ -28472,19 +27875,16 @@
     :goto_16
     invoke-static/range {v46 .. v46}, Llibcore/io/IoUtils;->closeQuietly(Ljava/lang/AutoCloseable;)V
 
-    .line 6272
     .end local v67    # "nativeLibraryRoot":Ljava/io/File;
     :goto_17
     invoke-direct/range {p0 .. p2}, Lcom/android/server/pm/PackageManagerService;->setNativeLibraryPaths(Landroid/content/pm/PackageParser$Package;I)V
 
-    .line 6275
     sget-object v4, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v4}, Lcom/android/server/pm/UserManagerService;->getUserIds()[I
 
     move-result-object v105
 
-    .line 6276
     .local v105, "userIds":[I
     move-object/from16 v0, p0
 
@@ -28492,7 +27892,6 @@
 
     monitor-enter v5
 
-    .line 6280
     :try_start_d
     move-object/from16 v0, p1
 
@@ -28514,7 +27913,6 @@
 
     if-nez v4, :cond_54
 
-    .line 6282
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -28523,7 +27921,6 @@
 
     move-object/from16 v66, v0
 
-    .line 6283
     .local v66, "nativeLibPath":Ljava/lang/String;
     move-object/from16 v31, v105
 
@@ -28547,7 +27944,6 @@
 
     aget v104, v31, v48
 
-    .line 6284
     .local v104, "userId":I
     move-object/from16 v0, p0
 
@@ -28567,7 +27963,6 @@
 
     if-gez v4, :cond_53
 
-    .line 6285
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v11, -0x6e
@@ -28602,7 +27997,6 @@
 
     throw v4
 
-    .line 6290
     .end local v31    # "arr$":[I
     .end local v48    # "i$":I
     .end local v62    # "len$":I
@@ -28617,7 +28011,6 @@
 
     throw v4
 
-    .line 6136
     .end local v46    # "handle":Lcom/android/internal/content/NativeLibraryHelper$Handle;
     .end local v52    # "isAsec":Z
     .end local v68    # "nativeLibraryRootStr":Ljava/lang/String;
@@ -28628,7 +28021,6 @@
 
     goto/16 :goto_13
 
-    .line 6169
     .restart local v27    # "abi32":I
     .restart local v28    # "abi64":I
     .restart local v46    # "handle":Lcom/android/internal/content/NativeLibraryHelper$Handle;
@@ -28652,7 +28044,6 @@
 
     goto/16 :goto_14
 
-    .line 6182
     :cond_44
     sget-object v4, Landroid/os/Build;->SUPPORTED_64_BIT_ABIS:[Ljava/lang/String;
 
@@ -28668,7 +28059,6 @@
 
     goto/16 :goto_15
 
-    .line 6200
     .restart local v26    # "abi":Ljava/lang/String;
     :cond_45
     move-object/from16 v0, p1
@@ -28684,7 +28074,6 @@
 
     goto/16 :goto_16
 
-    .line 6264
     .end local v26    # "abi":Ljava/lang/String;
     .end local v27    # "abi32":I
     .end local v28    # "abi64":I
@@ -28692,7 +28081,6 @@
     :catch_4
     move-exception v51
 
-    .line 6265
     .restart local v51    # "ioe":Ljava/io/IOException;
     :try_start_f
     const-string v4, "PackageManager"
@@ -28723,12 +28111,10 @@
     :try_end_f
     .catchall {:try_start_f .. :try_end_f} :catchall_5
 
-    .line 6267
     invoke-static/range {v46 .. v46}, Llibcore/io/IoUtils;->closeQuietly(Ljava/lang/AutoCloseable;)V
 
     goto/16 :goto_17
 
-    .line 6204
     .end local v51    # "ioe":Ljava/io/IOException;
     .restart local v67    # "nativeLibraryRoot":Ljava/io/File;
     :cond_46
@@ -28745,12 +28131,10 @@
 
     aput-object v36, v29, v4
 
-    .line 6211
     .local v29, "abiList":[Ljava/lang/String;
     :goto_19
     const/16 v69, 0x0
 
-    .line 6212
     .local v69, "needsRenderScriptOverride":Z
     sget-object v4, Landroid/os/Build;->SUPPORTED_64_BIT_ABIS:[Ljava/lang/String;
 
@@ -28766,17 +28150,13 @@
 
     if-eqz v4, :cond_47
 
-    .line 6214
     sget-object v29, Landroid/os/Build;->SUPPORTED_32_BIT_ABIS:[Ljava/lang/String;
 
-    .line 6215
     const/16 v69, 0x1
 
-    .line 6219
     :cond_47
     if-eqz v52, :cond_49
 
-    .line 6220
     move-object/from16 v0, v46
 
     move-object/from16 v1, v29
@@ -28785,7 +28165,6 @@
 
     move-result v35
 
-    .line 6251
     .local v35, "copyRet":I
     :goto_1a
     if-gez v35, :cond_50
@@ -28796,7 +28175,6 @@
 
     if-eq v0, v4, :cond_50
 
-    .line 6252
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v5, -0x6e
@@ -28828,7 +28206,6 @@
     .catch Ljava/io/IOException; {:try_start_10 .. :try_end_10} :catch_4
     .catchall {:try_start_10 .. :try_end_10} :catchall_5
 
-    .line 6267
     .end local v29    # "abiList":[Ljava/lang/String;
     .end local v35    # "copyRet":I
     .end local v67    # "nativeLibraryRoot":Ljava/io/File;
@@ -28840,7 +28217,6 @@
 
     throw v4
 
-    .line 6204
     .restart local v67    # "nativeLibraryRoot":Ljava/io/File;
     :cond_48
     :try_start_11
@@ -28848,7 +28224,6 @@
 
     goto :goto_19
 
-    .line 6222
     .restart local v29    # "abiList":[Ljava/lang/String;
     .restart local v69    # "needsRenderScriptOverride":Z
     :cond_49
@@ -28860,7 +28235,6 @@
 
     move-result v83
 
-    .line 6224
     .local v83, "preCopyRet":I
     if-gez v83, :cond_4a
 
@@ -28870,7 +28244,6 @@
 
     if-eq v0, v4, :cond_4a
 
-    .line 6225
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v5, -0x6e
@@ -28899,27 +28272,22 @@
 
     throw v4
 
-    .line 6230
     :cond_4a
     if-ltz v83, :cond_4c
 
-    .line 6231
     aget-object v85, v29, v83
 
-    .line 6236
     .local v85, "primaryCpuAbi":Ljava/lang/String;
     :goto_1b
     invoke-static/range {v85 .. v85}, Ldalvik/system/VMRuntime;->getInstructionSet(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v50
 
-    .line 6237
     .local v50, "instructionSet":Ljava/lang/String;
     invoke-static/range {v50 .. v50}, Lcom/android/server/pm/PackageManagerService;->getDexCodeInstructionSet(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v41
 
-    .line 6238
     .local v41, "dexCodeInstructionSet":Ljava/lang/String;
     move-object/from16 v0, p1
 
@@ -28937,13 +28305,11 @@
 
     move-result v42
 
-    .line 6239
     .local v42, "dexoptRequired":B
     if-eqz v42, :cond_4d
 
     const/16 v55, 0x1
 
-    .line 6241
     .local v55, "isDexOptNeeded":Z
     :goto_1c
     if-nez v55, :cond_4b
@@ -28957,12 +28323,10 @@
     :cond_4b
     const/16 v54, 0x1
 
-    .line 6242
     .local v54, "isCopyNativeBinariesNeeded":Z
     :goto_1d
     if-eqz v54, :cond_4f
 
-    .line 6243
     move-object/from16 v0, v46
 
     move-object/from16 v1, v67
@@ -28978,7 +28342,6 @@
     .restart local v35    # "copyRet":I
     goto/16 :goto_1a
 
-    .line 6233
     .end local v35    # "copyRet":I
     .end local v41    # "dexCodeInstructionSet":Ljava/lang/String;
     .end local v42    # "dexoptRequired":B
@@ -28994,7 +28357,6 @@
     .restart local v85    # "primaryCpuAbi":Ljava/lang/String;
     goto :goto_1b
 
-    .line 6239
     .restart local v41    # "dexCodeInstructionSet":Ljava/lang/String;
     .restart local v42    # "dexoptRequired":B
     .restart local v50    # "instructionSet":Ljava/lang/String;
@@ -29003,14 +28365,12 @@
 
     goto :goto_1c
 
-    .line 6241
     .restart local v55    # "isDexOptNeeded":Z
     :cond_4e
     const/16 v54, 0x0
 
     goto :goto_1d
 
-    .line 6247
     .restart local v54    # "isCopyNativeBinariesNeeded":Z
     :cond_4f
     move/from16 v35, v83
@@ -29018,7 +28378,6 @@
     .restart local v35    # "copyRet":I
     goto/16 :goto_1a
 
-    .line 6256
     .end local v41    # "dexCodeInstructionSet":Ljava/lang/String;
     .end local v42    # "dexoptRequired":B
     .end local v50    # "instructionSet":Ljava/lang/String;
@@ -29029,7 +28388,6 @@
     :cond_50
     if-ltz v35, :cond_51
 
-    .line 6257
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -29040,7 +28398,6 @@
 
     goto/16 :goto_16
 
-    .line 6258
     :cond_51
     const/16 v4, -0x72
 
@@ -29050,7 +28407,6 @@
 
     if-eqz v36, :cond_52
 
-    .line 6259
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -29061,11 +28417,9 @@
 
     goto/16 :goto_16
 
-    .line 6260
     :cond_52
     if-eqz v69, :cond_41
 
-    .line 6261
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -29081,7 +28435,6 @@
 
     goto/16 :goto_16
 
-    .line 6283
     .end local v29    # "abiList":[Ljava/lang/String;
     .end local v35    # "copyRet":I
     .end local v67    # "nativeLibraryRoot":Ljava/io/File;
@@ -29097,7 +28450,6 @@
 
     goto/16 :goto_18
 
-    .line 6290
     .end local v31    # "arr$":[I
     .end local v48    # "i$":I
     .end local v62    # "len$":I
@@ -29111,7 +28463,6 @@
 
     goto/16 :goto_c
 
-    .line 6298
     .end local v46    # "handle":Lcom/android/internal/content/NativeLibraryHelper$Handle;
     .end local v52    # "isAsec":Z
     .end local v68    # "nativeLibraryRootStr":Ljava/lang/String;
@@ -29126,19 +28477,16 @@
 
     goto/16 :goto_d
 
-    .line 6332
     :cond_56
     const/4 v4, 0x0
 
     goto/16 :goto_e
 
-    .line 6337
     :cond_57
     const/4 v15, 0x0
 
     goto/16 :goto_f
 
-    .line 6343
     :cond_58
     move-object/from16 v0, p0
 
@@ -29158,7 +28506,6 @@
 
     if-eqz v4, :cond_59
 
-    .line 6345
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -29169,11 +28516,9 @@
 
     iput v5, v4, Landroid/content/pm/ApplicationInfo;->flags:I
 
-    .line 6348
     :cond_59
     const/16 v33, 0x0
 
-    .line 6351
     .local v33, "clientLibPkgs":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageParser$Package;>;"
     move-object/from16 v0, p0
 
@@ -29181,7 +28526,6 @@
 
     monitor-enter v5
 
-    .line 6352
     :try_start_13
     move-object/from16 v0, p1
 
@@ -29193,14 +28537,12 @@
 
     if-eqz v4, :cond_61
 
-    .line 6354
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->libraryNames:Ljava/util/ArrayList;
 
     if-eqz v4, :cond_61
 
-    .line 6355
     const/16 v47, 0x0
 
     .restart local v47    # "i":I
@@ -29217,7 +28559,6 @@
 
     if-ge v0, v4, :cond_60
 
-    .line 6356
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->libraryNames:Ljava/util/ArrayList;
@@ -29230,11 +28571,9 @@
 
     check-cast v64, Ljava/lang/String;
 
-    .line 6357
     .local v64, "name":Ljava/lang/String;
     const/16 v30, 0x0
 
-    .line 6358
     .local v30, "allowed":Z
     invoke-static/range {p1 .. p1}, Lcom/android/server/pm/PackageManagerService;->isUpdatedSystemApp(Landroid/content/pm/PackageParser$Package;)Z
 
@@ -29242,7 +28581,6 @@
 
     if-eqz v4, :cond_5d
 
-    .line 6369
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -29255,7 +28593,6 @@
 
     move-result-object v96
 
-    .line 6371
     .local v96, "sysPs":Lcom/android/server/pm/PackageSetting;
     move-object/from16 v0, v96
 
@@ -29271,7 +28608,6 @@
 
     if-eqz v4, :cond_5a
 
-    .line 6372
     const/16 v59, 0x0
 
     .restart local v59    # "j":I
@@ -29290,7 +28626,6 @@
 
     if-ge v0, v4, :cond_5a
 
-    .line 6373
     move-object/from16 v0, v96
 
     iget-object v4, v0, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
@@ -29311,20 +28646,16 @@
 
     if-eqz v4, :cond_5c
 
-    .line 6374
     const/16 v30, 0x1
 
-    .line 6375
     const/16 v30, 0x1
 
-    .line 6383
     .end local v59    # "j":I
     .end local v96    # "sysPs":Lcom/android/server/pm/PackageSetting;
     :cond_5a
     :goto_20
     if-eqz v30, :cond_5f
 
-    .line 6384
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSharedLibraries:Landroid/util/ArrayMap;
@@ -29337,7 +28668,6 @@
 
     if-nez v4, :cond_5e
 
-    .line 6385
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSharedLibraries:Landroid/util/ArrayMap;
@@ -29356,14 +28686,12 @@
 
     invoke-virtual {v4, v0, v11}, Landroid/util/ArrayMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 6355
     :cond_5b
     :goto_21
     add-int/lit8 v47, v47, 0x1
 
     goto/16 :goto_1e
 
-    .line 6372
     .restart local v59    # "j":I
     .restart local v96    # "sysPs":Lcom/android/server/pm/PackageSetting;
     :cond_5c
@@ -29371,7 +28699,6 @@
 
     goto :goto_1f
 
-    .line 6381
     .end local v59    # "j":I
     .end local v96    # "sysPs":Lcom/android/server/pm/PackageSetting;
     :cond_5d
@@ -29379,7 +28706,6 @@
 
     goto :goto_20
 
-    .line 6386
     :cond_5e
     move-object/from16 v0, p1
 
@@ -29393,7 +28719,6 @@
 
     if-nez v4, :cond_5b
 
-    .line 6387
     const-string v4, "PackageManager"
 
     new-instance v11, Ljava/lang/StringBuilder;
@@ -29440,7 +28765,6 @@
 
     goto :goto_21
 
-    .line 6403
     .end local v30    # "allowed":Z
     .end local v47    # "i":I
     .end local v64    # "name":Ljava/lang/String;
@@ -29453,7 +28777,6 @@
 
     throw v4
 
-    .line 6391
     .restart local v30    # "allowed":Z
     .restart local v47    # "i":I
     .restart local v64    # "name":Ljava/lang/String;
@@ -29505,7 +28828,6 @@
 
     goto :goto_21
 
-    .line 6395
     .end local v30    # "allowed":Z
     .end local v64    # "name":Ljava/lang/String;
     :cond_60
@@ -29515,27 +28837,22 @@
 
     if-nez v4, :cond_61
 
-    .line 6399
     invoke-direct/range {p0 .. p1}, Lcom/android/server/pm/PackageManagerService;->updateAllSharedLibrariesLPw(Landroid/content/pm/PackageParser$Package;)Ljava/util/ArrayList;
 
     move-result-object v33
 
-    .line 6403
     .end local v47    # "i":I
     :cond_61
     monitor-exit v5
     :try_end_14
     .catchall {:try_start_14 .. :try_end_14} :catchall_6
 
-    .line 6408
     if-eqz v33, :cond_64
 
-    .line 6409
     and-int/lit8 v4, p3, 0x2
 
     if-nez v4, :cond_64
 
-    .line 6410
     const/16 v47, 0x0
 
     .restart local v47    # "i":I
@@ -29548,7 +28865,6 @@
 
     if-ge v0, v4, :cond_64
 
-    .line 6411
     move-object/from16 v0, v33
 
     move/from16 v1, v47
@@ -29559,7 +28875,6 @@
 
     check-cast v12, Landroid/content/pm/PackageParser$Package;
 
-    .line 6412
     .local v12, "clientPkg":Landroid/content/pm/PackageParser$Package;
     const/4 v13, 0x0
 
@@ -29584,7 +28899,6 @@
 
     if-ne v4, v5, :cond_63
 
-    .line 6414
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v5, -0xb
@@ -29595,19 +28909,16 @@
 
     throw v4
 
-    .line 6412
     :cond_62
     const/4 v15, 0x0
 
     goto :goto_23
 
-    .line 6410
     :cond_63
     add-int/lit8 v47, v47, 0x1
 
     goto :goto_22
 
-    .line 6424
     .end local v12    # "clientPkg":Landroid/content/pm/PackageParser$Package;
     .end local v47    # "i":I
     :cond_64
@@ -29617,7 +28928,6 @@
 
     if-eqz v4, :cond_65
 
-    .line 6425
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -29636,11 +28946,9 @@
 
     invoke-direct {v0, v4, v5, v11}, Lcom/android/server/pm/PackageManagerService;->killApplication(Ljava/lang/String;ILjava/lang/String;)V
 
-    .line 6430
     :cond_65
     if-eqz v33, :cond_66
 
-    .line 6431
     const/16 v47, 0x0
 
     .restart local v47    # "i":I
@@ -29653,7 +28961,6 @@
 
     if-ge v0, v4, :cond_66
 
-    .line 6432
     move-object/from16 v0, v33
 
     move/from16 v1, v47
@@ -29664,7 +28971,6 @@
 
     check-cast v12, Landroid/content/pm/PackageParser$Package;
 
-    .line 6433
     .restart local v12    # "clientPkg":Landroid/content/pm/PackageParser$Package;
     iget-object v4, v12, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
@@ -29680,12 +28986,10 @@
 
     invoke-direct {v0, v4, v5, v11}, Lcom/android/server/pm/PackageManagerService;->killApplication(Ljava/lang/String;ILjava/lang/String;)V
 
-    .line 6431
     add-int/lit8 v47, v47, 0x1
 
     goto :goto_24
 
-    .line 6439
     .end local v12    # "clientPkg":Landroid/content/pm/PackageParser$Package;
     .end local v47    # "i":I
     :cond_66
@@ -29695,7 +28999,6 @@
 
     monitor-enter v11
 
-    .line 6443
     :try_start_15
     move-object/from16 v0, p0
 
@@ -29707,14 +29010,12 @@
 
     invoke-virtual {v4, v0, v1}, Lcom/android/server/pm/Settings;->insertPackageSettingLPw(Lcom/android/server/pm/PackageSetting;Landroid/content/pm/PackageParser$Package;)V
 
-    .line 6446
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mIconPackHelper:Landroid/app/IconPackHelper;
 
     if-eqz v4, :cond_67
 
-    .line 6447
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mIconPackHelper:Landroid/app/IconPackHelper;
@@ -29727,7 +29028,6 @@
 
     move-result v49
 
-    .line 6448
     .local v49, "id":I
     move-object/from16 v0, p1
 
@@ -29737,7 +29037,6 @@
 
     iput v0, v4, Landroid/content/pm/ApplicationInfo;->themedIcon:I
 
-    .line 6452
     .end local v49    # "id":I
     :cond_67
     move-object/from16 v0, p0
@@ -29754,7 +29053,6 @@
 
     invoke-virtual {v4, v5, v0}, Landroid/util/ArrayMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 6454
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -29765,7 +29063,6 @@
 
     move-result-object v57
 
-    .line 6455
     .local v57, "iter":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageCleanItem;>;"
     :cond_68
     :goto_25
@@ -29775,14 +29072,12 @@
 
     if-eqz v4, :cond_69
 
-    .line 6456
     invoke-interface/range {v57 .. v57}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v56
 
     check-cast v56, Landroid/content/pm/PackageCleanItem;
 
-    .line 6457
     .local v56, "item":Landroid/content/pm/PackageCleanItem;
     move-object/from16 v0, v56
 
@@ -29796,12 +29091,10 @@
 
     if-eqz v4, :cond_68
 
-    .line 6458
     invoke-interface/range {v57 .. v57}, Ljava/util/Iterator;->remove()V
 
     goto :goto_25
 
-    .line 6873
     .end local v56    # "item":Landroid/content/pm/PackageCleanItem;
     .end local v57    # "iter":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageCleanItem;>;"
     :catchall_7
@@ -29813,7 +29106,6 @@
 
     throw v4
 
-    .line 6463
     .restart local v57    # "iter":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageCleanItem;>;"
     :cond_69
     const-wide/16 v4, 0x0
@@ -29822,7 +29114,6 @@
 
     if-eqz v4, :cond_6e
 
-    .line 6464
     :try_start_16
     move-object/from16 v0, v81
 
@@ -29834,7 +29125,6 @@
 
     if-nez v4, :cond_6d
 
-    .line 6465
     move-wide/from16 v0, p4
 
     move-object/from16 v2, v81
@@ -29847,7 +29137,6 @@
 
     iput-wide v0, v2, Lcom/android/server/pm/PackageSetting;->firstInstallTime:J
 
-    .line 6481
     :cond_6a
     :goto_26
     move-object/from16 v0, p0
@@ -29860,7 +29149,6 @@
     :try_end_16
     .catchall {:try_start_16 .. :try_end_16} :catchall_7
 
-    .line 6484
     .local v61, "ksms":Lcom/android/server/pm/KeySetManagerService;
     :try_start_17
     move-object/from16 v0, p1
@@ -29871,7 +29159,6 @@
 
     invoke-virtual {v0, v4}, Lcom/android/server/pm/KeySetManagerService;->removeAppKeySetDataLPw(Ljava/lang/String;)V
 
-    .line 6485
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
@@ -29884,14 +29171,12 @@
 
     invoke-virtual {v0, v4, v5}, Lcom/android/server/pm/KeySetManagerService;->addSigningKeySetToPackageLPw(Ljava/lang/String;Landroid/util/ArraySet;)V
 
-    .line 6486
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->mKeySetMapping:Landroid/util/ArrayMap;
 
     if-eqz v4, :cond_6c
 
-    .line 6488
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->mKeySetMapping:Landroid/util/ArrayMap;
@@ -29919,7 +29204,6 @@
 
     check-cast v44, Ljava/util/Map$Entry;
 
-    .line 6489
     .local v44, "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/util/ArraySet<Ljava/security/PublicKey;>;>;"
     invoke-interface/range {v44 .. v44}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
@@ -29927,7 +29211,6 @@
 
     if-eqz v4, :cond_6b
 
-    .line 6490
     move-object/from16 v0, p1
 
     iget-object v13, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
@@ -29954,13 +29237,11 @@
 
     goto :goto_27
 
-    .line 6500
     .end local v44    # "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/util/ArraySet<Ljava/security/PublicKey;>;>;"
     .end local v48    # "i$":Ljava/util/Iterator;
     :catch_5
     move-exception v43
 
-    .line 6501
     .local v43, "e":Ljava/lang/NullPointerException;
     :try_start_18
     const-string v4, "PackageManager"
@@ -29991,7 +29272,6 @@
 
     invoke-static {v4, v5, v0}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 6506
     .end local v43    # "e":Ljava/lang/NullPointerException;
     :cond_6c
     :goto_28
@@ -30003,11 +29283,9 @@
 
     move-result v24
 
-    .line 6507
     .restart local v24    # "N":I
     const/16 v86, 0x0
 
-    .line 6509
     .local v86, "r":Ljava/lang/StringBuilder;
     const/16 v47, 0x0
 
@@ -30019,7 +29297,6 @@
 
     if-ge v0, v1, :cond_78
 
-    .line 6510
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->providers:Ljava/util/ArrayList;
@@ -30032,7 +29309,6 @@
 
     check-cast v75, Landroid/content/pm/PackageParser$Provider;
 
-    .line 6511
     .restart local v75    # "p":Landroid/content/pm/PackageParser$Provider;
     move-object/from16 v0, v75
 
@@ -30062,7 +29338,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ProviderInfo;->processName:Ljava/lang/String;
 
-    .line 6513
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mProviders:Lcom/android/server/pm/PackageManagerService$ProviderIntentResolver;
@@ -30071,7 +29346,6 @@
 
     invoke-virtual {v4, v0}, Lcom/android/server/pm/PackageManagerService$ProviderIntentResolver;->addProvider(Landroid/content/pm/PackageParser$Provider;)V
 
-    .line 6514
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
@@ -30082,7 +29356,6 @@
 
     iput-boolean v4, v0, Landroid/content/pm/PackageParser$Provider;->syncable:Z
 
-    .line 6515
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
@@ -30091,7 +29364,6 @@
 
     if-eqz v4, :cond_75
 
-    .line 6516
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
@@ -30104,7 +29376,6 @@
 
     move-result-object v65
 
-    .line 6517
     .restart local v65    # "names":[Ljava/lang/String;
     move-object/from16 v0, v75
 
@@ -30114,7 +29385,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ProviderInfo;->authority:Ljava/lang/String;
 
-    .line 6518
     const/16 v59, 0x0
 
     .restart local v59    # "j":I
@@ -30131,7 +29401,6 @@
 
     if-ge v0, v4, :cond_74
 
-    .line 6519
     const/4 v4, 0x1
 
     move/from16 v0, v59
@@ -30144,12 +29413,10 @@
 
     if-eqz v4, :cond_ad
 
-    .line 6527
     new-instance v75, Landroid/content/pm/PackageParser$Provider;
 
     invoke-direct/range {v75 .. v76}, Landroid/content/pm/PackageParser$Provider;-><init>(Landroid/content/pm/PackageParser$Provider;)V
 
-    .line 6528
     .end local v76    # "p":Landroid/content/pm/PackageParser$Provider;
     .restart local v75    # "p":Landroid/content/pm/PackageParser$Provider;
     const/4 v4, 0x0
@@ -30158,7 +29425,6 @@
 
     iput-boolean v4, v0, Landroid/content/pm/PackageParser$Provider;->syncable:Z
 
-    .line 6530
     :goto_2b
     move-object/from16 v0, p0
 
@@ -30172,7 +29438,6 @@
 
     if-nez v4, :cond_72
 
-    .line 6531
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mProvidersByAuthority:Landroid/util/ArrayMap;
@@ -30183,7 +29448,6 @@
 
     invoke-virtual {v4, v5, v0}, Landroid/util/ArrayMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 6532
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
@@ -30192,7 +29456,6 @@
 
     if-nez v4, :cond_71
 
-    .line 6533
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
@@ -30201,7 +29464,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ProviderInfo;->authority:Ljava/lang/String;
 
-    .line 6518
     :goto_2c
     add-int/lit8 v59, v59, 0x1
 
@@ -30211,7 +29473,6 @@
     .restart local v76    # "p":Landroid/content/pm/PackageParser$Provider;
     goto :goto_2a
 
-    .line 6466
     .end local v24    # "N":I
     .end local v47    # "i":I
     .end local v59    # "j":I
@@ -30224,7 +29485,6 @@
 
     if-eqz v4, :cond_6a
 
-    .line 6467
     move-wide/from16 v0, p4
 
     move-object/from16 v2, v81
@@ -30233,7 +29493,6 @@
 
     goto/16 :goto_26
 
-    .line 6469
     :cond_6e
     move-object/from16 v0, v81
 
@@ -30245,7 +29504,6 @@
 
     if-nez v4, :cond_6f
 
-    .line 6471
     move-wide/from16 v0, v94
 
     move-object/from16 v2, v81
@@ -30260,13 +29518,11 @@
 
     goto/16 :goto_26
 
-    .line 6472
     :cond_6f
     and-int/lit8 v4, p2, 0x40
 
     if-eqz v4, :cond_6a
 
-    .line 6473
     move-object/from16 v0, v81
 
     iget-wide v4, v0, Lcom/android/server/pm/PackageSetting;->timeStamp:J
@@ -30275,7 +29531,6 @@
 
     if-eqz v4, :cond_6a
 
-    .line 6476
     move-wide/from16 v0, v94
 
     move-object/from16 v2, v81
@@ -30286,7 +29541,6 @@
 
     goto/16 :goto_26
 
-    .line 6494
     .restart local v48    # "i$":Ljava/util/Iterator;
     .restart local v61    # "ksms":Lcom/android/server/pm/KeySetManagerService;
     :cond_70
@@ -30297,7 +29551,6 @@
 
     if-eqz v4, :cond_6c
 
-    .line 6495
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->mUpgradeKeySets:Landroid/util/ArraySet;
@@ -30319,7 +29572,6 @@
 
     check-cast v102, Ljava/lang/String;
 
-    .line 6496
     .local v102, "upgradeAlias":Ljava/lang/String;
     move-object/from16 v0, p1
 
@@ -30337,13 +29589,11 @@
 
     goto :goto_2d
 
-    .line 6502
     .end local v48    # "i$":Ljava/util/Iterator;
     .end local v102    # "upgradeAlias":Ljava/lang/String;
     :catch_6
     move-exception v43
 
-    .line 6503
     .local v43, "e":Ljava/lang/IllegalArgumentException;
     :try_start_1a
     const-string v4, "PackageManager"
@@ -30376,7 +29626,6 @@
 
     goto/16 :goto_28
 
-    .line 6535
     .end local v43    # "e":Ljava/lang/IllegalArgumentException;
     .restart local v24    # "N":I
     .restart local v47    # "i":I
@@ -30423,7 +29672,6 @@
 
     goto/16 :goto_2c
 
-    .line 6544
     :cond_72
     move-object/from16 v0, p0
 
@@ -30437,7 +29685,6 @@
 
     check-cast v73, Landroid/content/pm/PackageParser$Provider;
 
-    .line 6545
     .restart local v73    # "other":Landroid/content/pm/PackageParser$Provider;
     const-string v5, "PackageManager"
 
@@ -30519,7 +29766,6 @@
     :cond_74
     move-object/from16 v75, v76
 
-    .line 6553
     .end local v59    # "j":I
     .end local v65    # "names":[Ljava/lang/String;
     .end local v76    # "p":Landroid/content/pm/PackageParser$Provider;
@@ -30529,10 +29775,8 @@
 
     if-eqz v4, :cond_76
 
-    .line 6554
     if-nez v86, :cond_77
 
-    .line 6555
     new-instance v86, Ljava/lang/StringBuilder;
 
     .end local v86    # "r":Ljava/lang/StringBuilder;
@@ -30542,7 +29786,6 @@
 
     invoke-direct {v0, v4}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 6559
     .restart local v86    # "r":Ljava/lang/StringBuilder;
     :goto_2f
     move-object/from16 v0, v75
@@ -30555,13 +29798,11 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6509
     :cond_76
     add-int/lit8 v47, v47, 0x1
 
     goto/16 :goto_29
 
-    .line 6557
     :cond_77
     const/16 v4, 0x20
 
@@ -30571,12 +29812,10 @@
 
     goto :goto_2f
 
-    .line 6562
     .end local v75    # "p":Landroid/content/pm/PackageParser$Provider;
     :cond_78
     if-eqz v86, :cond_79
 
-    .line 6566
     :cond_79
     move-object/from16 v0, p1
 
@@ -30586,10 +29825,8 @@
 
     move-result v24
 
-    .line 6567
     const/16 v86, 0x0
 
-    .line 6568
     const/16 v47, 0x0
 
     :goto_30
@@ -30599,7 +29836,6 @@
 
     if-ge v0, v1, :cond_7c
 
-    .line 6569
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->services:Ljava/util/ArrayList;
@@ -30612,7 +29848,6 @@
 
     check-cast v90, Landroid/content/pm/PackageParser$Service;
 
-    .line 6570
     .local v90, "s":Landroid/content/pm/PackageParser$Service;
     move-object/from16 v0, v90
 
@@ -30642,7 +29877,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ServiceInfo;->processName:Ljava/lang/String;
 
-    .line 6572
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mServices:Lcom/android/server/pm/PackageManagerService$ServiceIntentResolver;
@@ -30651,15 +29885,12 @@
 
     invoke-virtual {v4, v0}, Lcom/android/server/pm/PackageManagerService$ServiceIntentResolver;->addService(Landroid/content/pm/PackageParser$Service;)V
 
-    .line 6573
     and-int/lit8 v4, p2, 0x2
 
     if-eqz v4, :cond_7a
 
-    .line 6574
     if-nez v86, :cond_7b
 
-    .line 6575
     new-instance v86, Ljava/lang/StringBuilder;
 
     .end local v86    # "r":Ljava/lang/StringBuilder;
@@ -30669,7 +29900,6 @@
 
     invoke-direct {v0, v4}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 6579
     .restart local v86    # "r":Ljava/lang/StringBuilder;
     :goto_31
     move-object/from16 v0, v90
@@ -30682,13 +29912,11 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6568
     :cond_7a
     add-int/lit8 v47, v47, 0x1
 
     goto :goto_30
 
-    .line 6577
     :cond_7b
     const/16 v4, 0x20
 
@@ -30698,12 +29926,10 @@
 
     goto :goto_31
 
-    .line 6582
     .end local v90    # "s":Landroid/content/pm/PackageParser$Service;
     :cond_7c
     if-eqz v86, :cond_7d
 
-    .line 6586
     :cond_7d
     move-object/from16 v0, p1
 
@@ -30713,10 +29939,8 @@
 
     move-result v24
 
-    .line 6587
     const/16 v86, 0x0
 
-    .line 6588
     const/16 v47, 0x0
 
     :goto_32
@@ -30726,7 +29950,6 @@
 
     if-ge v0, v1, :cond_80
 
-    .line 6589
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->receivers:Ljava/util/ArrayList;
@@ -30739,7 +29962,6 @@
 
     check-cast v25, Landroid/content/pm/PackageParser$Activity;
 
-    .line 6590
     .local v25, "a":Landroid/content/pm/PackageParser$Activity;
     move-object/from16 v0, v25
 
@@ -30769,7 +29991,6 @@
 
     iput-object v5, v4, Landroid/content/pm/ActivityInfo;->processName:Ljava/lang/String;
 
-    .line 6592
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mReceivers:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
@@ -30780,15 +30001,12 @@
 
     invoke-virtual {v4, v0, v5}, Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;->addActivity(Landroid/content/pm/PackageParser$Activity;Ljava/lang/String;)V
 
-    .line 6593
     and-int/lit8 v4, p2, 0x2
 
     if-eqz v4, :cond_7e
 
-    .line 6594
     if-nez v86, :cond_7f
 
-    .line 6595
     new-instance v86, Ljava/lang/StringBuilder;
 
     .end local v86    # "r":Ljava/lang/StringBuilder;
@@ -30798,7 +30016,6 @@
 
     invoke-direct {v0, v4}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 6599
     .restart local v86    # "r":Ljava/lang/StringBuilder;
     :goto_33
     move-object/from16 v0, v25
@@ -30811,13 +30028,11 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6588
     :cond_7e
     add-int/lit8 v47, v47, 0x1
 
     goto :goto_32
 
-    .line 6597
     :cond_7f
     const/16 v4, 0x20
 
@@ -30827,12 +30042,10 @@
 
     goto :goto_33
 
-    .line 6602
     .end local v25    # "a":Landroid/content/pm/PackageParser$Activity;
     :cond_80
     if-eqz v86, :cond_81
 
-    .line 6606
     :cond_81
     move-object/from16 v0, p1
 
@@ -30842,10 +30055,8 @@
 
     move-result v24
 
-    .line 6607
     const/16 v86, 0x0
 
-    .line 6608
     const/16 v47, 0x0
 
     :goto_34
@@ -30855,7 +30066,6 @@
 
     if-ge v0, v1, :cond_85
 
-    .line 6609
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->activities:Ljava/util/ArrayList;
@@ -30868,7 +30078,6 @@
 
     check-cast v25, Landroid/content/pm/PackageParser$Activity;
 
-    .line 6610
     .restart local v25    # "a":Landroid/content/pm/PackageParser$Activity;
     move-object/from16 v0, v25
 
@@ -30898,14 +30107,12 @@
 
     iput-object v5, v4, Landroid/content/pm/ActivityInfo;->processName:Ljava/lang/String;
 
-    .line 6614
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mIconPackHelper:Landroid/app/IconPackHelper;
 
     if-eqz v4, :cond_82
 
-    .line 6615
     move-object/from16 v0, v25
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Activity;->info:Landroid/content/pm/ActivityInfo;
@@ -30924,7 +30131,6 @@
 
     iput v5, v4, Landroid/content/pm/ActivityInfo;->themedIcon:I
 
-    .line 6619
     :cond_82
     move-object/from16 v0, p0
 
@@ -30936,15 +30142,12 @@
 
     invoke-virtual {v4, v0, v5}, Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;->addActivity(Landroid/content/pm/PackageParser$Activity;Ljava/lang/String;)V
 
-    .line 6620
     and-int/lit8 v4, p2, 0x2
 
     if-eqz v4, :cond_83
 
-    .line 6621
     if-nez v86, :cond_84
 
-    .line 6622
     new-instance v86, Ljava/lang/StringBuilder;
 
     .end local v86    # "r":Ljava/lang/StringBuilder;
@@ -30954,7 +30157,6 @@
 
     invoke-direct {v0, v4}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 6626
     .restart local v86    # "r":Ljava/lang/StringBuilder;
     :goto_35
     move-object/from16 v0, v25
@@ -30967,13 +30169,11 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6608
     :cond_83
     add-int/lit8 v47, v47, 0x1
 
     goto :goto_34
 
-    .line 6624
     :cond_84
     const/16 v4, 0x20
 
@@ -30983,12 +30183,10 @@
 
     goto :goto_35
 
-    .line 6629
     .end local v25    # "a":Landroid/content/pm/PackageParser$Activity;
     :cond_85
     if-eqz v86, :cond_86
 
-    .line 6633
     :cond_86
     move-object/from16 v0, p1
 
@@ -30998,10 +30196,8 @@
 
     move-result v24
 
-    .line 6634
     const/16 v86, 0x0
 
-    .line 6635
     const/16 v47, 0x0
 
     :goto_36
@@ -31011,7 +30207,6 @@
 
     if-ge v0, v1, :cond_8b
 
-    .line 6636
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->permissionGroups:Ljava/util/ArrayList;
@@ -31024,7 +30219,6 @@
 
     check-cast v79, Landroid/content/pm/PackageParser$PermissionGroup;
 
-    .line 6637
     .local v79, "pg":Landroid/content/pm/PackageParser$PermissionGroup;
     move-object/from16 v0, p0
 
@@ -31042,11 +30236,9 @@
 
     check-cast v37, Landroid/content/pm/PackageParser$PermissionGroup;
 
-    .line 6638
     .local v37, "cur":Landroid/content/pm/PackageParser$PermissionGroup;
     if-nez v37, :cond_89
 
-    .line 6639
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPermissionGroups:Landroid/util/ArrayMap;
@@ -31061,15 +30253,12 @@
 
     invoke-virtual {v4, v5, v0}, Landroid/util/ArrayMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 6640
     and-int/lit8 v4, p2, 0x2
 
     if-eqz v4, :cond_87
 
-    .line 6641
     if-nez v86, :cond_88
 
-    .line 6642
     new-instance v86, Ljava/lang/StringBuilder;
 
     .end local v86    # "r":Ljava/lang/StringBuilder;
@@ -31079,7 +30268,6 @@
 
     invoke-direct {v0, v4}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 6646
     .restart local v86    # "r":Ljava/lang/StringBuilder;
     :goto_37
     move-object/from16 v0, v79
@@ -31092,14 +30280,12 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6635
     :cond_87
     :goto_38
     add-int/lit8 v47, v47, 0x1
 
     goto :goto_36
 
-    .line 6644
     :cond_88
     const/16 v4, 0x20
 
@@ -31109,7 +30295,6 @@
 
     goto :goto_37
 
-    .line 6649
     :cond_89
     const-string v4, "PackageManager"
 
@@ -31171,15 +30356,12 @@
 
     invoke-static {v4, v5}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 6652
     and-int/lit8 v4, p2, 0x2
 
     if-eqz v4, :cond_87
 
-    .line 6653
     if-nez v86, :cond_8a
 
-    .line 6654
     new-instance v86, Ljava/lang/StringBuilder;
 
     .end local v86    # "r":Ljava/lang/StringBuilder;
@@ -31189,7 +30371,6 @@
 
     invoke-direct {v0, v4}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 6658
     .restart local v86    # "r":Ljava/lang/StringBuilder;
     :goto_39
     const-string v4, "DUP:"
@@ -31198,7 +30379,6 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6659
     move-object/from16 v0, v79
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$PermissionGroup;->info:Landroid/content/pm/PermissionGroupInfo;
@@ -31211,7 +30391,6 @@
 
     goto :goto_38
 
-    .line 6656
     :cond_8a
     const/16 v4, 0x20
 
@@ -31221,13 +30400,11 @@
 
     goto :goto_39
 
-    .line 6663
     .end local v37    # "cur":Landroid/content/pm/PackageParser$PermissionGroup;
     .end local v79    # "pg":Landroid/content/pm/PackageParser$PermissionGroup;
     :cond_8b
     if-eqz v86, :cond_8c
 
-    .line 6667
     :cond_8c
     move-object/from16 v0, p1
 
@@ -31237,10 +30414,8 @@
 
     move-result v24
 
-    .line 6668
     const/16 v86, 0x0
 
-    .line 6669
     const/16 v47, 0x0
 
     :goto_3a
@@ -31250,7 +30425,6 @@
 
     if-ge v0, v1, :cond_9d
 
-    .line 6670
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->permissions:Ljava/util/ArrayList;
@@ -31263,7 +30437,6 @@
 
     check-cast v75, Landroid/content/pm/PackageParser$Permission;
 
-    .line 6671
     .local v75, "p":Landroid/content/pm/PackageParser$Permission;
     move-object/from16 v0, v75
 
@@ -31279,7 +30452,6 @@
 
     move-object/from16 v78, v0
 
-    .line 6674
     .local v78, "permissionMap":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Ljava/lang/String;Lcom/android/server/pm/BasePermission;>;"
     :goto_3b
     move-object/from16 v0, p0
@@ -31302,7 +30474,6 @@
 
     iput-object v4, v0, Landroid/content/pm/PackageParser$Permission;->group:Landroid/content/pm/PackageParser$PermissionGroup;
 
-    .line 6675
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -31317,7 +30488,6 @@
 
     if-eqz v4, :cond_9c
 
-    .line 6676
     :cond_8d
     move-object/from16 v0, v75
 
@@ -31333,7 +30503,6 @@
 
     check-cast v32, Lcom/android/server/pm/BasePermission;
 
-    .line 6679
     .local v32, "bp":Lcom/android/server/pm/BasePermission;
     if-eqz v32, :cond_8e
 
@@ -31353,7 +30522,6 @@
 
     if-nez v4, :cond_8e
 
-    .line 6680
     move-object/from16 v0, v32
 
     iget-object v4, v0, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
@@ -31374,7 +30542,6 @@
 
     const/16 v38, 0x1
 
-    .line 6682
     .local v38, "currentOwnerIsSystem":Z
     :goto_3c
     move-object/from16 v0, v75
@@ -31387,7 +30554,6 @@
 
     if-eqz v4, :cond_8e
 
-    .line 6683
     move-object/from16 v0, v32
 
     iget v4, v0, Lcom/android/server/pm/BasePermission;->type:I
@@ -31402,21 +30568,18 @@
 
     if-nez v4, :cond_96
 
-    .line 6685
     move-object/from16 v0, v81
 
     move-object/from16 v1, v32
 
     iput-object v0, v1, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
-    .line 6686
     move-object/from16 v0, v75
 
     move-object/from16 v1, v32
 
     iput-object v0, v1, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
-    .line 6687
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -31427,7 +30590,6 @@
 
     iput v4, v0, Lcom/android/server/pm/BasePermission;->uid:I
 
-    .line 6688
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -31438,7 +30600,6 @@
 
     iput-object v4, v0, Lcom/android/server/pm/BasePermission;->sourcePackage:Ljava/lang/String;
 
-    .line 6689
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -31449,13 +30610,11 @@
 
     iput-boolean v4, v0, Lcom/android/server/pm/BasePermission;->allowViaWhitelist:Z
 
-    .line 6699
     .end local v38    # "currentOwnerIsSystem":Z
     :cond_8e
     :goto_3d
     if-nez v32, :cond_8f
 
-    .line 6700
     new-instance v32, Lcom/android/server/pm/BasePermission;
 
     .end local v32    # "bp":Lcom/android/server/pm/BasePermission;
@@ -31477,7 +30636,6 @@
 
     invoke-direct {v0, v4, v5, v13}, Lcom/android/server/pm/BasePermission;-><init>(Ljava/lang/String;Ljava/lang/String;I)V
 
-    .line 6702
     .restart local v32    # "bp":Lcom/android/server/pm/BasePermission;
     move-object/from16 v0, v75
 
@@ -31489,7 +30647,6 @@
 
     iput-boolean v4, v0, Lcom/android/server/pm/BasePermission;->allowViaWhitelist:Z
 
-    .line 6703
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -31502,7 +30659,6 @@
 
     invoke-virtual {v0, v4, v1}, Landroid/util/ArrayMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 6706
     :cond_8f
     move-object/from16 v0, v32
 
@@ -31510,7 +30666,6 @@
 
     if-nez v4, :cond_9a
 
-    .line 6707
     move-object/from16 v0, v32
 
     iget-object v4, v0, Lcom/android/server/pm/BasePermission;->sourcePackage:Ljava/lang/String;
@@ -31533,7 +30688,6 @@
 
     if-eqz v4, :cond_99
 
-    .line 6709
     :cond_90
     move-object/from16 v0, v75
 
@@ -31547,7 +30701,6 @@
 
     move-result-object v100
 
-    .line 6710
     .local v100, "tree":Lcom/android/server/pm/BasePermission;
     if-eqz v100, :cond_91
 
@@ -31567,7 +30720,6 @@
 
     if-eqz v4, :cond_98
 
-    .line 6712
     :cond_91
     move-object/from16 v0, v81
 
@@ -31575,14 +30727,12 @@
 
     iput-object v0, v1, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
-    .line 6713
     move-object/from16 v0, v75
 
     move-object/from16 v1, v32
 
     iput-object v0, v1, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
-    .line 6714
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -31593,7 +30743,6 @@
 
     iput v4, v0, Lcom/android/server/pm/BasePermission;->uid:I
 
-    .line 6715
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -31604,7 +30753,6 @@
 
     iput-object v4, v0, Lcom/android/server/pm/BasePermission;->sourcePackage:Ljava/lang/String;
 
-    .line 6716
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -31615,15 +30763,12 @@
 
     iput-boolean v4, v0, Lcom/android/server/pm/BasePermission;->allowViaWhitelist:Z
 
-    .line 6717
     and-int/lit8 v4, p2, 0x2
 
     if-eqz v4, :cond_92
 
-    .line 6718
     if-nez v86, :cond_97
 
-    .line 6719
     new-instance v86, Ljava/lang/StringBuilder;
 
     .end local v86    # "r":Ljava/lang/StringBuilder;
@@ -31633,7 +30778,6 @@
 
     invoke-direct {v0, v4}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 6723
     .restart local v86    # "r":Ljava/lang/StringBuilder;
     :goto_3e
     move-object/from16 v0, v75
@@ -31646,7 +30790,6 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6745
     .end local v100    # "tree":Lcom/android/server/pm/BasePermission;
     :cond_92
     :goto_3f
@@ -31658,7 +30801,6 @@
 
     if-ne v4, v0, :cond_93
 
-    .line 6746
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -31669,7 +30811,6 @@
 
     iput v4, v0, Lcom/android/server/pm/BasePermission;->protectionLevel:I
 
-    .line 6669
     .end local v32    # "bp":Lcom/android/server/pm/BasePermission;
     :cond_93
     :goto_40
@@ -31677,7 +30818,6 @@
 
     goto/16 :goto_3a
 
-    .line 6671
     .end local v78    # "permissionMap":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Ljava/lang/String;Lcom/android/server/pm/BasePermission;>;"
     :cond_94
     move-object/from16 v0, p0
@@ -31690,7 +30830,6 @@
 
     goto/16 :goto_3b
 
-    .line 6680
     .restart local v32    # "bp":Lcom/android/server/pm/BasePermission;
     .restart local v78    # "permissionMap":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Ljava/lang/String;Lcom/android/server/pm/BasePermission;>;"
     :cond_95
@@ -31698,12 +30837,10 @@
 
     goto/16 :goto_3c
 
-    .line 6690
     .restart local v38    # "currentOwnerIsSystem":Z
     :cond_96
     if-nez v38, :cond_8e
 
-    .line 6691
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -31756,7 +30893,6 @@
 
     move-result-object v63
 
-    .line 6693
     .restart local v63    # "msg":Ljava/lang/String;
     const/4 v4, 0x5
 
@@ -31764,12 +30900,10 @@
 
     invoke-static {v4, v0}, Lcom/android/server/pm/PackageManagerService;->reportSettingsProblem(ILjava/lang/String;)V
 
-    .line 6694
     const/16 v32, 0x0
 
     goto/16 :goto_3d
 
-    .line 6721
     .end local v38    # "currentOwnerIsSystem":Z
     .end local v63    # "msg":Ljava/lang/String;
     .restart local v100    # "tree":Lcom/android/server/pm/BasePermission;
@@ -31782,7 +30916,6 @@
 
     goto :goto_3e
 
-    .line 6726
     :cond_98
     const-string v4, "PackageManager"
 
@@ -31858,7 +30991,6 @@
 
     goto/16 :goto_3f
 
-    .line 6732
     .end local v100    # "tree":Lcom/android/server/pm/BasePermission;
     :cond_99
     const-string v4, "PackageManager"
@@ -31921,16 +31053,13 @@
 
     goto/16 :goto_3f
 
-    .line 6736
     :cond_9a
     and-int/lit8 v4, p2, 0x2
 
     if-eqz v4, :cond_92
 
-    .line 6737
     if-nez v86, :cond_9b
 
-    .line 6738
     new-instance v86, Ljava/lang/StringBuilder;
 
     .end local v86    # "r":Ljava/lang/StringBuilder;
@@ -31940,7 +31069,6 @@
 
     invoke-direct {v0, v4}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 6742
     .restart local v86    # "r":Ljava/lang/StringBuilder;
     :goto_41
     const-string v4, "DUP:"
@@ -31949,7 +31077,6 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6743
     move-object/from16 v0, v75
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -31962,7 +31089,6 @@
 
     goto/16 :goto_3f
 
-    .line 6740
     :cond_9b
     const/16 v4, 0x20
 
@@ -31972,7 +31098,6 @@
 
     goto :goto_41
 
-    .line 6749
     .end local v32    # "bp":Lcom/android/server/pm/BasePermission;
     :cond_9c
     const-string v4, "PackageManager"
@@ -32035,13 +31160,11 @@
 
     goto/16 :goto_40
 
-    .line 6754
     .end local v75    # "p":Landroid/content/pm/PackageParser$Permission;
     .end local v78    # "permissionMap":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Ljava/lang/String;Lcom/android/server/pm/BasePermission;>;"
     :cond_9d
     if-eqz v86, :cond_9e
 
-    .line 6758
     :cond_9e
     move-object/from16 v0, p1
 
@@ -32051,10 +31174,8 @@
 
     move-result v24
 
-    .line 6759
     const/16 v86, 0x0
 
-    .line 6760
     const/16 v47, 0x0
 
     :goto_42
@@ -32064,7 +31185,6 @@
 
     if-ge v0, v1, :cond_a1
 
-    .line 6761
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->instrumentation:Ljava/util/ArrayList;
@@ -32077,7 +31197,6 @@
 
     check-cast v25, Landroid/content/pm/PackageParser$Instrumentation;
 
-    .line 6762
     .local v25, "a":Landroid/content/pm/PackageParser$Instrumentation;
     move-object/from16 v0, v25
 
@@ -32091,7 +31210,6 @@
 
     iput-object v5, v4, Landroid/content/pm/InstrumentationInfo;->packageName:Ljava/lang/String;
 
-    .line 6763
     move-object/from16 v0, v25
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Instrumentation;->info:Landroid/content/pm/InstrumentationInfo;
@@ -32104,7 +31222,6 @@
 
     iput-object v5, v4, Landroid/content/pm/InstrumentationInfo;->sourceDir:Ljava/lang/String;
 
-    .line 6764
     move-object/from16 v0, v25
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Instrumentation;->info:Landroid/content/pm/InstrumentationInfo;
@@ -32117,7 +31234,6 @@
 
     iput-object v5, v4, Landroid/content/pm/InstrumentationInfo;->publicSourceDir:Ljava/lang/String;
 
-    .line 6765
     move-object/from16 v0, v25
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Instrumentation;->info:Landroid/content/pm/InstrumentationInfo;
@@ -32130,7 +31246,6 @@
 
     iput-object v5, v4, Landroid/content/pm/InstrumentationInfo;->splitSourceDirs:[Ljava/lang/String;
 
-    .line 6766
     move-object/from16 v0, v25
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Instrumentation;->info:Landroid/content/pm/InstrumentationInfo;
@@ -32143,7 +31258,6 @@
 
     iput-object v5, v4, Landroid/content/pm/InstrumentationInfo;->splitPublicSourceDirs:[Ljava/lang/String;
 
-    .line 6767
     move-object/from16 v0, v25
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Instrumentation;->info:Landroid/content/pm/InstrumentationInfo;
@@ -32156,7 +31270,6 @@
 
     iput-object v5, v4, Landroid/content/pm/InstrumentationInfo;->dataDir:Ljava/lang/String;
 
-    .line 6771
     move-object/from16 v0, v25
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Instrumentation;->info:Landroid/content/pm/InstrumentationInfo;
@@ -32169,7 +31282,6 @@
 
     iput-object v5, v4, Landroid/content/pm/InstrumentationInfo;->nativeLibraryDir:Ljava/lang/String;
 
-    .line 6772
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mInstrumentation:Landroid/util/ArrayMap;
@@ -32182,15 +31294,12 @@
 
     invoke-virtual {v4, v5, v0}, Landroid/util/ArrayMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 6773
     and-int/lit8 v4, p2, 0x2
 
     if-eqz v4, :cond_9f
 
-    .line 6774
     if-nez v86, :cond_a0
 
-    .line 6775
     new-instance v86, Ljava/lang/StringBuilder;
 
     .end local v86    # "r":Ljava/lang/StringBuilder;
@@ -32200,7 +31309,6 @@
 
     invoke-direct {v0, v4}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 6779
     .restart local v86    # "r":Ljava/lang/StringBuilder;
     :goto_43
     move-object/from16 v0, v25
@@ -32213,13 +31321,11 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 6760
     :cond_9f
     add-int/lit8 v47, v47, 0x1
 
     goto/16 :goto_42
 
-    .line 6777
     :cond_a0
     const/16 v4, 0x20
 
@@ -32229,12 +31335,10 @@
 
     goto :goto_43
 
-    .line 6782
     .end local v25    # "a":Landroid/content/pm/PackageParser$Instrumentation;
     :cond_a1
     if-eqz v86, :cond_a2
 
-    .line 6786
     :cond_a2
     move-object/from16 v0, p1
 
@@ -32242,7 +31346,6 @@
 
     if-eqz v4, :cond_a3
 
-    .line 6787
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->protectedBroadcasts:Ljava/util/ArrayList;
@@ -32251,7 +31354,6 @@
 
     move-result v24
 
-    .line 6788
     const/16 v47, 0x0
 
     :goto_44
@@ -32261,7 +31363,6 @@
 
     if-ge v0, v1, :cond_a3
 
-    .line 6789
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mProtectedBroadcasts:Landroid/util/ArraySet;
@@ -32278,12 +31379,10 @@
 
     invoke-virtual {v4, v5}, Landroid/util/ArraySet;->add(Ljava/lang/Object;)Z
 
-    .line 6788
     add-int/lit8 v47, v47, 0x1
 
     goto :goto_44
 
-    .line 6793
     :cond_a3
     move-object/from16 v0, v81
 
@@ -32291,7 +31390,6 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/android/server/pm/PackageSetting;->setTimeStamp(J)V
 
-    .line 6795
     move/from16 v0, p3
 
     and-int/lit16 v4, v0, 0x100
@@ -32300,7 +31398,6 @@
 
     const/16 v53, 0x1
 
-    .line 6799
     .local v53, "isBootScan":Z
     :goto_45
     move-object/from16 v0, p1
@@ -32327,7 +31424,6 @@
 
     if-eqz v4, :cond_a7
 
-    .line 6800
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mOverlays:Landroid/util/ArrayMap;
@@ -32342,7 +31438,6 @@
 
     check-cast v99, Landroid/util/ArrayMap;
 
-    .line 6801
     .local v99, "themes":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Ljava/lang/String;Landroid/content/pm/PackageParser$Package;>;"
     invoke-virtual/range {v99 .. v99}, Landroid/util/ArrayMap;->values()Ljava/util/Collection;
 
@@ -32367,7 +31462,6 @@
 
     check-cast v98, Landroid/content/pm/PackageParser$Package;
 
-    .line 6802
     .local v98, "themePkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v53, :cond_a5
 
@@ -32419,7 +31513,6 @@
 
     if-eqz v4, :cond_a4
 
-    .line 6807
     :cond_a5
     :try_start_1b
     move-object/from16 v0, p0
@@ -32435,11 +31528,9 @@
 
     goto :goto_46
 
-    .line 6808
     :catch_7
     move-exception v43
 
-    .line 6812
     .local v43, "e":Ljava/lang/Exception;
     :try_start_1c
     const-string v4, "PackageManager"
@@ -32484,7 +31575,6 @@
 
     invoke-static {v4, v5, v0}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 6814
     move-object/from16 v0, v98
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->mOverlayTargets:Ljava/util/ArrayList;
@@ -32497,7 +31587,6 @@
 
     goto :goto_46
 
-    .line 6795
     .end local v43    # "e":Ljava/lang/Exception;
     .end local v48    # "i$":Ljava/util/Iterator;
     .end local v53    # "isBootScan":Z
@@ -32508,7 +31597,6 @@
 
     goto/16 :goto_45
 
-    .line 6822
     .restart local v53    # "isBootScan":Z
     :cond_a7
     if-nez v53, :cond_a8
@@ -32523,7 +31611,6 @@
 
     if-lez v4, :cond_a8
 
-    .line 6823
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mAvailableCommonResources:Ljava/util/Map;
@@ -32534,7 +31621,6 @@
 
     invoke-interface {v4, v5}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 6827
     :cond_a8
     move-object/from16 v0, p1
 
@@ -32544,7 +31630,6 @@
 
     move-result-object v58
 
-    .line 6828
     .local v58, "iterator":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     :cond_a9
     :goto_47
@@ -32554,18 +31639,15 @@
 
     if-eqz v4, :cond_ab
 
-    .line 6829
     invoke-interface/range {v58 .. v58}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v97
 
     check-cast v97, Ljava/lang/String;
 
-    .line 6830
     .local v97, "target":Ljava/lang/String;
     const/16 v45, 0x0
 
-    .line 6832
     .local v45, "failedException":Ljava/lang/Exception;
     move-object/from16 v0, p0
 
@@ -32575,7 +31657,6 @@
 
     invoke-direct {v0, v1, v2}, Lcom/android/server/pm/PackageManagerService;->insertIntoOverlayMap(Ljava/lang/String;Landroid/content/pm/PackageParser$Package;)V
 
-    .line 6833
     if-eqz v53, :cond_a9
 
     move-object/from16 v0, p0
@@ -32624,7 +31705,6 @@
 
     if-eqz v4, :cond_a9
 
-    .line 6838
     :cond_aa
     :try_start_1d
     move-object/from16 v0, p0
@@ -32650,11 +31730,9 @@
     .catch Ljava/lang/Exception; {:try_start_1d .. :try_end_1d} :catch_a
     .catchall {:try_start_1d .. :try_end_1d} :catchall_7
 
-    .line 6847
     :goto_48
     if-eqz v45, :cond_a9
 
-    .line 6848
     :try_start_1e
     const-string v4, "PackageManager"
 
@@ -32694,46 +31772,36 @@
 
     invoke-static {v4, v5, v0}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 6851
     invoke-interface/range {v58 .. v58}, Ljava/util/Iterator;->remove()V
 
     goto/16 :goto_47
 
-    .line 6839
     :catch_8
     move-exception v43
 
-    .line 6840
     .local v43, "e":Lcom/android/server/pm/PackageManagerService$IdmapException;
     move-object/from16 v45, v43
 
-    .line 6845
     goto :goto_48
 
-    .line 6841
     .end local v43    # "e":Lcom/android/server/pm/PackageManagerService$IdmapException;
     :catch_9
     move-exception v43
 
-    .line 6842
     .local v43, "e":Lcom/android/server/pm/PackageManagerService$AaptException;
     move-object/from16 v45, v43
 
-    .line 6845
     goto :goto_48
 
-    .line 6843
     .end local v43    # "e":Lcom/android/server/pm/PackageManagerService$AaptException;
     :catch_a
     move-exception v43
 
-    .line 6844
     .local v43, "e":Ljava/lang/Exception;
     move-object/from16 v45, v43
 
     goto :goto_48
 
-    .line 6857
     .end local v43    # "e":Ljava/lang/Exception;
     .end local v45    # "failedException":Ljava/lang/Exception;
     .end local v97    # "target":Ljava/lang/String;
@@ -32764,7 +31832,6 @@
 
     if-eqz v4, :cond_ac
 
-    .line 6859
     invoke-direct/range {p0 .. p1}, Lcom/android/server/pm/PackageManagerService;->isIconCompileNeeded(Landroid/content/pm/PackageParser$Package;)Z
     :try_end_1e
     .catchall {:try_start_1e .. :try_end_1e} :catchall_7
@@ -32773,40 +31840,32 @@
 
     if-eqz v4, :cond_ac
 
-    .line 6861
     :try_start_1f
     invoke-static {}, Landroid/content/pm/ThemeUtils;->createCacheDirIfNotExists()V
 
-    .line 6862
     move-object/from16 v0, p1
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
     invoke-static {v4}, Landroid/content/pm/ThemeUtils;->createIconDirIfNotExists(Ljava/lang/String;)V
 
-    .line 6863
     invoke-direct/range {p0 .. p1}, Lcom/android/server/pm/PackageManagerService;->compileIconPack(Landroid/content/pm/PackageParser$Package;)V
     :try_end_1f
     .catch Ljava/lang/Exception; {:try_start_1f .. :try_end_1f} :catch_b
     .catchall {:try_start_1f .. :try_end_1f} :catchall_7
 
-    .line 6873
     :cond_ac
     :try_start_20
     monitor-exit v11
 
-    .line 6875
     return-object p1
 
-    .line 6864
     :catch_b
     move-exception v43
 
-    .line 6865
     .restart local v43    # "e":Ljava/lang/Exception;
     invoke-direct/range {p0 .. p1}, Lcom/android/server/pm/PackageManagerService;->uninstallThemeForAllApps(Landroid/content/pm/PackageParser$Package;)V
 
-    .line 6866
     move-object/from16 v0, p1
 
     iget-object v0, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
@@ -32831,7 +31890,6 @@
 
     invoke-direct/range {v15 .. v23}, Lcom/android/server/pm/PackageManagerService;->deletePackageLI(Ljava/lang/String;Landroid/os/UserHandle;Z[I[ZILcom/android/server/pm/PackageManagerService$PackageRemovedInfo;Z)Z
 
-    .line 6867
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v5, -0x190
@@ -32890,10 +31948,8 @@
     .end annotation
 
     .prologue
-    .line 5594
     const/4 v1, 0x0
 
-    .line 5596
     .local v1, "success":Z
     :try_start_0
     invoke-direct/range {p0 .. p6}, Lcom/android/server/pm/PackageManagerService;->scanPackageDirtyLI(Landroid/content/pm/PackageParser$Package;IIJLandroid/os/UserHandle;)Landroid/content/pm/PackageParser$Package;
@@ -32902,18 +31958,15 @@
 
     move-result-object v0
 
-    .line 5598
     .local v0, "res":Landroid/content/pm/PackageParser$Package;
     const/4 v1, 0x1
 
-    .line 5601
     if-nez v1, :cond_0
 
     and-int/lit16 v2, p3, 0x400
 
     if-eqz v2, :cond_0
 
-    .line 5602
     iget-object v2, p1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
     invoke-direct {p0, v2}, Lcom/android/server/pm/PackageManagerService;->removeDataDirsLI(Ljava/lang/String;)I
@@ -32921,7 +31974,6 @@
     :cond_0
     return-object v0
 
-    .line 5601
     .end local v0    # "res":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v2
@@ -32932,7 +31984,6 @@
 
     if-eqz v3, :cond_1
 
-    .line 5602
     iget-object v3, p1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
     invoke-direct {p0, v3}, Lcom/android/server/pm/PackageManagerService;->removeDataDirsLI(Ljava/lang/String;)I
@@ -32955,19 +32006,16 @@
     .end annotation
 
     .prologue
-    .line 4547
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/android/server/pm/PackageManagerService;->mDefParseFlags:I
 
     or-int p2, p2, v4
 
-    .line 4548
     new-instance v19, Landroid/content/pm/PackageParser;
 
     invoke-direct/range {v19 .. v19}, Landroid/content/pm/PackageParser;-><init>()V
 
-    .line 4549
     .local v19, "pp":Landroid/content/pm/PackageParser;
     move-object/from16 v0, p0
 
@@ -32977,7 +32025,6 @@
 
     invoke-virtual {v0, v4}, Landroid/content/pm/PackageParser;->setSeparateProcesses([Ljava/lang/String;)V
 
-    .line 4550
     move-object/from16 v0, p0
 
     iget-boolean v4, v0, Lcom/android/server/pm/PackageManagerService;->mOnlyCore:Z
@@ -32986,7 +32033,6 @@
 
     invoke-virtual {v0, v4}, Landroid/content/pm/PackageParser;->setOnlyCoreApps(Z)V
 
-    .line 4551
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mMetrics:Landroid/util/DisplayMetrics;
@@ -32995,21 +32041,18 @@
 
     invoke-virtual {v0, v4}, Landroid/content/pm/PackageParser;->setDisplayMetrics(Landroid/util/DisplayMetrics;)V
 
-    .line 4553
     move/from16 v0, p3
 
     and-int/lit16 v4, v0, 0x200
 
     if-eqz v4, :cond_0
 
-    .line 4554
     move/from16 v0, p2
 
     or-int/lit16 v0, v0, 0x200
 
     move/from16 p2, v0
 
-    .line 4559
     :cond_0
     :try_start_0
     move-object/from16 v0, v19
@@ -33024,7 +32067,6 @@
 
     move-result-object v18
 
-    .line 4564
     .local v18, "pkg":Landroid/content/pm/PackageParser$Package;
     move/from16 v0, p2
 
@@ -33032,14 +32074,12 @@
 
     if-eqz v4, :cond_5
 
-    .line 4565
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 4566
     :try_start_1
     move-object/from16 v0, p0
 
@@ -33053,7 +32093,6 @@
 
     move-result-object v16
 
-    .line 4567
     .local v16, "existingSettings":Lcom/android/server/pm/PackageSetting;
     move-object/from16 v0, p0
 
@@ -33075,7 +32114,6 @@
 
     if-nez v16, :cond_1
 
-    .line 4571
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v6, -0x193
@@ -33106,7 +32144,6 @@
 
     throw v4
 
-    .line 4591
     .end local v16    # "existingSettings":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v4
@@ -33117,12 +32154,10 @@
 
     throw v4
 
-    .line 4560
     .end local v18    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catch_0
     move-exception v15
 
-    .line 4561
     .local v15, "e":Landroid/content/pm/PackageParser$PackageParserException;
     invoke-static {v15}, Lcom/android/server/pm/PackageManagerException;->from(Landroid/content/pm/PackageParser$PackageParserException;)Lcom/android/server/pm/PackageManagerException;
 
@@ -33130,7 +32165,6 @@
 
     throw v4
 
-    .line 4573
     .end local v15    # "e":Landroid/content/pm/PackageParser$PackageParserException;
     .restart local v16    # "existingSettings":Lcom/android/server/pm/PackageSetting;
     .restart local v18    # "pkg":Landroid/content/pm/PackageParser$Package;
@@ -33164,7 +32198,6 @@
 
     if-nez v4, :cond_2
 
-    .line 4578
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v6, -0x194
@@ -33195,7 +32228,6 @@
 
     throw v4
 
-    .line 4580
     :cond_2
     if-eqz v16, :cond_4
 
@@ -33227,7 +32259,6 @@
 
     if-nez v4, :cond_4
 
-    .line 4587
     const-string v4, "PackageManager"
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -33262,30 +32293,25 @@
 
     invoke-static {v4, v6}, Landroid/util/Slog;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 4589
     const/16 v22, 0x0
 
     monitor-exit v5
 
-    .line 4798
     .end local v16    # "existingSettings":Lcom/android/server/pm/PackageSetting;
     :cond_3
     :goto_0
     return-object v22
 
-    .line 4591
     .restart local v16    # "existingSettings":Lcom/android/server/pm/PackageSetting;
     :cond_4
     monitor-exit v5
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 4594
     .end local v16    # "existingSettings":Lcom/android/server/pm/PackageSetting;
     :cond_5
     const/16 v20, 0x0
 
-    .line 4597
     .local v20, "ps":Lcom/android/server/pm/PackageSetting;
     move-object/from16 v0, p0
 
@@ -33293,7 +32319,6 @@
 
     monitor-enter v5
 
-    .line 4599
     :try_start_3
     move-object/from16 v0, p0
 
@@ -33311,7 +32336,6 @@
 
     check-cast v17, Ljava/lang/String;
 
-    .line 4600
     .local v17, "oldName":Ljava/lang/String;
     move-object/from16 v0, v18
 
@@ -33331,7 +32355,6 @@
 
     if-eqz v4, :cond_6
 
-    .line 4603
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -33342,11 +32365,9 @@
 
     move-result-object v20
 
-    .line 4606
     :cond_6
     if-nez v20, :cond_7
 
-    .line 4607
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -33359,7 +32380,6 @@
 
     move-result-object v20
 
-    .line 4612
     :cond_7
     move-object/from16 v0, p0
 
@@ -33376,16 +32396,13 @@
 
     move-result-object v24
 
-    .line 4614
     .local v24, "updatedPkg":Lcom/android/server/pm/PackageSetting;
     monitor-exit v5
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 4615
     const/16 v25, 0x0
 
-    .line 4617
     .local v25, "updatedPkgBetter":Z
     if-eqz v24, :cond_c
 
@@ -33393,14 +32410,12 @@
 
     if-eqz v4, :cond_c
 
-    .line 4620
     invoke-static/range {p1 .. p1}, Lcom/android/server/pm/PackageManagerService;->locationIsPrivileged(Ljava/io/File;)Z
 
     move-result v4
 
     if-eqz v4, :cond_a
 
-    .line 4621
     move-object/from16 v0, v24
 
     iget v4, v0, Lcom/android/server/pm/PackageSetting;->pkgFlags:I
@@ -33413,7 +32428,6 @@
 
     iput v4, v0, Lcom/android/server/pm/PackageSetting;->pkgFlags:I
 
-    .line 4626
     :goto_2
     if-eqz v20, :cond_c
 
@@ -33429,7 +32443,6 @@
 
     if-nez v4, :cond_c
 
-    .line 4631
     move-object/from16 v0, v18
 
     iget v4, v0, Landroid/content/pm/PackageParser$Package;->mVersionCode:I
@@ -33440,7 +32453,6 @@
 
     if-gt v4, v5, :cond_b
 
-    .line 4634
     const-string v4, "PackageManager"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -33507,7 +32519,6 @@
 
     invoke-static {v4, v5}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 4637
     move-object/from16 v0, v24
 
     iget-object v4, v0, Lcom/android/server/pm/PackageSetting;->codePath:Ljava/io/File;
@@ -33520,7 +32531,6 @@
 
     if-nez v4, :cond_8
 
-    .line 4638
     const-string v4, "PackageManager"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -33573,14 +32583,12 @@
 
     invoke-static {v4, v5}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 4641
     move-object/from16 v0, p1
 
     move-object/from16 v1, v24
 
     iput-object v0, v1, Lcom/android/server/pm/PackageSetting;->codePath:Ljava/io/File;
 
-    .line 4642
     invoke-virtual/range {p1 .. p1}, Ljava/io/File;->toString()Ljava/lang/String;
 
     move-result-object v4
@@ -33589,14 +32597,12 @@
 
     iput-object v4, v0, Lcom/android/server/pm/PackageSetting;->codePathString:Ljava/lang/String;
 
-    .line 4643
     move-object/from16 v0, p1
 
     move-object/from16 v1, v24
 
     iput-object v0, v1, Lcom/android/server/pm/PackageSetting;->resourcePath:Ljava/io/File;
 
-    .line 4644
     invoke-virtual/range {p1 .. p1}, Ljava/io/File;->toString()Ljava/lang/String;
 
     move-result-object v4
@@ -33605,7 +32611,6 @@
 
     iput-object v4, v0, Lcom/android/server/pm/PackageSetting;->resourcePathString:Ljava/lang/String;
 
-    .line 4646
     :cond_8
     move-object/from16 v0, v18
 
@@ -33613,7 +32618,6 @@
 
     iput-object v0, v1, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
-    .line 4647
     new-instance v4, Lcom/android/server/pm/PackageManagerException;
 
     const/4 v5, -0x5
@@ -33624,7 +32628,6 @@
 
     throw v4
 
-    .line 4612
     .end local v24    # "updatedPkg":Lcom/android/server/pm/PackageSetting;
     .end local v25    # "updatedPkgBetter":Z
     :cond_9
@@ -33635,7 +32638,6 @@
 
     goto/16 :goto_1
 
-    .line 4614
     .end local v17    # "oldName":Ljava/lang/String;
     :catchall_1
     move-exception v4
@@ -33646,7 +32648,6 @@
 
     throw v4
 
-    .line 4623
     .restart local v17    # "oldName":Ljava/lang/String;
     .restart local v24    # "updatedPkg":Lcom/android/server/pm/PackageSetting;
     .restart local v25    # "updatedPkgBetter":Z
@@ -33665,7 +32666,6 @@
 
     goto/16 :goto_2
 
-    .line 4656
     :cond_b
     move-object/from16 v0, p0
 
@@ -33673,7 +32673,6 @@
 
     monitor-enter v5
 
-    .line 4658
     :try_start_5
     move-object/from16 v0, p0
 
@@ -33685,12 +32684,10 @@
 
     invoke-virtual {v4, v6}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 4659
     monitor-exit v5
     :try_end_5
     .catchall {:try_start_5 .. :try_end_5} :catchall_3
 
-    .line 4661
     const/4 v4, 0x5
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -33771,7 +32768,6 @@
 
     invoke-static {v4, v5}, Lcom/android/server/pm/PackageManagerService;->logCriticalInfo(ILjava/lang/String;)V
 
-    .line 4666
     move-object/from16 v0, p0
 
     move-object/from16 v1, v20
@@ -33802,7 +32798,6 @@
 
     move-result-object v13
 
-    .line 4669
     .local v13, "args":Lcom/android/server/pm/PackageManagerService$InstallArgs;
     move-object/from16 v0, p0
 
@@ -33810,23 +32805,19 @@
 
     monitor-enter v5
 
-    .line 4670
     :try_start_6
     invoke-virtual {v13}, Lcom/android/server/pm/PackageManagerService$InstallArgs;->cleanUpResourcesLI()V
 
-    .line 4671
     monitor-exit v5
     :try_end_6
     .catchall {:try_start_6 .. :try_end_6} :catchall_4
 
-    .line 4672
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 4673
     :try_start_7
     move-object/from16 v0, p0
 
@@ -33838,23 +32829,18 @@
 
     invoke-virtual {v4, v6}, Lcom/android/server/pm/Settings;->enableSystemPackageLPw(Ljava/lang/String;)Lcom/android/server/pm/PackageSetting;
 
-    .line 4674
     monitor-exit v5
     :try_end_7
     .catchall {:try_start_7 .. :try_end_7} :catchall_5
 
-    .line 4675
     const/16 v25, 0x1
 
-    .line 4680
     .end local v13    # "args":Lcom/android/server/pm/PackageManagerService$InstallArgs;
     :cond_c
     if-eqz v24, :cond_d
 
-    .line 4683
     or-int/lit8 p2, p2, 0x1
 
-    .line 4687
     move-object/from16 v0, v24
 
     iget v4, v0, Lcom/android/server/pm/PackageSetting;->pkgFlags:I
@@ -33865,7 +32851,6 @@
 
     if-eqz v4, :cond_d
 
-    .line 4688
     move/from16 v0, p2
 
     or-int/lit16 v0, v0, 0x80
@@ -33885,13 +32870,10 @@
 
     move/from16 v9, p2
 
-    .line 4693
     invoke-direct/range {v4 .. v9}, Lcom/android/server/pm/PackageManagerService;->collectCertificatesLI(Landroid/content/pm/PackageParser;Lcom/android/server/pm/PackageSetting;Landroid/content/pm/PackageParser$Package;Ljava/io/File;I)V
 
-    .line 4699
     const/16 v23, 0x0
 
-    .line 4700
     .local v23, "shouldHideSystemApp":Z
     if-nez v24, :cond_e
 
@@ -33907,7 +32889,6 @@
 
     if-nez v4, :cond_e
 
-    .line 4706
     move-object/from16 v0, v20
 
     iget-object v4, v0, Lcom/android/server/pm/PackageSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
@@ -33924,7 +32905,6 @@
 
     if-eqz v4, :cond_10
 
-    .line 4708
     const/4 v4, 0x5
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -33963,7 +32943,6 @@
 
     invoke-static {v4, v5}, Lcom/android/server/pm/PackageManagerService;->logCriticalInfo(ILjava/lang/String;)V
 
-    .line 4710
     move-object/from16 v0, v18
 
     iget-object v5, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
@@ -33986,17 +32965,14 @@
 
     invoke-direct/range {v4 .. v12}, Lcom/android/server/pm/PackageManagerService;->deletePackageLI(Ljava/lang/String;Landroid/os/UserHandle;Z[I[ZILcom/android/server/pm/PackageManagerService$PackageRemovedInfo;Z)Z
 
-    .line 4711
     const/16 v20, 0x0
 
-    .line 4747
     :cond_e
     :goto_3
     and-int/lit8 v4, p2, 0x40
 
     if-nez v4, :cond_f
 
-    .line 4748
     if-eqz v20, :cond_f
 
     move-object/from16 v0, v20
@@ -34013,18 +32989,14 @@
 
     if-nez v4, :cond_f
 
-    .line 4749
     or-int/lit8 p2, p2, 0x10
 
-    .line 4754
     :cond_f
     const/16 v21, 0x0
 
-    .line 4755
     .local v21, "resourcePath":Ljava/lang/String;
     const/4 v14, 0x0
 
-    .line 4756
     .local v14, "baseResourcePath":Ljava/lang/String;
     and-int/lit8 v4, p2, 0x10
 
@@ -34032,7 +33004,6 @@
 
     if-nez v25, :cond_13
 
-    .line 4757
     if-eqz v20, :cond_12
 
     move-object/from16 v0, v20
@@ -34041,19 +33012,16 @@
 
     if-eqz v4, :cond_12
 
-    .line 4758
     move-object/from16 v0, v20
 
     iget-object v0, v0, Lcom/android/server/pm/PackageSetting;->resourcePathString:Ljava/lang/String;
 
     move-object/from16 v21, v0
 
-    .line 4759
     move-object/from16 v0, v20
 
     iget-object v14, v0, Lcom/android/server/pm/PackageSetting;->resourcePathString:Ljava/lang/String;
 
-    .line 4770
     :goto_4
     move-object/from16 v0, v18
 
@@ -34065,7 +33033,6 @@
 
     invoke-virtual {v4, v5}, Landroid/content/pm/ApplicationInfo;->setCodePath(Ljava/lang/String;)V
 
-    .line 4771
     move-object/from16 v0, v18
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -34076,7 +33043,6 @@
 
     invoke-virtual {v4, v5}, Landroid/content/pm/ApplicationInfo;->setBaseCodePath(Ljava/lang/String;)V
 
-    .line 4772
     move-object/from16 v0, v18
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -34087,7 +33053,6 @@
 
     invoke-virtual {v4, v5}, Landroid/content/pm/ApplicationInfo;->setSplitCodePaths([Ljava/lang/String;)V
 
-    .line 4773
     move-object/from16 v0, v18
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -34096,14 +33061,12 @@
 
     invoke-virtual {v4, v0}, Landroid/content/pm/ApplicationInfo;->setResourcePath(Ljava/lang/String;)V
 
-    .line 4774
     move-object/from16 v0, v18
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     invoke-virtual {v4, v14}, Landroid/content/pm/ApplicationInfo;->setBaseResourcePath(Ljava/lang/String;)V
 
-    .line 4775
     move-object/from16 v0, v18
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -34114,7 +33077,6 @@
 
     invoke-virtual {v4, v5}, Landroid/content/pm/ApplicationInfo;->setSplitResourcePaths([Ljava/lang/String;)V
 
-    .line 4778
     or-int/lit8 v7, p3, 0x8
 
     move-object/from16 v4, p0
@@ -34131,18 +33093,15 @@
 
     move-result-object v22
 
-    .line 4786
     .local v22, "scannedPkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v23, :cond_3
 
-    .line 4787
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 4793
     const/4 v4, 0x1
 
     :try_start_8
@@ -34156,7 +33115,6 @@
 
     invoke-direct {v0, v1, v4, v6}, Lcom/android/server/pm/PackageManagerService;->grantPermissionsLPw(Landroid/content/pm/PackageParser$Package;ZLjava/lang/String;)V
 
-    .line 4794
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -34167,7 +33125,6 @@
 
     invoke-virtual {v4, v6}, Lcom/android/server/pm/Settings;->disableSystemPackageLPw(Ljava/lang/String;)Z
 
-    .line 4795
     monitor-exit v5
 
     goto/16 :goto_0
@@ -34181,7 +33138,6 @@
 
     throw v4
 
-    .line 4659
     .end local v14    # "baseResourcePath":Ljava/lang/String;
     .end local v21    # "resourcePath":Ljava/lang/String;
     .end local v22    # "scannedPkg":Landroid/content/pm/PackageParser$Package;
@@ -34196,7 +33152,6 @@
 
     throw v4
 
-    .line 4671
     .restart local v13    # "args":Lcom/android/server/pm/PackageManagerService$InstallArgs;
     :catchall_4
     move-exception v4
@@ -34208,7 +33163,6 @@
 
     throw v4
 
-    .line 4674
     :catchall_5
     move-exception v4
 
@@ -34219,7 +33173,6 @@
 
     throw v4
 
-    .line 4718
     .end local v13    # "args":Lcom/android/server/pm/PackageManagerService$InstallArgs;
     .restart local v23    # "shouldHideSystemApp":Z
     :cond_10
@@ -34233,10 +33186,8 @@
 
     if-gt v4, v5, :cond_11
 
-    .line 4719
     const/16 v23, 0x1
 
-    .line 4720
     const/4 v4, 0x4
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -34311,7 +33262,6 @@
 
     goto/16 :goto_3
 
-    .line 4730
     :cond_11
     const/4 v4, 0x5
 
@@ -34393,7 +33343,6 @@
 
     invoke-static {v4, v5}, Lcom/android/server/pm/PackageManagerService;->logCriticalInfo(ILjava/lang/String;)V
 
-    .line 4733
     move-object/from16 v0, p0
 
     move-object/from16 v1, v20
@@ -34424,7 +33373,6 @@
 
     move-result-object v13
 
-    .line 4736
     .restart local v13    # "args":Lcom/android/server/pm/PackageManagerService$InstallArgs;
     move-object/from16 v0, p0
 
@@ -34432,11 +33380,9 @@
 
     monitor-enter v5
 
-    .line 4737
     :try_start_c
     invoke-virtual {v13}, Lcom/android/server/pm/PackageManagerService$InstallArgs;->cleanUpResourcesLI()V
 
-    .line 4738
     monitor-exit v5
 
     goto/16 :goto_3
@@ -34450,7 +33396,6 @@
 
     throw v4
 
-    .line 4762
     .end local v13    # "args":Lcom/android/server/pm/PackageManagerService$InstallArgs;
     .restart local v14    # "baseResourcePath":Ljava/lang/String;
     .restart local v21    # "resourcePath":Ljava/lang/String;
@@ -34483,7 +33428,6 @@
 
     goto/16 :goto_4
 
-    .line 4765
     :cond_13
     move-object/from16 v0, v18
 
@@ -34491,7 +33435,6 @@
 
     move-object/from16 v21, v0
 
-    .line 4766
     move-object/from16 v0, v18
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->baseCodePath:Ljava/lang/String;
@@ -34508,16 +33451,13 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 9316
     new-instance v0, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;
 
     invoke-direct {v0}, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;-><init>()V
 
-    .line 9317
     .local v0, "info":Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;
     iput-object p1, v0, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->removedPackage:Ljava/lang/String;
 
-    .line 9318
     const/4 v1, 0x1
 
     new-array v1, v1, [I
@@ -34526,7 +33466,6 @@
 
     iput-object v1, v0, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->removedUsers:[I
 
-    .line 9319
     iget v1, p2, Lcom/android/server/pm/PackageSetting;->appId:I
 
     invoke-static {p3, v1}, Landroid/os/UserHandle;->getUid(II)I
@@ -34535,10 +33474,8 @@
 
     iput v1, v0, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->uid:I
 
-    .line 9320
     invoke-virtual {v0, v2, v2, v2}, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;->sendBroadcast(ZZZ)V
 
-    .line 9321
     return-void
 .end method
 
@@ -34549,14 +33486,12 @@
     .param p3, "userId"    # I
 
     .prologue
-    .line 9240
     new-instance v4, Landroid/os/Bundle;
 
     const/4 v1, 0x1
 
     invoke-direct {v4, v1}, Landroid/os/Bundle;-><init>(I)V
 
-    .line 9241
     .local v4, "extras":Landroid/os/Bundle;
     const-string v1, "android.intent.extra.UID"
 
@@ -34572,7 +33507,6 @@
 
     invoke-virtual {v4, v1, v2}, Landroid/os/Bundle;->putInt(Ljava/lang/String;I)V
 
-    .line 9243
     const-string v1, "android.intent.action.PACKAGE_ADDED"
 
     const/4 v2, 0x0
@@ -34593,13 +33527,11 @@
 
     invoke-static/range {v1 .. v7}, Lcom/android/server/pm/PackageManagerService;->sendPackageBroadcast(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroid/os/Bundle;Ljava/lang/String;Landroid/content/IIntentReceiver;[I)V
 
-    .line 9246
     :try_start_0
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v5
 
-    .line 9247
     .local v5, "am":Landroid/app/IActivityManager;
     invoke-static/range {p2 .. p2}, Lcom/android/server/pm/PackageManagerService;->isSystemApp(Lcom/android/server/pm/PackageSetting;)Z
 
@@ -34616,7 +33548,6 @@
     :cond_0
     const/16 v19, 0x1
 
-    .line 9249
     .local v19, "isSystem":Z
     :goto_0
     if-eqz v19, :cond_1
@@ -34631,7 +33562,6 @@
 
     if-eqz v1, :cond_1
 
-    .line 9253
     new-instance v1, Landroid/content/Intent;
 
     const-string v2, "android.intent.action.BOOT_COMPLETED"
@@ -34650,7 +33580,6 @@
 
     move-result-object v7
 
-    .line 9256
     .local v7, "bcIntent":Landroid/content/Intent;
     const/4 v6, 0x0
 
@@ -34678,7 +33607,6 @@
     :try_end_0
     .catch Landroid/os/RemoteException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 9263
     .end local v5    # "am":Landroid/app/IActivityManager;
     .end local v7    # "bcIntent":Landroid/content/Intent;
     .end local v19    # "isSystem":Z
@@ -34686,19 +33614,16 @@
     :goto_1
     return-void
 
-    .line 9247
     .restart local v5    # "am":Landroid/app/IActivityManager;
     :cond_2
     const/16 v19, 0x0
 
     goto :goto_0
 
-    .line 9259
     .end local v5    # "am":Landroid/app/IActivityManager;
     :catch_0
     move-exception v18
 
-    .line 9261
     .local v18, "e":Landroid/os/RemoteException;
     const-string v1, "PackageManager"
 
@@ -34722,25 +33647,20 @@
     .param p6, "userIds"    # [I
 
     .prologue
-    .line 9048
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v1
 
-    .line 9049
     .local v1, "am":Landroid/app/IActivityManager;
     if-eqz v1, :cond_7
 
-    .line 9051
     if-nez p6, :cond_0
 
-    .line 9052
     :try_start_0
     invoke-interface {v1}, Landroid/app/IActivityManager;->getRunningUserIds()[I
 
     move-result-object p6
 
-    .line 9054
     :cond_0
     move-object/from16 v14, p6
 
@@ -34760,7 +33680,6 @@
 
     aget v13, v14, v15
 
-    .line 9055
     .local v13, "id":I
     new-instance v3, Landroid/content/Intent;
 
@@ -34781,25 +33700,20 @@
 
     invoke-direct {v3, v0, v2}, Landroid/content/Intent;-><init>(Ljava/lang/String;Landroid/net/Uri;)V
 
-    .line 9057
     .local v3, "intent":Landroid/content/Intent;
     if-eqz p3, :cond_1
 
-    .line 9058
     move-object/from16 v0, p3
 
     invoke-virtual {v3, v0}, Landroid/content/Intent;->putExtras(Landroid/os/Bundle;)Landroid/content/Intent;
 
-    .line 9060
     :cond_1
     if-eqz p4, :cond_2
 
-    .line 9061
     move-object/from16 v0, p4
 
     invoke-virtual {v3, v0}, Landroid/content/Intent;->setPackage(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 9064
     :cond_2
     const-string v2, "android.intent.extra.UID"
 
@@ -34809,7 +33723,6 @@
 
     move-result v17
 
-    .line 9065
     .local v17, "uid":I
     if-lez v17, :cond_3
 
@@ -34819,7 +33732,6 @@
 
     if-eq v2, v13, :cond_3
 
-    .line 9066
     invoke-static/range {v17 .. v17}, Landroid/os/UserHandle;->getAppId(I)I
 
     move-result v2
@@ -34828,33 +33740,27 @@
 
     move-result v17
 
-    .line 9067
     const-string v2, "android.intent.extra.UID"
 
     move/from16 v0, v17
 
     invoke-virtual {v3, v2, v0}, Landroid/content/Intent;->putExtra(Ljava/lang/String;I)Landroid/content/Intent;
 
-    .line 9069
     :cond_3
     const-string v2, "android.intent.extra.user_handle"
 
     invoke-virtual {v3, v2, v13}, Landroid/content/Intent;->putExtra(Ljava/lang/String;I)Landroid/content/Intent;
 
-    .line 9070
     const/high16 v2, 0x4000000
 
     invoke-virtual {v3, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 9078
     if-eqz p2, :cond_4
 
-    .line 9079
     move-object/from16 v0, p2
 
     invoke-virtual {v3, v0}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 9081
     :cond_4
     const/4 v2, 0x0
 
@@ -34883,12 +33789,10 @@
     :try_end_0
     .catch Landroid/os/RemoteException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 9054
     add-int/lit8 v15, v15, 0x1
 
     goto :goto_0
 
-    .line 9055
     .end local v3    # "intent":Landroid/content/Intent;
     .end local v17    # "uid":I
     :cond_5
@@ -34896,7 +33800,6 @@
 
     goto :goto_1
 
-    .line 9081
     .restart local v3    # "intent":Landroid/content/Intent;
     .restart local v17    # "uid":I
     :cond_6
@@ -34904,7 +33807,6 @@
 
     goto :goto_2
 
-    .line 9085
     .end local v3    # "intent":Landroid/content/Intent;
     .end local v13    # "id":I
     .end local v14    # "arr$":[I
@@ -34914,7 +33816,6 @@
     :catch_0
     move-exception v2
 
-    .line 9088
     :cond_7
     return-void
 .end method
@@ -34942,14 +33843,12 @@
 
     const/4 v2, 0x0
 
-    .line 13404
     new-instance v3, Landroid/os/Bundle;
 
     const/4 v0, 0x4
 
     invoke-direct {v3, v0}, Landroid/os/Bundle;-><init>(I)V
 
-    .line 13405
     .local v3, "extras":Landroid/os/Bundle;
     const-string v1, "android.intent.extra.changed_component_name"
 
@@ -34961,33 +33860,27 @@
 
     invoke-virtual {v3, v1, v0}, Landroid/os/Bundle;->putString(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 13406
     invoke-virtual {p3}, Ljava/util/ArrayList;->size()I
 
     move-result v0
 
     new-array v7, v0, [Ljava/lang/String;
 
-    .line 13407
     .local v7, "nameList":[Ljava/lang/String;
     invoke-virtual {p3, v7}, Ljava/util/ArrayList;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
 
-    .line 13408
     const-string v0, "android.intent.extra.changed_component_name_list"
 
     invoke-virtual {v3, v0, v7}, Landroid/os/Bundle;->putStringArray(Ljava/lang/String;[Ljava/lang/String;)V
 
-    .line 13409
     const-string v0, "android.intent.extra.DONT_KILL_APP"
 
     invoke-virtual {v3, v0, p2}, Landroid/os/Bundle;->putBoolean(Ljava/lang/String;Z)V
 
-    .line 13410
     const-string v0, "android.intent.extra.UID"
 
     invoke-virtual {v3, v0, p4}, Landroid/os/Bundle;->putInt(Ljava/lang/String;I)V
 
-    .line 13411
     const-string v0, "android.intent.action.PACKAGE_CHANGED"
 
     const/4 v1, 0x1
@@ -35008,7 +33901,6 @@
 
     invoke-static/range {v0 .. v6}, Lcom/android/server/pm/PackageManagerService;->sendPackageBroadcast(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroid/os/Bundle;Ljava/lang/String;Landroid/content/IIntentReceiver;[I)V
 
-    .line 13413
     return-void
 .end method
 
@@ -35034,21 +33926,17 @@
     .local p3, "pkgList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     const/4 v1, 0x0
 
-    .line 14189
     invoke-virtual {p3}, Ljava/util/ArrayList;->size()I
 
     move-result v7
 
-    .line 14190
     .local v7, "size":I
     if-lez v7, :cond_2
 
-    .line 14192
     new-instance v3, Landroid/os/Bundle;
 
     invoke-direct {v3}, Landroid/os/Bundle;-><init>()V
 
-    .line 14193
     .local v3, "extras":Landroid/os/Bundle;
     const-string v4, "android.intent.extra.changed_package_list"
 
@@ -35062,24 +33950,19 @@
 
     invoke-virtual {v3, v4, v2}, Landroid/os/Bundle;->putStringArray(Ljava/lang/String;[Ljava/lang/String;)V
 
-    .line 14195
     if-eqz p4, :cond_0
 
-    .line 14196
     const-string v2, "android.intent.extra.changed_uid_list"
 
     invoke-virtual {v3, v2, p4}, Landroid/os/Bundle;->putIntArray(Ljava/lang/String;[I)V
 
-    .line 14198
     :cond_0
     if-eqz p2, :cond_1
 
-    .line 14199
     const-string v2, "android.intent.extra.REPLACING"
 
     invoke-virtual {v3, v2, p2}, Landroid/os/Bundle;->putBoolean(Ljava/lang/String;Z)V
 
-    .line 14201
     :cond_1
     if-eqz p1, :cond_3
 
@@ -35095,16 +33978,13 @@
 
     move-object v6, v1
 
-    .line 14203
     invoke-static/range {v0 .. v6}, Lcom/android/server/pm/PackageManagerService;->sendPackageBroadcast(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroid/os/Bundle;Ljava/lang/String;Landroid/content/IIntentReceiver;[I)V
 
-    .line 14205
     .end local v0    # "action":Ljava/lang/String;
     .end local v3    # "extras":Landroid/os/Bundle;
     :cond_2
     return-void
 
-    .line 14201
     .restart local v3    # "extras":Landroid/os/Bundle;
     :cond_3
     const-string v0, "android.intent.action.EXTERNAL_APPLICATIONS_UNAVAILABLE"
@@ -35123,14 +34003,12 @@
 
     const/4 v8, 0x0
 
-    .line 7476
     new-instance v0, Ljava/io/File;
 
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->codePath:Ljava/lang/String;
 
     invoke-direct {v0, v5}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 7480
     .local v0, "codeFile":Ljava/io/File;
     invoke-static {v0}, Landroid/content/pm/PackageParser;->isApkFile(Ljava/io/File;)Z
 
@@ -35138,7 +34016,6 @@
 
     if-eqz v5, :cond_0
 
-    .line 7482
     new-instance v5, Ljava/io/File;
 
     new-instance v6, Ljava/io/File;
@@ -35157,7 +34034,6 @@
 
     move-result v2
 
-    .line 7483
     .local v2, "has64BitLibs":Z
     new-instance v5, Ljava/io/File;
 
@@ -35177,14 +34053,12 @@
 
     move-result v1
 
-    .line 7503
     .local v1, "has32BitLibs":Z
     :goto_0
     if-eqz v2, :cond_3
 
     if-nez v1, :cond_3
 
-    .line 7508
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     sget-object v6, Landroid/os/Build;->SUPPORTED_64_BIT_ABIS:[Ljava/lang/String;
@@ -35193,16 +34067,13 @@
 
     iput-object v6, v5, Landroid/content/pm/ApplicationInfo;->primaryCpuAbi:Ljava/lang/String;
 
-    .line 7509
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iput-object v9, v5, Landroid/content/pm/ApplicationInfo;->secondaryCpuAbi:Ljava/lang/String;
 
-    .line 7539
     :goto_1
     return-void
 
-    .line 7486
     .end local v1    # "has32BitLibs":Z
     .end local v2    # "has64BitLibs":Z
     :cond_0
@@ -35212,7 +34083,6 @@
 
     invoke-direct {v4, v0, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 7487
     .local v4, "rootDir":Ljava/io/File;
     sget-object v5, Landroid/os/Build;->SUPPORTED_64_BIT_ABIS:[Ljava/lang/String;
 
@@ -35232,7 +34102,6 @@
 
     if-nez v5, :cond_1
 
-    .line 7489
     sget-object v5, Landroid/os/Build;->SUPPORTED_64_BIT_ABIS:[Ljava/lang/String;
 
     aget-object v5, v5, v8
@@ -35241,7 +34110,6 @@
 
     move-result-object v3
 
-    .line 7490
     .local v3, "isa":Ljava/lang/String;
     new-instance v5, Ljava/io/File;
 
@@ -35251,7 +34119,6 @@
 
     move-result v2
 
-    .line 7494
     .end local v3    # "isa":Ljava/lang/String;
     .restart local v2    # "has64BitLibs":Z
     :goto_2
@@ -35273,7 +34140,6 @@
 
     if-nez v5, :cond_2
 
-    .line 7496
     sget-object v5, Landroid/os/Build;->SUPPORTED_32_BIT_ABIS:[Ljava/lang/String;
 
     aget-object v5, v5, v8
@@ -35282,7 +34148,6 @@
 
     move-result-object v3
 
-    .line 7497
     .restart local v3    # "isa":Ljava/lang/String;
     new-instance v5, Ljava/io/File;
 
@@ -35292,11 +34157,9 @@
 
     move-result v1
 
-    .line 7498
     .restart local v1    # "has32BitLibs":Z
     goto :goto_0
 
-    .line 7492
     .end local v1    # "has32BitLibs":Z
     .end local v2    # "has64BitLibs":Z
     .end local v3    # "isa":Ljava/lang/String;
@@ -35306,21 +34169,18 @@
     .restart local v2    # "has64BitLibs":Z
     goto :goto_2
 
-    .line 7499
     :cond_2
     const/4 v1, 0x0
 
     .restart local v1    # "has32BitLibs":Z
     goto :goto_0
 
-    .line 7510
     .end local v4    # "rootDir":Ljava/io/File;
     :cond_3
     if-eqz v1, :cond_4
 
     if-nez v2, :cond_4
 
-    .line 7514
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     sget-object v6, Landroid/os/Build;->SUPPORTED_32_BIT_ABIS:[Ljava/lang/String;
@@ -35329,20 +34189,17 @@
 
     iput-object v6, v5, Landroid/content/pm/ApplicationInfo;->primaryCpuAbi:Ljava/lang/String;
 
-    .line 7515
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iput-object v9, v5, Landroid/content/pm/ApplicationInfo;->secondaryCpuAbi:Ljava/lang/String;
 
     goto :goto_1
 
-    .line 7516
     :cond_4
     if-eqz v1, :cond_7
 
     if-eqz v2, :cond_7
 
-    .line 7524
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iget v5, v5, Landroid/content/pm/ApplicationInfo;->flags:I
@@ -35353,7 +34210,6 @@
 
     if-nez v5, :cond_5
 
-    .line 7525
     const-string v5, "PackageManager"
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -35382,7 +34238,6 @@
 
     invoke-static {v5, v6}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 7528
     :cond_5
     invoke-static {}, Lcom/android/server/pm/PackageManagerService;->getPreferredInstructionSet()Ljava/lang/String;
 
@@ -35394,7 +34249,6 @@
 
     if-eqz v5, :cond_6
 
-    .line 7529
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     sget-object v6, Landroid/os/Build;->SUPPORTED_64_BIT_ABIS:[Ljava/lang/String;
@@ -35403,7 +34257,6 @@
 
     iput-object v6, v5, Landroid/content/pm/ApplicationInfo;->primaryCpuAbi:Ljava/lang/String;
 
-    .line 7530
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     sget-object v6, Landroid/os/Build;->SUPPORTED_32_BIT_ABIS:[Ljava/lang/String;
@@ -35414,7 +34267,6 @@
 
     goto/16 :goto_1
 
-    .line 7532
     :cond_6
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
@@ -35424,7 +34276,6 @@
 
     iput-object v6, v5, Landroid/content/pm/ApplicationInfo;->primaryCpuAbi:Ljava/lang/String;
 
-    .line 7533
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     sget-object v6, Landroid/os/Build;->SUPPORTED_64_BIT_ABIS:[Ljava/lang/String;
@@ -35435,13 +34286,11 @@
 
     goto/16 :goto_1
 
-    .line 7536
     :cond_7
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iput-object v9, v5, Landroid/content/pm/ApplicationInfo;->primaryCpuAbi:Ljava/lang/String;
 
-    .line 7537
     iget-object v5, p0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iput-object v9, v5, Landroid/content/pm/ApplicationInfo;->secondaryCpuAbi:Ljava/lang/String;
@@ -35455,7 +34304,6 @@
     .param p2, "pkgSetting"    # Lcom/android/server/pm/PackageSetting;
 
     .prologue
-    .line 7449
     iget-object v2, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     invoke-virtual {v2}, Landroid/content/pm/ApplicationInfo;->getCodePath()Ljava/lang/String;
@@ -35466,7 +34314,6 @@
 
     move-result-object v0
 
-    .line 7453
     .local v0, "apkName":Ljava/lang/String;
     iget-object v2, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
@@ -35476,28 +34323,23 @@
 
     move-result-object v1
 
-    .line 7454
     .local v1, "apkRoot":Ljava/lang/String;
     invoke-static {p1, v1, v0}, Lcom/android/server/pm/PackageManagerService;->setBundledAppAbi(Landroid/content/pm/PackageParser$Package;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 7461
     if-eqz p2, :cond_0
 
-    .line 7462
     iget-object v2, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iget-object v2, v2, Landroid/content/pm/ApplicationInfo;->primaryCpuAbi:Ljava/lang/String;
 
     iput-object v2, p2, Lcom/android/server/pm/PackageSetting;->primaryCpuAbiString:Ljava/lang/String;
 
-    .line 7463
     iget-object v2, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iget-object v2, v2, Landroid/content/pm/ApplicationInfo;->secondaryCpuAbi:Ljava/lang/String;
 
     iput-object v2, p2, Lcom/android/server/pm/PackageSetting;->secondaryCpuAbiString:Ljava/lang/String;
 
-    .line 7465
     :cond_0
     return-void
 .end method
@@ -35512,7 +34354,6 @@
     .param p6, "callingPackage"    # Ljava/lang/String;
 
     .prologue
-    .line 13275
     if-eqz p3, :cond_0
 
     const/4 v4, 0x1
@@ -35539,7 +34380,6 @@
 
     if-eq v0, v4, :cond_0
 
-    .line 13280
     new-instance v4, Ljava/lang/IllegalArgumentException;
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -35566,13 +34406,11 @@
 
     throw v4
 
-    .line 13285
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v5
 
-    .line 13286
     .local v5, "uid":I
     move-object/from16 v0, p0
 
@@ -35584,7 +34422,6 @@
 
     move-result v18
 
-    .line 13288
     .local v18, "permission":I
     const/4 v7, 0x0
 
@@ -35598,35 +34435,29 @@
 
     invoke-virtual/range {v4 .. v9}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 13289
     if-nez v18, :cond_1
 
     const/4 v10, 0x1
 
-    .line 13290
     .local v10, "allowedByPermission":Z
     :goto_0
     const/16 v21, 0x0
 
-    .line 13291
     .local v21, "sendNow":Z
     if-nez p2, :cond_2
 
     const/4 v15, 0x1
 
-    .line 13292
     .local v15, "isApp":Z
     :goto_1
     if-eqz v15, :cond_3
 
     move-object/from16 v11, p1
 
-    .line 13293
     .local v11, "componentName":Ljava/lang/String;
     :goto_2
     const/16 v17, -0x1
 
-    .line 13297
     .local v17, "packageUid":I
     move-object/from16 v0, p0
 
@@ -35634,7 +34465,6 @@
 
     monitor-enter v6
 
-    .line 13298
     :try_start_0
     move-object/from16 v0, p0
 
@@ -35650,14 +34480,11 @@
 
     check-cast v20, Lcom/android/server/pm/PackageSetting;
 
-    .line 13299
     .local v20, "pkgSetting":Lcom/android/server/pm/PackageSetting;
     if-nez v20, :cond_5
 
-    .line 13300
     if-nez p2, :cond_4
 
-    .line 13301
     new-instance v4, Ljava/lang/IllegalArgumentException;
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -35684,7 +34511,6 @@
 
     throw v4
 
-    .line 13385
     .end local v20    # "pkgSetting":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v4
@@ -35695,7 +34521,6 @@
 
     throw v4
 
-    .line 13289
     .end local v10    # "allowedByPermission":Z
     .end local v11    # "componentName":Ljava/lang/String;
     .end local v15    # "isApp":Z
@@ -35706,7 +34531,6 @@
 
     goto :goto_0
 
-    .line 13291
     .restart local v10    # "allowedByPermission":Z
     .restart local v21    # "sendNow":Z
     :cond_2
@@ -35718,10 +34542,8 @@
     :cond_3
     move-object/from16 v11, p2
 
-    .line 13292
     goto :goto_2
 
-    .line 13304
     .restart local v11    # "componentName":Ljava/lang/String;
     .restart local v17    # "packageUid":I
     .restart local v20    # "pkgSetting":Lcom/android/server/pm/PackageSetting;
@@ -35765,7 +34587,6 @@
 
     throw v4
 
-    .line 13309
     :cond_5
     if-nez v10, :cond_6
 
@@ -35779,7 +34600,6 @@
 
     if-nez v4, :cond_6
 
-    .line 13310
     new-instance v4, Ljava/lang/SecurityException;
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -35832,11 +34652,9 @@
 
     throw v4
 
-    .line 13315
     :cond_6
     if-nez p2, :cond_f
 
-    .line 13317
     move-object/from16 v0, v20
 
     move/from16 v1, p5
@@ -35849,14 +34667,11 @@
 
     if-ne v4, v0, :cond_7
 
-    .line 13319
     monitor-exit v6
 
-    .line 13397
     :goto_3
     return-void
 
-    .line 13321
     :cond_7
     if-eqz p3, :cond_8
 
@@ -35866,11 +34681,9 @@
 
     if-ne v0, v4, :cond_9
 
-    .line 13324
     :cond_8
     const/16 p6, 0x0
 
-    .line 13326
     :cond_9
     move-object/from16 v0, v20
 
@@ -35882,7 +34695,6 @@
 
     invoke-virtual {v0, v1, v2, v3}, Lcom/android/server/pm/PackageSetting;->setEnabled(IILjava/lang/String;)V
 
-    .line 13362
     :cond_a
     move-object/from16 v0, p0
 
@@ -35892,7 +34704,6 @@
 
     invoke-virtual {v4, v0}, Lcom/android/server/pm/Settings;->writePackageRestrictionsLPr(I)V
 
-    .line 13363
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPendingBroadcasts:Lcom/android/server/pm/PackageManagerService$PendingPackageBroadcasts;
@@ -35905,24 +34716,20 @@
 
     move-result-object v14
 
-    .line 13364
     .local v14, "components":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     if-nez v14, :cond_13
 
     const/16 v16, 0x1
 
-    .line 13365
     .local v16, "newPackage":Z
     :goto_4
     if-eqz v16, :cond_b
 
-    .line 13366
     new-instance v14, Ljava/util/ArrayList;
 
     .end local v14    # "components":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     invoke-direct {v14}, Ljava/util/ArrayList;-><init>()V
 
-    .line 13368
     .restart local v14    # "components":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     :cond_b
     invoke-virtual {v14, v11}, Ljava/util/ArrayList;->contains(Ljava/lang/Object;)Z
@@ -35931,19 +34738,15 @@
 
     if-nez v4, :cond_c
 
-    .line 13369
     invoke-virtual {v14, v11}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 13371
     :cond_c
     and-int/lit8 v4, p4, 0x1
 
     if-nez v4, :cond_14
 
-    .line 13372
     const/16 v21, 0x1
 
-    .line 13375
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPendingBroadcasts:Lcom/android/server/pm/PackageManagerService$PendingPackageBroadcasts;
@@ -35954,23 +34757,19 @@
 
     invoke-virtual {v4, v0, v1}, Lcom/android/server/pm/PackageManagerService$PendingPackageBroadcasts;->remove(ILjava/lang/String;)V
 
-    .line 13385
     :cond_d
     :goto_5
     monitor-exit v6
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 13387
     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
 
     move-result-wide v12
 
-    .line 13389
     .local v12, "callingId":J
     if-eqz v21, :cond_e
 
-    .line 13390
     :try_start_2
     move-object/from16 v0, v20
 
@@ -35982,7 +34781,6 @@
 
     move-result v17
 
-    .line 13391
     and-int/lit8 v4, p4, 0x1
 
     if-eqz v4, :cond_16
@@ -36000,13 +34798,11 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_1
 
-    .line 13395
     :cond_e
     invoke-static {v12, v13}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     goto :goto_3
 
-    .line 13331
     .end local v12    # "callingId":J
     .end local v14    # "components":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     .end local v16    # "newPackage":Z
@@ -36018,7 +34814,6 @@
 
     move-object/from16 v19, v0
 
-    .line 13332
     .local v19, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v19, :cond_10
 
@@ -36032,7 +34827,6 @@
 
     if-nez v4, :cond_12
 
-    .line 13333
     :cond_10
     move-object/from16 v0, v19
 
@@ -36044,7 +34838,6 @@
 
     if-lt v4, v7, :cond_11
 
-    .line 13334
     new-instance v4, Ljava/lang/IllegalArgumentException;
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -36083,7 +34876,6 @@
 
     throw v4
 
-    .line 13337
     :cond_11
     const-string v4, "PackageManager"
 
@@ -36121,11 +34913,9 @@
 
     invoke-static {v4, v7}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 13341
     :cond_12
     packed-switch p3, :pswitch_data_0
 
-    .line 13358
     const-string v4, "PackageManager"
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -36150,12 +34940,10 @@
 
     invoke-static {v4, v7}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 13359
     monitor-exit v6
 
     goto/16 :goto_3
 
-    .line 13343
     :pswitch_0
     move-object/from16 v0, v20
 
@@ -36169,12 +34957,10 @@
 
     if-nez v4, :cond_a
 
-    .line 13344
     monitor-exit v6
 
     goto/16 :goto_3
 
-    .line 13348
     :pswitch_1
     move-object/from16 v0, v20
 
@@ -36188,12 +34974,10 @@
 
     if-nez v4, :cond_a
 
-    .line 13349
     monitor-exit v6
 
     goto/16 :goto_3
 
-    .line 13353
     :pswitch_2
     move-object/from16 v0, v20
 
@@ -36207,12 +34991,10 @@
 
     if-nez v4, :cond_a
 
-    .line 13354
     monitor-exit v6
 
     goto/16 :goto_3
 
-    .line 13364
     .end local v19    # "pkg":Landroid/content/pm/PackageParser$Package;
     .restart local v14    # "components":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     :cond_13
@@ -36220,12 +35002,10 @@
 
     goto/16 :goto_4
 
-    .line 13377
     .restart local v16    # "newPackage":Z
     :cond_14
     if-eqz v16, :cond_15
 
-    .line 13378
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPendingBroadcasts:Lcom/android/server/pm/PackageManagerService$PendingPackageBroadcasts;
@@ -36236,7 +35016,6 @@
 
     invoke-virtual {v4, v0, v1, v14}, Lcom/android/server/pm/PackageManagerService$PendingPackageBroadcasts;->put(ILjava/lang/String;Ljava/util/ArrayList;)V
 
-    .line 13380
     :cond_15
     move-object/from16 v0, p0
 
@@ -36250,7 +35029,6 @@
 
     if-nez v4, :cond_d
 
-    .line 13382
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
@@ -36265,14 +35043,12 @@
 
     goto/16 :goto_5
 
-    .line 13391
     .restart local v12    # "callingId":J
     :cond_16
     const/4 v4, 0x0
 
     goto/16 :goto_6
 
-    .line 13395
     :catchall_1
     move-exception v4
 
@@ -36280,7 +35056,6 @@
 
     throw v4
 
-    .line 13341
     nop
 
     :pswitch_data_0
@@ -36297,20 +35072,16 @@
     .param p2, "parseFlags"    # I
 
     .prologue
-    .line 7374
     iget-object v6, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
-    .line 7375
     .local v6, "info":Landroid/content/pm/ApplicationInfo;
     iget-object v5, p1, Landroid/content/pm/PackageParser$Package;->codePath:Ljava/lang/String;
 
-    .line 7376
     .local v5, "codePath":Ljava/lang/String;
     new-instance v4, Ljava/io/File;
 
     invoke-direct {v4, v5}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 7377
     .local v4, "codeFile":Ljava/io/File;
     invoke-static {v6}, Lcom/android/server/pm/PackageManagerService;->isSystemApp(Landroid/content/pm/ApplicationInfo;)Z
 
@@ -36326,7 +35097,6 @@
 
     const/4 v3, 0x1
 
-    .line 7378
     .local v3, "bundledApp":Z
     :goto_0
     invoke-static {v6}, Lcom/android/server/pm/PackageManagerService;->isForwardLocked(Landroid/content/pm/ApplicationInfo;)Z
@@ -36344,46 +35114,38 @@
     :cond_0
     const/4 v2, 0x1
 
-    .line 7380
     .local v2, "asecApp":Z
     :goto_1
     const/4 v10, 0x0
 
     iput-object v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootDir:Ljava/lang/String;
 
-    .line 7381
     const/4 v10, 0x0
 
     iput-boolean v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootRequiresIsa:Z
 
-    .line 7382
     const/4 v10, 0x0
 
     iput-object v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryDir:Ljava/lang/String;
 
-    .line 7383
     const/4 v10, 0x0
 
     iput-object v10, v6, Landroid/content/pm/ApplicationInfo;->secondaryNativeLibraryDir:Ljava/lang/String;
 
-    .line 7385
     invoke-static {v4}, Landroid/content/pm/PackageParser;->isApkFile(Ljava/io/File;)Z
 
     move-result v10
 
     if-eqz v10, :cond_9
 
-    .line 7387
     if-eqz v3, :cond_7
 
-    .line 7390
     iget-object v10, v6, Landroid/content/pm/ApplicationInfo;->sourceDir:Ljava/lang/String;
 
     invoke-static {v10}, Lcom/android/server/pm/PackageManagerService;->calculateBundledApkRoot(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 7391
     .local v1, "apkRoot":Ljava/lang/String;
     invoke-static {v6}, Lcom/android/server/pm/PackageManagerService;->getPrimaryInstructionSet(Landroid/content/pm/ApplicationInfo;)Ljava/lang/String;
 
@@ -36393,19 +35155,16 @@
 
     move-result v7
 
-    .line 7397
     .local v7, "is64Bit":Z
     invoke-static {v5}, Lcom/android/server/pm/PackageManagerService;->deriveCodePathName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 7398
     .local v0, "apkName":Ljava/lang/String;
     if-eqz v7, :cond_5
 
     const-string v8, "lib64"
 
-    .line 7399
     .local v8, "libDir":Ljava/lang/String;
     :goto_2
     new-instance v10, Ljava/io/File;
@@ -36434,17 +35193,14 @@
 
     iput-object v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootDir:Ljava/lang/String;
 
-    .line 7402
     iget-object v10, v6, Landroid/content/pm/ApplicationInfo;->secondaryCpuAbi:Ljava/lang/String;
 
     if-eqz v10, :cond_1
 
-    .line 7403
     if-eqz v7, :cond_6
 
     const-string v9, "lib"
 
-    .line 7404
     .local v9, "secondaryLibDir":Ljava/lang/String;
     :goto_3
     new-instance v10, Ljava/io/File;
@@ -36473,7 +35229,6 @@
 
     iput-object v10, v6, Landroid/content/pm/ApplicationInfo;->secondaryNativeLibraryDir:Ljava/lang/String;
 
-    .line 7416
     .end local v0    # "apkName":Ljava/lang/String;
     .end local v1    # "apkRoot":Ljava/lang/String;
     .end local v7    # "is64Bit":Z
@@ -36485,17 +35240,14 @@
 
     iput-boolean v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootRequiresIsa:Z
 
-    .line 7417
     iget-object v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootDir:Ljava/lang/String;
 
     iput-object v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryDir:Ljava/lang/String;
 
-    .line 7438
     :cond_2
     :goto_5
     return-void
 
-    .line 7377
     .end local v2    # "asecApp":Z
     .end local v3    # "bundledApp":Z
     :cond_3
@@ -36503,14 +35255,12 @@
 
     goto :goto_0
 
-    .line 7378
     .restart local v3    # "bundledApp":Z
     :cond_4
     const/4 v2, 0x0
 
     goto :goto_1
 
-    .line 7398
     .restart local v0    # "apkName":Ljava/lang/String;
     .restart local v1    # "apkRoot":Ljava/lang/String;
     .restart local v2    # "asecApp":Z
@@ -36520,14 +35270,12 @@
 
     goto :goto_2
 
-    .line 7403
     .restart local v8    # "libDir":Ljava/lang/String;
     :cond_6
     const-string v9, "lib64"
 
     goto :goto_3
 
-    .line 7407
     .end local v0    # "apkName":Ljava/lang/String;
     .end local v1    # "apkRoot":Ljava/lang/String;
     .end local v7    # "is64Bit":Z
@@ -36535,7 +35283,6 @@
     :cond_7
     if-eqz v2, :cond_8
 
-    .line 7408
     new-instance v10, Ljava/io/File;
 
     invoke-virtual {v4}, Ljava/io/File;->getParentFile()Ljava/io/File;
@@ -36554,13 +35301,11 @@
 
     goto :goto_4
 
-    .line 7411
     :cond_8
     invoke-static {v5}, Lcom/android/server/pm/PackageManagerService;->deriveCodePathName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 7412
     .restart local v0    # "apkName":Ljava/lang/String;
     new-instance v10, Ljava/io/File;
 
@@ -36576,14 +35321,12 @@
 
     goto :goto_4
 
-    .line 7419
     .end local v0    # "apkName":Ljava/lang/String;
     :cond_9
     and-int/lit16 v10, p2, 0x400
 
     if-eqz v10, :cond_a
 
-    .line 7424
     new-instance v10, Ljava/io/File;
 
     iget-object v11, p0, Lcom/android/server/pm/PackageManagerService;->mAppLib32InstallDir:Ljava/io/File;
@@ -36598,13 +35341,11 @@
 
     iput-object v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootDir:Ljava/lang/String;
 
-    .line 7429
     :goto_6
     const/4 v10, 0x1
 
     iput-boolean v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootRequiresIsa:Z
 
-    .line 7430
     new-instance v10, Ljava/io/File;
 
     iget-object v11, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootDir:Ljava/lang/String;
@@ -36621,12 +35362,10 @@
 
     iput-object v10, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryDir:Ljava/lang/String;
 
-    .line 7433
     iget-object v10, v6, Landroid/content/pm/ApplicationInfo;->secondaryCpuAbi:Ljava/lang/String;
 
     if-eqz v10, :cond_2
 
-    .line 7434
     new-instance v10, Ljava/io/File;
 
     iget-object v11, v6, Landroid/content/pm/ApplicationInfo;->nativeLibraryRootDir:Ljava/lang/String;
@@ -36647,7 +35386,6 @@
 
     goto :goto_5
 
-    .line 7427
     :cond_a
     new-instance v10, Ljava/io/File;
 
@@ -36669,29 +35407,24 @@
     .param p1, "pkg"    # Landroid/content/pm/PackageParser$Package;
 
     .prologue
-    .line 7312
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 7313
     const/4 v1, 0x1
 
     :try_start_0
     iput-boolean v1, p0, Lcom/android/server/pm/PackageManagerService;->mPreLaunchCheckPackagesReplaced:Z
 
-    .line 7315
     new-instance v0, Landroid/content/pm/ActivityInfo;
 
     invoke-direct {v0}, Landroid/content/pm/ActivityInfo;-><init>()V
 
-    .line 7316
     .local v0, "preLaunchCheckActivity":Landroid/content/pm/ActivityInfo;
     iget-object v1, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iput-object v1, v0, Landroid/content/pm/ActivityInfo;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
-    .line 7317
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mCustomPreLaunchComponentName:Landroid/content/ComponentName;
 
     invoke-virtual {v1}, Landroid/content/ComponentName;->getClassName()Ljava/lang/String;
@@ -36700,72 +35433,60 @@
 
     iput-object v1, v0, Landroid/content/pm/ActivityInfo;->name:Ljava/lang/String;
 
-    .line 7318
     iget-object v1, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iget-object v1, v1, Landroid/content/pm/ApplicationInfo;->packageName:Ljava/lang/String;
 
     iput-object v1, v0, Landroid/content/pm/ActivityInfo;->packageName:Ljava/lang/String;
 
-    .line 7319
     iget-object v1, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iget-object v1, v1, Landroid/content/pm/ApplicationInfo;->packageName:Ljava/lang/String;
 
     iput-object v1, v0, Landroid/content/pm/ActivityInfo;->processName:Ljava/lang/String;
 
-    .line 7320
-    const v1, 0x1030486
+    const v1, #android:style@Theme.Holo.Dialog.Alert#t
 
     iput v1, v0, Landroid/content/pm/ActivityInfo;->theme:I
 
-    .line 7321
     const/4 v1, 0x0
 
     iput v1, v0, Landroid/content/pm/ActivityInfo;->launchMode:I
 
-    .line 7322
     const/16 v1, 0x120
 
     iput v1, v0, Landroid/content/pm/ActivityInfo;->flags:I
 
-    .line 7324
     const/4 v1, 0x1
 
     iput-boolean v1, v0, Landroid/content/pm/ActivityInfo;->exported:Z
 
-    .line 7325
     const/4 v1, 0x1
 
     iput-boolean v1, v0, Landroid/content/pm/ActivityInfo;->enabled:Z
 
-    .line 7327
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPreLaunchCheckResolveInfo:Landroid/content/pm/ResolveInfo;
 
     iput-object v0, v1, Landroid/content/pm/ResolveInfo;->activityInfo:Landroid/content/pm/ActivityInfo;
 
-    .line 7328
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPreLaunchCheckResolveInfo:Landroid/content/pm/ResolveInfo;
 
     const/4 v3, 0x0
 
     iput v3, v1, Landroid/content/pm/ResolveInfo;->priority:I
 
-    .line 7329
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPreLaunchCheckResolveInfo:Landroid/content/pm/ResolveInfo;
 
     const/4 v3, 0x0
 
     iput v3, v1, Landroid/content/pm/ResolveInfo;->preferredOrder:I
 
-    .line 7330
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPreLaunchCheckResolveInfo:Landroid/content/pm/ResolveInfo;
 
     const/4 v3, 0x0
 
     iput v3, v1, Landroid/content/pm/ResolveInfo;->match:I
 
-    .line 7332
     const-string v1, "PackageManager"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -36790,13 +35511,10 @@
 
     invoke-static {v1, v3}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 7334
     monitor-exit v2
 
-    .line 7335
     return-void
 
-    .line 7334
     .end local v0    # "preLaunchCheckActivity":Landroid/content/pm/ActivityInfo;
     :catchall_0
     move-exception v1
@@ -36813,12 +35531,10 @@
     .param p1, "pkg"    # Landroid/content/pm/PackageParser$Package;
 
     .prologue
-    .line 7269
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 7270
     :try_start_0
     iget-object v2, p1, Landroid/content/pm/PackageParser$Package;->activities:Ljava/util/ArrayList;
 
@@ -36840,7 +35556,6 @@
 
     check-cast v0, Landroid/content/pm/PackageParser$Activity;
 
-    .line 7271
     .local v0, "a":Landroid/content/pm/PackageParser$Activity;
     invoke-virtual {v0}, Landroid/content/pm/PackageParser$Activity;->getComponentName()Landroid/content/ComponentName;
 
@@ -36862,19 +35577,16 @@
 
     if-eqz v2, :cond_0
 
-    .line 7273
     const/4 v2, 0x1
 
     iput-boolean v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolverReplaced:Z
 
-    .line 7275
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     iget-object v4, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iput-object v4, v2, Landroid/content/pm/ActivityInfo;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
-    .line 7276
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mCustomResolverComponentName:Landroid/content/ComponentName;
@@ -36885,7 +35597,6 @@
 
     iput-object v4, v2, Landroid/content/pm/ActivityInfo;->name:Ljava/lang/String;
 
-    .line 7277
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     iget-object v4, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -36894,7 +35605,6 @@
 
     iput-object v4, v2, Landroid/content/pm/ActivityInfo;->packageName:Ljava/lang/String;
 
-    .line 7278
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     iget-object v4, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -36903,21 +35613,18 @@
 
     iput-object v4, v2, Landroid/content/pm/ActivityInfo;->processName:Ljava/lang/String;
 
-    .line 7279
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     const/4 v4, 0x0
 
     iput v4, v2, Landroid/content/pm/ActivityInfo;->launchMode:I
 
-    .line 7280
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     const/16 v4, 0x120
 
     iput v4, v2, Landroid/content/pm/ActivityInfo;->flags:I
 
-    .line 7282
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     iget-object v4, v0, Landroid/content/pm/PackageParser$Activity;->info:Landroid/content/pm/ActivityInfo;
@@ -36926,54 +35633,46 @@
 
     iput v4, v2, Landroid/content/pm/ActivityInfo;->theme:I
 
-    .line 7283
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     const/4 v4, 0x1
 
     iput-boolean v4, v2, Landroid/content/pm/ActivityInfo;->exported:Z
 
-    .line 7284
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     const/4 v4, 0x1
 
     iput-boolean v4, v2, Landroid/content/pm/ActivityInfo;->enabled:Z
 
-    .line 7285
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveInfo:Landroid/content/pm/ResolveInfo;
 
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     iput-object v4, v2, Landroid/content/pm/ResolveInfo;->activityInfo:Landroid/content/pm/ActivityInfo;
 
-    .line 7286
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveInfo:Landroid/content/pm/ResolveInfo;
 
     const/4 v4, 0x0
 
     iput v4, v2, Landroid/content/pm/ResolveInfo;->priority:I
 
-    .line 7287
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveInfo:Landroid/content/pm/ResolveInfo;
 
     const/4 v4, 0x0
 
     iput v4, v2, Landroid/content/pm/ResolveInfo;->preferredOrder:I
 
-    .line 7288
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveInfo:Landroid/content/pm/ResolveInfo;
 
     const/4 v4, 0x0
 
     iput v4, v2, Landroid/content/pm/ResolveInfo;->match:I
 
-    .line 7289
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mCustomResolverComponentName:Landroid/content/ComponentName;
 
     iput-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveComponentName:Landroid/content/ComponentName;
 
-    .line 7290
     const-string v2, "PackageManager"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -36998,7 +35697,6 @@
 
     invoke-static {v2, v4}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 7295
     .end local v0    # "a":Landroid/content/pm/PackageParser$Activity;
     :cond_1
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
@@ -37007,21 +35705,17 @@
 
     if-nez v2, :cond_2
 
-    .line 7296
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
-    const v4, 0x1030494
+    const v4, #android:style@Theme.DeviceDefault.Resolver#t
 
     iput v4, v2, Landroid/content/pm/ActivityInfo;->theme:I
 
-    .line 7298
     :cond_2
     monitor-exit v3
 
-    .line 7299
     return-void
 
-    .line 7298
     .end local v1    # "i$":Ljava/util/Iterator;
     :catchall_0
     move-exception v2
@@ -37040,7 +35734,6 @@
     .prologue
     const/4 v5, 0x1
 
-    .line 7237
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mAvailableCommonResources:Ljava/util/Map;
 
     iget-object v6, p1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
@@ -37053,11 +35746,9 @@
 
     move v4, v5
 
-    .line 7244
     :goto_0
     return v4
 
-    .line 7239
     :cond_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mAvailableCommonResources:Ljava/util/Map;
 
@@ -37073,13 +35764,11 @@
 
     move-result-wide v2
 
-    .line 7240
     .local v2, "lastUpdated":J
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 7241
     .local v0, "currentTime":J
     sub-long v6, v0, v2
 
@@ -37091,10 +35780,8 @@
 
     move v4, v5
 
-    .line 7242
     goto :goto_0
 
-    .line 7244
     :cond_1
     const/4 v4, 0x0
 
@@ -37111,7 +35798,6 @@
 
     const/4 v5, 0x1
 
-    .line 7206
     if-eqz p1, :cond_0
 
     iget-object v7, p1, Landroid/content/pm/PackageParser$Package;->baseCodePath:Ljava/lang/String;
@@ -37123,20 +35809,16 @@
     :cond_0
     move v5, v6
 
-    .line 7233
     :cond_1
     :goto_0
     return v5
 
-    .line 7208
     :cond_2
     iget v4, p1, Landroid/content/pm/PackageParser$Package;->manifestHashCode:I
 
-    .line 7209
     .local v4, "targetHash":I
     iget v3, p2, Landroid/content/pm/PackageParser$Package;->manifestHashCode:I
 
-    .line 7211
     .local v3, "overlayHash":I
     new-instance v2, Ljava/io/File;
 
@@ -37150,7 +35832,6 @@
 
     invoke-direct {v2, v7}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 7213
     .local v2, "idmap":Ljava/io/File;
     invoke-virtual {v2}, Ljava/io/File;->exists()Z
 
@@ -37158,7 +35839,6 @@
 
     if-eqz v7, :cond_1
 
-    .line 7219
     :try_start_0
     invoke-direct {p0, v2}, Lcom/android/server/pm/PackageManagerService;->getIdmapHashes(Ljava/io/File;)[I
     :try_end_0
@@ -37166,7 +35846,6 @@
 
     move-result-object v1
 
-    .line 7224
     .local v1, "hashes":[I
     if-eqz v4, :cond_3
 
@@ -37180,7 +35859,6 @@
 
     if-eq v3, v7, :cond_4
 
-    .line 7227
     :cond_3
     aget v6, v1, v5
 
@@ -37196,7 +35874,6 @@
 
     if-eqz v6, :cond_1
 
-    .line 7229
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mAvailableCommonResources:Ljava/util/Map;
 
     iget-object v7, p2, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
@@ -37205,12 +35882,10 @@
 
     goto :goto_0
 
-    .line 7220
     .end local v1    # "hashes":[I
     :catch_0
     move-exception v0
 
-    .line 7221
     .local v0, "e":Ljava/io/IOException;
     goto :goto_0
 
@@ -37219,7 +35894,6 @@
     :cond_4
     move v5, v6
 
-    .line 7233
     goto :goto_0
 .end method
 
@@ -37228,12 +35902,10 @@
     .param p1, "intent"    # Landroid/content/Intent;
 
     .prologue
-    .line 3618
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 3619
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
@@ -37241,7 +35913,6 @@
 
     move-result-object v0
 
-    .line 3620
     .local v0, "suggest":Lcyanogenmod/app/suggest/AppSuggestManager;
     iget-boolean v1, p0, Lcom/android/server/pm/PackageManagerService;->mResolverReplaced:Z
 
@@ -37263,7 +35934,6 @@
 
     goto :goto_0
 
-    .line 3621
     .end local v0    # "suggest":Lcyanogenmod/app/suggest/AppSuggestManager;
     :catchall_0
     move-exception v1
@@ -37281,14 +35951,11 @@
     .param p1, "sep"    # C
 
     .prologue
-    .line 1357
     const/4 v0, 0x1
 
-    .line 1358
     .local v0, "count":I
     const/4 v1, 0x0
 
-    .line 1359
     .local v1, "i":I
     :goto_0
     invoke-virtual {p0, p1, v1}, Ljava/lang/String;->indexOf(II)I
@@ -37297,29 +35964,22 @@
 
     if-ltz v1, :cond_0
 
-    .line 1360
     add-int/lit8 v0, v0, 0x1
 
-    .line 1361
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_0
 
-    .line 1364
     :cond_0
     new-array v3, v0, [Ljava/lang/String;
 
-    .line 1365
     .local v3, "res":[Ljava/lang/String;
     const/4 v1, 0x0
 
-    .line 1366
     const/4 v0, 0x0
 
-    .line 1367
     const/4 v2, 0x0
 
-    .line 1368
     .local v2, "lastI":I
     :goto_1
     invoke-virtual {p0, p1, v1}, Ljava/lang/String;->indexOf(II)I
@@ -37328,25 +35988,20 @@
 
     if-ltz v1, :cond_1
 
-    .line 1369
     invoke-virtual {p0, v2, v1}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object v4
 
     aput-object v4, v3, v0
 
-    .line 1370
     add-int/lit8 v0, v0, 0x1
 
-    .line 1371
     add-int/lit8 v1, v1, 0x1
 
-    .line 1372
     move v2, v1
 
     goto :goto_1
 
-    .line 1374
     :cond_1
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -37358,7 +36013,6 @@
 
     aput-object v4, v3, v0
 
-    .line 1375
     return-object v3
 .end method
 
@@ -37367,7 +36021,6 @@
     .param p1, "opkg"    # Landroid/content/pm/PackageParser$Package;
 
     .prologue
-    .line 7138
     iget-object v3, p1, Landroid/content/pm/PackageParser$Package;->mOverlayTargets:Ljava/util/ArrayList;
 
     invoke-virtual {v3}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
@@ -37389,7 +36042,6 @@
 
     check-cast v2, Ljava/lang/String;
 
-    .line 7139
     .local v2, "target":Ljava/lang/String;
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mOverlays:Landroid/util/ArrayMap;
 
@@ -37399,30 +36051,25 @@
 
     check-cast v1, Landroid/util/ArrayMap;
 
-    .line 7140
     .local v1, "map":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Ljava/lang/String;Landroid/content/pm/PackageParser$Package;>;"
     if-eqz v1, :cond_0
 
-    .line 7141
     iget-object v3, p1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
     invoke-virtual {v1, v3}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 7143
     invoke-virtual {v1}, Landroid/util/ArrayMap;->isEmpty()Z
 
     move-result v3
 
     if-eqz v3, :cond_0
 
-    .line 7144
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mOverlays:Landroid/util/ArrayMap;
 
     invoke-virtual {v3, v2}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
     goto :goto_0
 
-    .line 7150
     .end local v1    # "map":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Ljava/lang/String;Landroid/content/pm/PackageParser$Package;>;"
     .end local v2    # "target":Ljava/lang/String;
     :cond_1
@@ -37438,7 +36085,6 @@
 
     invoke-direct {p0, v3}, Lcom/android/server/pm/PackageManagerService;->recursiveDelete(Ljava/io/File;)V
 
-    .line 7151
     return-void
 .end method
 
@@ -37447,7 +36093,6 @@
     .param p1, "appPkg"    # Landroid/content/pm/PackageParser$Package;
 
     .prologue
-    .line 7154
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mOverlays:Landroid/util/ArrayMap;
 
     iget-object v5, p1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
@@ -37458,15 +36103,12 @@
 
     check-cast v2, Landroid/util/ArrayMap;
 
-    .line 7155
     .local v2, "map":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Ljava/lang/String;Landroid/content/pm/PackageParser$Package;>;"
     if-nez v2, :cond_1
 
-    .line 7161
     :cond_0
     return-void
 
-    .line 7157
     :cond_1
     invoke-virtual {v2}, Landroid/util/ArrayMap;->values()Ljava/util/Collection;
 
@@ -37490,7 +36132,6 @@
 
     check-cast v3, Landroid/content/pm/PackageParser$Package;
 
-    .line 7158
     .local v3, "opkg":Landroid/content/pm/PackageParser$Package;
     iget-object v4, p1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
@@ -37500,7 +36141,6 @@
 
     move-result-object v0
 
-    .line 7159
     .local v0, "cachePath":Ljava/lang/String;
     new-instance v4, Ljava/io/File;
 
@@ -37524,7 +36164,6 @@
     .end annotation
 
     .prologue
-    .line 14315
     .local p1, "cidArgs":Ljava/util/Set;, "Ljava/util/Set<Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;>;"
     invoke-interface {p1}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
@@ -37544,19 +36183,16 @@
 
     check-cast v0, Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;
 
-    .line 14316
     .local v0, "arg":Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mInstallLock:Ljava/lang/Object;
 
     monitor-enter v3
 
-    .line 14317
     const/4 v2, 0x0
 
     :try_start_0
     invoke-virtual {v0, v2}, Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;->doPostDeleteLI(Z)Z
 
-    .line 14318
     monitor-exit v3
 
     goto :goto_0
@@ -37570,7 +36206,6 @@
 
     throw v2
 
-    .line 14320
     .end local v0    # "arg":Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;
     :cond_0
     return-void
@@ -37592,25 +36227,21 @@
     .end annotation
 
     .prologue
-    .line 14335
     .local p1, "processCids":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;Ljava/lang/String;>;"
     new-instance v15, Ljava/util/ArrayList;
 
     invoke-direct {v15}, Ljava/util/ArrayList;-><init>()V
 
-    .line 14336
     .local v15, "pkgList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     new-instance v19, Ljava/util/ArrayList;
 
     invoke-direct/range {v19 .. v19}, Ljava/util/ArrayList;-><init>()V
 
-    .line 14337
     .local v19, "failedList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;>;"
     invoke-virtual/range {p1 .. p1}, Landroid/util/ArrayMap;->keySet()Ljava/util/Set;
 
     move-result-object v21
 
-    .line 14338
     .local v21, "keys":Ljava/util/Set;, "Ljava/util/Set<Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;>;"
     invoke-interface/range {v21 .. v21}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
@@ -37630,19 +36261,16 @@
 
     check-cast v18, Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;
 
-    .line 14339
     .local v18, "args":Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;
     invoke-virtual/range {v18 .. v18}, Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;->getPackageName()Ljava/lang/String;
 
     move-result-object v5
 
-    .line 14343
     .local v5, "pkgName":Ljava/lang/String;
     new-instance v11, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;
 
     invoke-direct {v11}, Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;-><init>()V
 
-    .line 14344
     .local v11, "outInfo":Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;
     move-object/from16 v0, p0
 
@@ -37650,7 +36278,6 @@
 
     monitor-enter v13
 
-    .line 14345
     const/4 v6, 0x0
 
     const/4 v7, 0x0
@@ -37670,14 +36297,11 @@
 
     move-result v23
 
-    .line 14347
     .local v23, "res":Z
     if-eqz v23, :cond_0
 
-    .line 14348
     invoke-virtual {v15, v5}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 14353
     :goto_1
     monitor-exit v13
 
@@ -37693,7 +36317,6 @@
 
     throw v4
 
-    .line 14350
     .restart local v23    # "res":Z
     :cond_0
     :try_start_1
@@ -37719,7 +36342,6 @@
 
     invoke-static {v4, v6}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14351
     move-object/from16 v0, v19
 
     move-object/from16 v1, v18
@@ -37730,7 +36352,6 @@
 
     goto :goto_1
 
-    .line 14357
     .end local v5    # "pkgName":Ljava/lang/String;
     .end local v11    # "outInfo":Lcom/android/server/pm/PackageManagerService$PackageRemovedInfo;
     .end local v18    # "args":Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;
@@ -37742,7 +36363,6 @@
 
     monitor-enter v6
 
-    .line 14360
     :try_start_2
     move-object/from16 v0, p0
 
@@ -37750,19 +36370,16 @@
 
     invoke-virtual {v4}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 14361
     monitor-exit v6
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_1
 
-    .line 14367
     invoke-virtual {v15}, Ljava/util/ArrayList;->size()I
 
     move-result v4
 
     if-lez v4, :cond_2
 
-    .line 14368
     const/4 v13, 0x0
 
     const/4 v14, 0x0
@@ -37785,11 +36402,9 @@
 
     invoke-direct/range {v12 .. v17}, Lcom/android/server/pm/PackageManagerService;->sendResourcesChangedBroadcast(ZZLjava/util/ArrayList;[ILandroid/content/IIntentReceiver;)V
 
-    .line 14383
     :goto_2
     return-void
 
-    .line 14361
     :catchall_1
     move-exception v4
 
@@ -37800,7 +36415,6 @@
 
     throw v4
 
-    .line 14379
     :cond_2
     move-object/from16 v0, p0
 
@@ -37821,7 +36435,6 @@
 
     move-result-object v22
 
-    .line 14381
     .local v22, "msg":Landroid/os/Message;
     move-object/from16 v0, p0
 
@@ -37833,7 +36446,6 @@
 
     goto :goto_2
 
-    .line 14379
     .end local v22    # "msg":Landroid/os/Message;
     :cond_3
     const/4 v4, 0x0
@@ -37857,10 +36469,8 @@
     .end annotation
 
     .prologue
-    .line 5556
     const/4 v3, 0x0
 
-    .line 5557
     .local v3, "res":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageParser$Package;>;"
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -37887,7 +36497,6 @@
 
     check-cast v2, Landroid/content/pm/PackageParser$Package;
 
-    .line 5558
     .local v2, "pkg":Landroid/content/pm/PackageParser$Package;
     iget-object v4, v2, Landroid/content/pm/PackageParser$Package;->usesLibraries:Ljava/util/ArrayList;
 
@@ -37909,22 +36518,18 @@
 
     if-eqz v4, :cond_0
 
-    .line 5560
     :cond_1
     if-nez v3, :cond_2
 
-    .line 5561
     new-instance v3, Ljava/util/ArrayList;
 
     .end local v3    # "res":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageParser$Package;>;"
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 5563
     .restart local v3    # "res":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageParser$Package;>;"
     :cond_2
     invoke-virtual {v3, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 5565
     :try_start_0
     invoke-direct {p0, v2, p1}, Lcom/android/server/pm/PackageManagerService;->updateSharedLibrariesLPw(Landroid/content/pm/PackageParser$Package;Landroid/content/pm/PackageParser$Package;)V
     :try_end_0
@@ -37932,11 +36537,9 @@
 
     goto :goto_0
 
-    .line 5566
     :catch_0
     move-exception v0
 
-    .line 5567
     .local v0, "e":Lcom/android/server/pm/PackageManagerException;
     const-string v4, "PackageManager"
 
@@ -37966,7 +36569,6 @@
 
     goto :goto_0
 
-    .line 5571
     .end local v0    # "e":Lcom/android/server/pm/PackageManagerException;
     .end local v2    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_3
@@ -37977,7 +36579,6 @@
     .locals 6
 
     .prologue
-    .line 5545
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     invoke-virtual {v3}, Landroid/util/ArrayMap;->values()Ljava/util/Collection;
@@ -38002,7 +36603,6 @@
 
     check-cast v2, Landroid/content/pm/PackageParser$Package;
 
-    .line 5547
     .local v2, "pkg":Landroid/content/pm/PackageParser$Package;
     const/4 v3, 0x0
 
@@ -38013,11 +36613,9 @@
 
     goto :goto_0
 
-    .line 5548
     :catch_0
     move-exception v0
 
-    .line 5549
     .local v0, "e":Lcom/android/server/pm/PackageManagerException;
     const-string v3, "PackageManager"
 
@@ -38047,7 +36645,6 @@
 
     goto :goto_0
 
-    .line 5552
     .end local v0    # "e":Lcom/android/server/pm/PackageManagerException;
     .end local v2    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_0
@@ -38061,22 +36658,18 @@
     .param p3, "externalStorage"    # Z
 
     .prologue
-    .line 14088
     new-instance v13, Landroid/util/ArrayMap;
 
     invoke-direct {v13}, Landroid/util/ArrayMap;-><init>()V
 
-    .line 14089
     .local v13, "processCids":Landroid/util/ArrayMap;, "Landroid/util/ArrayMap<Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;Ljava/lang/String;>;"
     sget-object v16, Llibcore/util/EmptyArray;->INT:[I
 
-    .line 14091
     .local v16, "uidArr":[I
     invoke-static {}, Lcom/android/internal/content/PackageHelper;->getSecureContainerList()[Ljava/lang/String;
 
     move-result-object v9
 
-    .line 14094
     .local v9, "list":[Ljava/lang/String;
     if-nez p1, :cond_3
 
@@ -38086,7 +36679,6 @@
 
     if-eqz v17, :cond_3
 
-    .line 14095
     move-object/from16 v0, p0
 
     iget-object v0, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
@@ -38095,13 +36687,11 @@
 
     monitor-enter v18
 
-    .line 14096
     :try_start_0
     new-instance v10, Ljava/util/ArrayList;
 
     invoke-direct {v10}, Ljava/util/ArrayList;-><init>()V
 
-    .line 14097
     .local v10, "newList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     move-object/from16 v0, p0
 
@@ -38132,7 +36722,6 @@
 
     check-cast v6, Ljava/util/Map$Entry;
 
-    .line 14098
     .local v6, "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/content/pm/PackageParser$Package;>;"
     invoke-interface {v6}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
@@ -38140,7 +36729,6 @@
 
     check-cast v11, Landroid/content/pm/PackageParser$Package;
 
-    .line 14099
     .local v11, "pkg":Landroid/content/pm/PackageParser$Package;
     iget-object v0, v11, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
@@ -38152,7 +36740,6 @@
 
     if-eqz v17, :cond_0
 
-    .line 14100
     iget-object v0, v11, Landroid/content/pm/PackageParser$Package;->baseCodePath:Ljava/lang/String;
 
     move-object/from16 v17, v0
@@ -38161,13 +36748,11 @@
 
     move-result-object v5
 
-    .line 14101
     .local v5, "cid":Ljava/lang/String;
     invoke-virtual {v10, v5}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_0
 
-    .line 14107
     .end local v5    # "cid":Ljava/lang/String;
     .end local v6    # "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/content/pm/PackageParser$Package;>;"
     .end local v7    # "i$":Ljava/util/Iterator;
@@ -38182,7 +36767,6 @@
 
     throw v17
 
-    .line 14104
     .restart local v7    # "i$":Ljava/util/Iterator;
     .restart local v10    # "newList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     :cond_1
@@ -38193,7 +36777,6 @@
 
     if-nez v17, :cond_2
 
-    .line 14105
     invoke-virtual {v10}, Ljava/util/ArrayList;->size()I
 
     move-result v17
@@ -38216,13 +36799,11 @@
 
     move-object v9, v0
 
-    .line 14107
     :cond_2
     monitor-exit v18
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 14110
     .end local v7    # "i$":Ljava/util/Iterator;
     .end local v10    # "newList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     :cond_3
@@ -38232,28 +36813,23 @@
 
     if-eqz v17, :cond_4
 
-    .line 14111
     const-string v17, "PackageManager"
 
     const-string v18, "No secure containers found"
 
     invoke-static/range {v17 .. v18}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14174
     :goto_1
     if-eqz p1, :cond_c
 
-    .line 14177
     move-object/from16 v0, p0
 
     move-object/from16 v1, v16
 
     invoke-direct {v0, v13, v1}, Lcom/android/server/pm/PackageManagerService;->loadMediaPackages(Landroid/util/ArrayMap;[I)V
 
-    .line 14178
     invoke-virtual/range {p0 .. p0}, Lcom/android/server/pm/PackageManagerService;->startCleaningPackages()V
 
-    .line 14179
     move-object/from16 v0, p0
 
     iget-object v0, v0, Lcom/android/server/pm/PackageManagerService;->mInstallerService:Lcom/android/server/pm/PackageInstallerService;
@@ -38262,11 +36838,9 @@
 
     invoke-virtual/range {v17 .. v17}, Lcom/android/server/pm/PackageInstallerService;->onSecureContainersAvailable()V
 
-    .line 14185
     :goto_2
     return-void
 
-    .line 14117
     :cond_4
     move-object/from16 v0, p0
 
@@ -38276,7 +36850,6 @@
 
     monitor-enter v18
 
-    .line 14118
     move-object v4, v9
 
     .local v4, "arr$":[Ljava/lang/String;
@@ -38292,7 +36865,6 @@
 
     aget-object v5, v4, v7
 
-    .line 14120
     .restart local v5    # "cid":Ljava/lang/String;
     invoke-static {v5}, Lcom/android/server/pm/PackageInstallerService;->isStageName(Ljava/lang/String;)Z
 
@@ -38300,24 +36872,20 @@
 
     if-eqz v17, :cond_6
 
-    .line 14118
     :cond_5
     :goto_4
     add-int/lit8 v7, v7, 0x1
 
     goto :goto_3
 
-    .line 14124
     :cond_6
     invoke-static {v5}, Lcom/android/server/pm/PackageManagerService;->getAsecPackageName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v12
 
-    .line 14125
     .local v12, "pkgName":Ljava/lang/String;
     if-nez v12, :cond_7
 
-    .line 14126
     const-string v17, "PackageManager"
 
     new-instance v19, Ljava/lang/StringBuilder;
@@ -38354,7 +36922,6 @@
 
     goto :goto_4
 
-    .line 14168
     .end local v5    # "cid":Ljava/lang/String;
     .end local v7    # "i$":I
     .end local v8    # "len$":I
@@ -38368,7 +36935,6 @@
 
     throw v17
 
-    .line 14132
     .restart local v5    # "cid":Ljava/lang/String;
     .restart local v7    # "i$":I
     .restart local v8    # "len$":I
@@ -38395,11 +36961,9 @@
 
     check-cast v14, Lcom/android/server/pm/PackageSetting;
 
-    .line 14133
     .local v14, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v14, :cond_8
 
-    .line 14134
     const-string v17, "PackageManager"
 
     new-instance v19, Ljava/lang/StringBuilder;
@@ -38436,7 +37000,6 @@
 
     goto :goto_4
 
-    .line 14142
     :cond_8
     if-eqz p3, :cond_9
 
@@ -38448,7 +37011,6 @@
 
     if-eqz v17, :cond_5
 
-    .line 14146
     :cond_9
     new-instance v3, Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;
 
@@ -38470,7 +37032,6 @@
 
     invoke-direct {v3, v0, v5, v1, v2}, Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;-><init>(Lcom/android/server/pm/PackageManagerService;Ljava/lang/String;[Ljava/lang/String;Z)V
 
-    .line 14150
     .local v3, "args":Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;
     iget-object v0, v14, Lcom/android/server/pm/PackageSetting;->codePathString:Ljava/lang/String;
 
@@ -38496,7 +37057,6 @@
 
     if-eqz v17, :cond_a
 
-    .line 14158
     iget-object v0, v14, Lcom/android/server/pm/PackageSetting;->codePathString:Ljava/lang/String;
 
     move-object/from16 v17, v0
@@ -38505,10 +37065,8 @@
 
     invoke-virtual {v13, v3, v0}, Landroid/util/ArrayMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 14159
     iget v15, v14, Lcom/android/server/pm/PackageSetting;->appId:I
 
-    .line 14160
     .local v15, "uid":I
     const/16 v17, -0x1
 
@@ -38516,7 +37074,6 @@
 
     if-eq v15, v0, :cond_5
 
-    .line 14161
     move-object/from16 v0, v16
 
     invoke-static {v0, v15}, Lcom/android/internal/util/ArrayUtils;->appendInt([II)[I
@@ -38525,7 +37082,6 @@
 
     goto/16 :goto_4
 
-    .line 14164
     .end local v15    # "uid":I
     :cond_a
     const-string v17, "PackageManager"
@@ -38572,7 +37128,6 @@
 
     goto/16 :goto_4
 
-    .line 14168
     .end local v3    # "args":Lcom/android/server/pm/PackageManagerService$AsecInstallArgs;
     .end local v5    # "cid":Ljava/lang/String;
     .end local v12    # "pkgName":Ljava/lang/String;
@@ -38582,12 +37137,10 @@
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 14170
     invoke-static/range {v16 .. v16}, Ljava/util/Arrays;->sort([I)V
 
     goto/16 :goto_1
 
-    .line 14183
     .end local v4    # "arr$":[Ljava/lang/String;
     .end local v7    # "i$":I
     .end local v8    # "len$":I
@@ -38614,7 +37167,6 @@
 
     const/4 v7, 0x0
 
-    .line 7786
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v5, v5, Lcom/android/server/pm/Settings;->mPermissionTrees:Landroid/util/ArrayMap;
@@ -38627,7 +37179,6 @@
 
     move-result-object v2
 
-    .line 7787
     .local v2, "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/BasePermission;>;"
     :cond_0
     :goto_0
@@ -38637,20 +37188,17 @@
 
     if-eqz v5, :cond_4
 
-    .line 7788
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/android/server/pm/BasePermission;
 
-    .line 7789
     .local v0, "bp":Lcom/android/server/pm/BasePermission;
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
     if-nez v5, :cond_1
 
-    .line 7792
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v5, v5, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -38665,13 +37213,11 @@
 
     iput-object v5, v0, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
-    .line 7794
     :cond_1
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
     if-nez v5, :cond_2
 
-    .line 7795
     const-string v5, "PackageManager"
 
     new-instance v8, Ljava/lang/StringBuilder;
@@ -38708,12 +37254,10 @@
 
     invoke-static {v5, v8}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 7797
     invoke-interface {v2}, Ljava/util/Iterator;->remove()V
 
     goto :goto_0
 
-    .line 7798
     :cond_2
     if-eqz p1, :cond_0
 
@@ -38725,7 +37269,6 @@
 
     if-eqz v5, :cond_0
 
-    .line 7799
     if-eqz p2, :cond_3
 
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->name:Ljava/lang/String;
@@ -38736,7 +37279,6 @@
 
     if-nez v5, :cond_0
 
-    .line 7800
     :cond_3
     const-string v5, "PackageManager"
 
@@ -38774,15 +37316,12 @@
 
     invoke-static {v5, v8}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 7802
     or-int/lit8 p3, p3, 0x1
 
-    .line 7803
     invoke-interface {v2}, Ljava/util/Iterator;->remove()V
 
     goto/16 :goto_0
 
-    .line 7810
     .end local v0    # "bp":Lcom/android/server/pm/BasePermission;
     :cond_4
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -38797,7 +37336,6 @@
 
     move-result-object v2
 
-    .line 7811
     :cond_5
     :goto_1
     invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
@@ -38806,14 +37344,12 @@
 
     if-eqz v5, :cond_a
 
-    .line 7812
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/android/server/pm/BasePermission;
 
-    .line 7813
     .restart local v0    # "bp":Lcom/android/server/pm/BasePermission;
     iget v5, v0, Lcom/android/server/pm/BasePermission;->type:I
 
@@ -38821,7 +37357,6 @@
 
     if-ne v5, v8, :cond_6
 
-    .line 7817
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
     if-nez v5, :cond_6
@@ -38830,14 +37365,12 @@
 
     if-eqz v5, :cond_6
 
-    .line 7818
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->name:Ljava/lang/String;
 
     invoke-direct {p0, v5}, Lcom/android/server/pm/PackageManagerService;->findPermissionTreeLP(Ljava/lang/String;)Lcom/android/server/pm/BasePermission;
 
     move-result-object v4
 
-    .line 7819
     .local v4, "tree":Lcom/android/server/pm/BasePermission;
     if-eqz v4, :cond_6
 
@@ -38845,12 +37378,10 @@
 
     if-eqz v5, :cond_6
 
-    .line 7820
     iget-object v5, v4, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
     iput-object v5, v0, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
-    .line 7821
     new-instance v5, Landroid/content/pm/PackageParser$Permission;
 
     iget-object v8, v4, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
@@ -38867,7 +37398,6 @@
 
     iput-object v5, v0, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
-    .line 7823
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
     iget-object v5, v5, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -38880,7 +37410,6 @@
 
     iput-object v8, v5, Landroid/content/pm/PermissionInfo;->packageName:Ljava/lang/String;
 
-    .line 7824
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
     iget-object v5, v5, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -38889,19 +37418,16 @@
 
     iput-object v8, v5, Landroid/content/pm/PermissionInfo;->name:Ljava/lang/String;
 
-    .line 7825
     iget v5, v4, Lcom/android/server/pm/BasePermission;->uid:I
 
     iput v5, v0, Lcom/android/server/pm/BasePermission;->uid:I
 
-    .line 7829
     .end local v4    # "tree":Lcom/android/server/pm/BasePermission;
     :cond_6
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
     if-nez v5, :cond_7
 
-    .line 7832
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v5, v5, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -38916,13 +37442,11 @@
 
     iput-object v5, v0, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
-    .line 7834
     :cond_7
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->packageSetting:Lcom/android/server/pm/PackageSettingBase;
 
     if-nez v5, :cond_8
 
-    .line 7835
     const-string v5, "PackageManager"
 
     new-instance v8, Ljava/lang/StringBuilder;
@@ -38959,12 +37483,10 @@
 
     invoke-static {v5, v8}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 7837
     invoke-interface {v2}, Ljava/util/Iterator;->remove()V
 
     goto/16 :goto_1
 
-    .line 7838
     :cond_8
     if-eqz p1, :cond_5
 
@@ -38976,7 +37498,6 @@
 
     if-eqz v5, :cond_5
 
-    .line 7839
     if-eqz p2, :cond_9
 
     iget-object v5, v0, Lcom/android/server/pm/BasePermission;->name:Ljava/lang/String;
@@ -38987,7 +37508,6 @@
 
     if-nez v5, :cond_5
 
-    .line 7840
     :cond_9
     const-string v5, "PackageManager"
 
@@ -39025,22 +37545,18 @@
 
     invoke-static {v5, v8}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 7842
     or-int/lit8 p3, p3, 0x1
 
-    .line 7843
     invoke-interface {v2}, Ljava/util/Iterator;->remove()V
 
     goto/16 :goto_1
 
-    .line 7850
     .end local v0    # "bp":Lcom/android/server/pm/BasePermission;
     :cond_a
     and-int/lit8 v5, p3, 0x1
 
     if-eqz v5, :cond_d
 
-    .line 7851
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     invoke-virtual {v5}, Landroid/util/ArrayMap;->values()Ljava/util/Collection;
@@ -39066,11 +37582,9 @@
 
     check-cast v3, Landroid/content/pm/PackageParser$Package;
 
-    .line 7852
     .local v3, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eq v3, p2, :cond_b
 
-    .line 7853
     and-int/lit8 v5, p3, 0x4
 
     if-eqz v5, :cond_c
@@ -39087,13 +37601,11 @@
 
     goto :goto_3
 
-    .line 7859
     .end local v1    # "i$":Ljava/util/Iterator;
     .end local v3    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_d
     if-eqz p2, :cond_e
 
-    .line 7860
     and-int/lit8 v5, p3, 0x2
 
     if-eqz v5, :cond_f
@@ -39101,14 +37613,12 @@
     :goto_4
     invoke-direct {p0, p2, v6, p1}, Lcom/android/server/pm/PackageManagerService;->grantPermissionsLPw(Landroid/content/pm/PackageParser$Package;ZLjava/lang/String;)V
 
-    .line 7862
     :cond_e
     return-void
 
     :cond_f
     move v6, v7
 
-    .line 7860
     goto :goto_4
 .end method
 
@@ -39121,16 +37631,13 @@
     .param p5, "res"    # Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;
 
     .prologue
-    .line 11565
     iget-object v4, p1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
-    .line 11566
     .local v4, "pkgName":Ljava/lang/String;
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v8
 
-    .line 11570
     :try_start_0
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -39138,22 +37645,18 @@
 
     invoke-virtual {v7, v4, v9}, Lcom/android/server/pm/Settings;->setInstallStatus(Ljava/lang/String;I)V
 
-    .line 11571
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v7}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 11572
     monitor-exit v8
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 11576
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v8
 
-    .line 11577
     :try_start_1
     iget-object v9, p1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
@@ -39172,14 +37675,12 @@
 
     invoke-direct {p0, v9, p1, v7}, Lcom/android/server/pm/PackageManagerService;->updatePermissionsLPw(Ljava/lang/String;Landroid/content/pm/PackageParser$Package;I)V
 
-    .line 11583
     invoke-static {p1}, Lcom/android/server/pm/PackageManagerService;->isSystemApp(Landroid/content/pm/PackageParser$Package;)Z
 
     move-result v7
 
     if-eqz v7, :cond_2
 
-    .line 11588
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v7, v7, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -39190,16 +37691,13 @@
 
     check-cast v5, Lcom/android/server/pm/PackageSetting;
 
-    .line 11589
     .local v5, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v5, :cond_2
 
-    .line 11590
     iget-object v7, p5, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->origUsers:[I
 
     if-eqz v7, :cond_1
 
-    .line 11591
     iget-object v0, p5, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->origUsers:[I
 
     .local v0, "arr$":[I
@@ -39214,7 +37712,6 @@
 
     aget v6, v0, v2
 
-    .line 11592
     .local v6, "userHandle":I
     const/4 v7, 0x0
 
@@ -39222,12 +37719,10 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 11591
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_1
 
-    .line 11572
     .end local v0    # "arr$":[I
     .end local v2    # "i$":I
     .end local v3    # "len$":I
@@ -39243,20 +37738,17 @@
 
     throw v7
 
-    .line 11577
     :cond_0
     const/4 v7, 0x0
 
     goto :goto_0
 
-    .line 11597
     .restart local v5    # "ps":Lcom/android/server/pm/PackageSetting;
     :cond_1
     if-eqz p3, :cond_2
 
     if-eqz p4, :cond_2
 
-    .line 11598
     const/4 v1, 0x0
 
     .local v1, "i":I
@@ -39266,63 +37758,51 @@
 
     if-ge v1, v7, :cond_2
 
-    .line 11603
     aget-boolean v7, p4, v1
 
     aget v9, p3, v1
 
     invoke-virtual {v5, v7, v9}, Lcom/android/server/pm/PackageSetting;->setInstalled(ZI)V
 
-    .line 11598
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_2
 
-    .line 11610
     .end local v1    # "i":I
     .end local v5    # "ps":Lcom/android/server/pm/PackageSetting;
     :cond_2
     iput-object v4, p5, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->name:Ljava/lang/String;
 
-    .line 11611
     iget-object v7, p1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iget v7, v7, Landroid/content/pm/ApplicationInfo;->uid:I
 
     iput v7, p5, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->uid:I
 
-    .line 11612
     iput-object p1, p5, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->pkg:Landroid/content/pm/PackageParser$Package;
 
-    .line 11613
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     const/4 v9, 0x1
 
     invoke-virtual {v7, v4, v9}, Lcom/android/server/pm/Settings;->setInstallStatus(Ljava/lang/String;I)V
 
-    .line 11614
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v7, v4, p2}, Lcom/android/server/pm/Settings;->setInstallerPackageName(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 11615
     const/4 v7, 0x1
 
     iput v7, p5, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->returnCode:I
 
-    .line 11617
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v7}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 11618
     monitor-exit v8
 
-    .line 11619
     return-void
 
-    .line 11618
     :catchall_1
     move-exception v7
 
@@ -39346,7 +37826,6 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 5498
     iget-object v5, p1, Landroid/content/pm/PackageParser$Package;->usesLibraries:Ljava/util/ArrayList;
 
     if-nez v5, :cond_0
@@ -39355,13 +37834,11 @@
 
     if-eqz v5, :cond_7
 
-    .line 5499
     :cond_0
     new-instance v3, Landroid/util/ArraySet;
 
     invoke-direct {v3}, Landroid/util/ArraySet;-><init>()V
 
-    .line 5500
     .local v3, "usesLibraryFiles":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     iget-object v5, p1, Landroid/content/pm/PackageParser$Package;->usesLibraries:Ljava/util/ArrayList;
 
@@ -39373,7 +37850,6 @@
 
     move-result v0
 
-    .line 5501
     .local v0, "N":I
     :goto_0
     const/4 v2, 0x0
@@ -39382,7 +37858,6 @@
     :goto_1
     if-ge v2, v0, :cond_3
 
-    .line 5502
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mSharedLibraries:Landroid/util/ArrayMap;
 
     iget-object v6, p1, Landroid/content/pm/PackageParser$Package;->usesLibraries:Ljava/util/ArrayList;
@@ -39397,11 +37872,9 @@
 
     check-cast v1, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
 
-    .line 5503
     .local v1, "file":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     if-nez v1, :cond_2
 
-    .line 5504
     new-instance v5, Lcom/android/server/pm/PackageManagerException;
 
     const/16 v6, -0x9
@@ -39460,22 +37933,18 @@
     :cond_1
     move v0, v4
 
-    .line 5500
     goto :goto_0
 
-    .line 5508
     .restart local v0    # "N":I
     .restart local v1    # "file":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     .restart local v2    # "i":I
     :cond_2
     invoke-direct {p0, v3, v1, p2}, Lcom/android/server/pm/PackageManagerService;->addSharedLibraryLPw(Landroid/util/ArraySet;Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;Landroid/content/pm/PackageParser$Package;)V
 
-    .line 5501
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_1
 
-    .line 5510
     .end local v1    # "file":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     :cond_3
     iget-object v5, p1, Landroid/content/pm/PackageParser$Package;->usesOptionalLibraries:Ljava/util/ArrayList;
@@ -39488,14 +37957,12 @@
 
     move-result v0
 
-    .line 5511
     :goto_2
     const/4 v2, 0x0
 
     :goto_3
     if-ge v2, v0, :cond_6
 
-    .line 5512
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mSharedLibraries:Landroid/util/ArrayMap;
 
     iget-object v5, p1, Landroid/content/pm/PackageParser$Package;->usesOptionalLibraries:Ljava/util/ArrayList;
@@ -39510,11 +37977,9 @@
 
     check-cast v1, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
 
-    .line 5513
     .restart local v1    # "file":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     if-nez v1, :cond_5
 
-    .line 5514
     const-string v5, "PackageManager"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -39563,7 +38028,6 @@
 
     invoke-static {v5, v4}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5511
     :goto_4
     add-int/lit8 v2, v2, 0x1
 
@@ -39573,27 +38037,22 @@
     :cond_4
     move v0, v4
 
-    .line 5510
     goto :goto_2
 
-    .line 5518
     .restart local v1    # "file":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     :cond_5
     invoke-direct {p0, v3, v1, p2}, Lcom/android/server/pm/PackageManagerService;->addSharedLibraryLPw(Landroid/util/ArraySet;Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;Landroid/content/pm/PackageParser$Package;)V
 
     goto :goto_4
 
-    .line 5521
     .end local v1    # "file":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     :cond_6
     invoke-virtual {v3}, Landroid/util/ArraySet;->size()I
 
     move-result v0
 
-    .line 5522
     if-lez v0, :cond_8
 
-    .line 5523
     new-array v4, v0, [Ljava/lang/String;
 
     invoke-virtual {v3, v4}, Landroid/util/ArraySet;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
@@ -39604,7 +38063,6 @@
 
     iput-object v4, p1, Landroid/content/pm/PackageParser$Package;->usesLibraryFiles:[Ljava/lang/String;
 
-    .line 5528
     .end local v0    # "N":I
     .end local v2    # "i":I
     .end local v3    # "usesLibraryFiles":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
@@ -39612,7 +38070,6 @@
     :goto_5
     return-void
 
-    .line 5525
     .restart local v0    # "N":I
     .restart local v2    # "i":I
     .restart local v3    # "usesLibraryFiles":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
@@ -39629,23 +38086,19 @@
     .param p1, "userId"    # I
 
     .prologue
-    .line 14796
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mUserNeedsBadging:Landroid/util/SparseBooleanArray;
 
     invoke-virtual {v5, p1}, Landroid/util/SparseBooleanArray;->indexOfKey(I)I
 
     move-result v1
 
-    .line 14797
     .local v1, "index":I
     if-gez v1, :cond_1
 
-    .line 14799
     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
 
     move-result-wide v2
 
-    .line 14801
     .local v2, "token":J
     :try_start_0
     sget-object v5, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
@@ -39656,11 +38109,9 @@
 
     move-result-object v4
 
-    .line 14803
     .local v4, "userInfo":Landroid/content/pm/UserInfo;
     invoke-static {v2, v3}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
-    .line 14806
     if-eqz v4, :cond_0
 
     invoke-virtual {v4}, Landroid/content/pm/UserInfo;->isManagedProfile()Z
@@ -39669,24 +38120,20 @@
 
     if-eqz v5, :cond_0
 
-    .line 14807
     const/4 v0, 0x1
 
-    .line 14811
     .local v0, "b":Z
     :goto_0
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mUserNeedsBadging:Landroid/util/SparseBooleanArray;
 
     invoke-virtual {v5, p1, v0}, Landroid/util/SparseBooleanArray;->put(IZ)V
 
-    .line 14814
     .end local v0    # "b":Z
     .end local v2    # "token":J
     .end local v4    # "userInfo":Landroid/content/pm/UserInfo;
     :goto_1
     return v0
 
-    .line 14803
     .restart local v2    # "token":J
     :catchall_0
     move-exception v5
@@ -39695,7 +38142,6 @@
 
     throw v5
 
-    .line 14809
     .restart local v4    # "userInfo":Landroid/content/pm/UserInfo;
     :cond_0
     const/4 v0, 0x0
@@ -39703,7 +38149,6 @@
     .restart local v0    # "b":Z
     goto :goto_0
 
-    .line 14814
     .end local v0    # "b":Z
     .end local v2    # "token":J
     .end local v4    # "userInfo":Landroid/content/pm/UserInfo;
@@ -39725,14 +38170,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 5400
     iget v1, p1, Lcom/android/server/pm/PackageSetting;->pkgFlags:I
 
     and-int/lit8 v1, v1, 0x1
 
     if-nez v1, :cond_0
 
-    .line 5401
     const-string v1, "PackageManager"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -39775,11 +38218,9 @@
 
     invoke-static {v1, v2}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5411
     :goto_0
     return v0
 
-    .line 5405
     :cond_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -39791,7 +38232,6 @@
 
     if-eqz v1, :cond_1
 
-    .line 5406
     const-string v1, "PackageManager"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -39836,7 +38276,6 @@
 
     goto :goto_0
 
-    .line 5411
     :cond_1
     const/4 v0, 0x1
 
@@ -39858,14 +38297,12 @@
 
     const/4 v2, 0x0
 
-    .line 4811
     iget-object v3, p1, Lcom/android/server/pm/PackageSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
 
     iget-object v3, v3, Lcom/android/server/pm/PackageSignatures;->mSignatures:[Landroid/content/pm/Signature;
 
     if-eqz v3, :cond_5
 
-    .line 4813
     iget-object v3, p1, Lcom/android/server/pm/PackageSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
 
     iget-object v3, v3, Lcom/android/server/pm/PackageSignatures;->mSignatures:[Landroid/content/pm/Signature;
@@ -39880,12 +38317,10 @@
 
     move v0, v1
 
-    .line 4815
     .local v0, "match":Z
     :goto_0
     if-nez v0, :cond_0
 
-    .line 4816
     iget-object v3, p1, Lcom/android/server/pm/PackageSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
 
     invoke-direct {p0, v3, p2}, Lcom/android/server/pm/PackageManagerService;->compareSignaturesCompat(Lcom/android/server/pm/PackageSignatures;Landroid/content/pm/PackageParser$Package;)I
@@ -39896,12 +38331,10 @@
 
     move v0, v1
 
-    .line 4819
     :cond_0
     :goto_1
     if-nez v0, :cond_1
 
-    .line 4820
     iget-object v3, p1, Lcom/android/server/pm/PackageSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
 
     invoke-direct {p0, v3, p2}, Lcom/android/server/pm/PackageManagerService;->compareSignaturesRecover(Lcom/android/server/pm/PackageSignatures;Landroid/content/pm/PackageParser$Package;)I
@@ -39912,12 +38345,10 @@
 
     move v0, v1
 
-    .line 4823
     :cond_1
     :goto_2
     if-nez v0, :cond_5
 
-    .line 4824
     new-instance v1, Lcom/android/server/pm/PackageManagerException;
 
     const/4 v2, -0x7
@@ -39962,23 +38393,19 @@
     :cond_2
     move v0, v2
 
-    .line 4813
     goto :goto_0
 
     .restart local v0    # "match":Z
     :cond_3
     move v0, v2
 
-    .line 4816
     goto :goto_1
 
     :cond_4
     move v0, v2
 
-    .line 4820
     goto :goto_2
 
-    .line 4831
     .end local v0    # "match":Z
     :cond_5
     iget-object v3, p1, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
@@ -39993,7 +38420,6 @@
 
     if-eqz v3, :cond_b
 
-    .line 4833
     iget-object v3, p1, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     iget-object v3, v3, Lcom/android/server/pm/SharedUserSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
@@ -40010,12 +38436,10 @@
 
     move v0, v1
 
-    .line 4835
     .restart local v0    # "match":Z
     :goto_3
     if-nez v0, :cond_6
 
-    .line 4836
     iget-object v3, p1, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     iget-object v3, v3, Lcom/android/server/pm/SharedUserSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
@@ -40028,12 +38452,10 @@
 
     move v0, v1
 
-    .line 4839
     :cond_6
     :goto_4
     if-nez v0, :cond_7
 
-    .line 4840
     iget-object v3, p1, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     iget-object v3, v3, Lcom/android/server/pm/SharedUserSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
@@ -40046,12 +38468,10 @@
 
     move v0, v1
 
-    .line 4843
     :cond_7
     :goto_5
     if-nez v0, :cond_b
 
-    .line 4844
     new-instance v1, Lcom/android/server/pm/PackageManagerException;
 
     const/4 v2, -0x8
@@ -40104,23 +38524,19 @@
     :cond_8
     move v0, v2
 
-    .line 4833
     goto :goto_3
 
     .restart local v0    # "match":Z
     :cond_9
     move v0, v2
 
-    .line 4836
     goto :goto_4
 
     :cond_a
     move v0, v2
 
-    .line 4840
     goto :goto_5
 
-    .line 4850
     .end local v0    # "match":Z
     :cond_b
     return-void
@@ -40137,12 +38553,10 @@
     .prologue
     const/4 v9, 0x0
 
-    .line 2429
     iget-object v10, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v10
 
-    .line 2430
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mActivities:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
 
@@ -40157,20 +38571,16 @@
 
     check-cast v7, Landroid/content/pm/PackageParser$Activity;
 
-    .line 2431
     .local v7, "a":Landroid/content/pm/PackageParser$Activity;
     if-nez v7, :cond_0
 
-    .line 2432
     monitor-exit v10
 
     move v0, v9
 
-    .line 2440
     :goto_0
     return v0
 
-    .line 2434
     :cond_0
     const/4 v8, 0x0
 
@@ -40184,7 +38594,6 @@
 
     if-ge v8, v0, :cond_2
 
-    .line 2435
     iget-object v0, v7, Landroid/content/pm/PackageParser$Activity;->intents:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v8}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -40219,14 +38628,12 @@
 
     if-ltz v0, :cond_1
 
-    .line 2437
     const/4 v0, 0x1
 
     monitor-exit v10
 
     goto :goto_0
 
-    .line 2441
     .end local v7    # "a":Landroid/content/pm/PackageParser$Activity;
     .end local v8    # "i":I
     :catchall_0
@@ -40238,7 +38645,6 @@
 
     throw v0
 
-    .line 2434
     .restart local v7    # "a":Landroid/content/pm/PackageParser$Activity;
     .restart local v8    # "i":I
     :cond_1
@@ -40246,7 +38652,6 @@
 
     goto :goto_1
 
-    .line 2440
     :cond_2
     :try_start_1
     monitor-exit v10
@@ -40268,7 +38673,6 @@
     .param p6, "flags"    # I
 
     .prologue
-    .line 13150
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v3, "android.permission.INTERACT_ACROSS_USERS_FULL"
@@ -40277,49 +38681,41 @@
 
     invoke-virtual {v2, v3, v4}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 13152
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v7
 
-    .line 13153
     .local v7, "callingUid":I
     move/from16 v0, p3
 
     invoke-direct {p0, p2, v0, v7}, Lcom/android/server/pm/PackageManagerService;->enforceOwnerRights(Ljava/lang/String;II)V
 
-    .line 13154
     const-string v2, "no_debugging_features"
 
     move/from16 v0, p4
 
     invoke-virtual {p0, v2, v7, v0}, Lcom/android/server/pm/PackageManagerService;->enforceShellRestriction(Ljava/lang/String;II)V
 
-    .line 13155
     invoke-virtual {p1}, Landroid/content/IntentFilter;->countActions()I
 
     move-result v2
 
     if-nez v2, :cond_0
 
-    .line 13156
     const-string v2, "PackageManager"
 
     const-string v3, "Cannot set a crossProfile intent filter with no filter actions"
 
     invoke-static {v2, v3}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 13177
     :goto_0
     return-void
 
-    .line 13159
     :cond_0
     iget-object v12, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v12
 
-    .line 13160
     :try_start_0
     new-instance v1, Lcom/android/server/pm/CrossProfileIntentFilter;
 
@@ -40337,7 +38733,6 @@
 
     invoke-direct/range {v1 .. v6}, Lcom/android/server/pm/CrossProfileIntentFilter;-><init>(Landroid/content/IntentFilter;Ljava/lang/String;III)V
 
-    .line 13162
     .local v1, "newFilter":Lcom/android/server/pm/CrossProfileIntentFilter;
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -40347,22 +38742,18 @@
 
     move-result-object v10
 
-    .line 13164
     .local v10, "resolver":Lcom/android/server/pm/CrossProfileIntentResolver;
     invoke-virtual {v10, p1}, Lcom/android/server/pm/CrossProfileIntentResolver;->findFilters(Landroid/content/IntentFilter;)Ljava/util/ArrayList;
 
     move-result-object v8
 
-    .line 13166
     .local v8, "existing":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
     if-eqz v8, :cond_2
 
-    .line 13167
     invoke-virtual {v8}, Ljava/util/ArrayList;->size()I
 
     move-result v11
 
-    .line 13168
     .local v11, "size":I
     const/4 v9, 0x0
 
@@ -40370,7 +38761,6 @@
     :goto_1
     if-ge v9, v11, :cond_2
 
-    .line 13169
     invoke-virtual {v8, v9}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v2
@@ -40383,12 +38773,10 @@
 
     if-eqz v2, :cond_1
 
-    .line 13170
     monitor-exit v12
 
     goto :goto_0
 
-    .line 13176
     .end local v1    # "newFilter":Lcom/android/server/pm/CrossProfileIntentFilter;
     .end local v8    # "existing":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
     .end local v9    # "i":I
@@ -40403,7 +38791,6 @@
 
     throw v2
 
-    .line 13168
     .restart local v1    # "newFilter":Lcom/android/server/pm/CrossProfileIntentFilter;
     .restart local v8    # "existing":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
     .restart local v9    # "i":I
@@ -40414,19 +38801,16 @@
 
     goto :goto_1
 
-    .line 13174
     .end local v9    # "i":I
     .end local v11    # "size":I
     :cond_2
     :try_start_1
     invoke-virtual {v10, v1}, Lcom/android/server/pm/CrossProfileIntentResolver;->addFilter(Landroid/content/IntentFilter;)V
 
-    .line 13175
     move/from16 v0, p4
 
     invoke-virtual {p0, v0}, Lcom/android/server/pm/PackageManagerService;->scheduleWritePackageRestrictionsLocked(I)V
 
-    .line 13176
     monitor-exit v12
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
@@ -40439,14 +38823,12 @@
     .param p1, "packageName"    # Ljava/lang/String;
 
     .prologue
-    .line 12810
     const-string v0, "PackageManager"
 
     const-string v1, "addPackageToPreferred: this is now a no-op"
 
     invoke-static {v0, v1}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 12811
     return-void
 .end method
 
@@ -40455,12 +38837,10 @@
     .param p1, "info"    # Landroid/content/pm/PermissionInfo;
 
     .prologue
-    .line 2759
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2760
     const/4 v0, 0x0
 
     :try_start_0
@@ -40472,7 +38852,6 @@
 
     return v0
 
-    .line 2761
     :catchall_0
     move-exception v0
 
@@ -40488,12 +38867,10 @@
     .param p1, "info"    # Landroid/content/pm/PermissionInfo;
 
     .prologue
-    .line 2766
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2767
     const/4 v0, 0x1
 
     :try_start_0
@@ -40505,7 +38882,6 @@
 
     return v0
 
-    .line 2768
     :catchall_0
     move-exception v0
 
@@ -40524,7 +38900,6 @@
     .prologue
     const/4 v8, 0x2
 
-    .line 2714
     iget v6, p1, Landroid/content/pm/PermissionInfo;->labelRes:I
 
     if-nez v6, :cond_0
@@ -40533,7 +38908,6 @@
 
     if-nez v6, :cond_0
 
-    .line 2715
     new-instance v6, Ljava/lang/SecurityException;
 
     const-string v7, "Label must be specified in permission"
@@ -40542,7 +38916,6 @@
 
     throw v6
 
-    .line 2717
     :cond_0
     iget-object v6, p1, Landroid/content/pm/PermissionInfo;->name:Ljava/lang/String;
 
@@ -40550,7 +38923,6 @@
 
     move-result-object v5
 
-    .line 2718
     .local v5, "tree":Lcom/android/server/pm/BasePermission;
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -40564,18 +38936,15 @@
 
     check-cast v1, Lcom/android/server/pm/BasePermission;
 
-    .line 2719
     .local v1, "bp":Lcom/android/server/pm/BasePermission;
     if-nez v1, :cond_4
 
     const/4 v0, 0x1
 
-    .line 2720
     .local v0, "added":Z
     :goto_0
     const/4 v2, 0x1
 
-    .line 2721
     .local v2, "changed":Z
     iget v6, p1, Landroid/content/pm/PermissionInfo;->protectionLevel:I
 
@@ -40583,14 +38952,11 @@
 
     move-result v3
 
-    .line 2722
     .local v3, "fixedLevel":I
     if-eqz v0, :cond_5
 
-    .line 2723
     invoke-virtual {p0, p1, v5}, Lcom/android/server/pm/PackageManagerService;->enforcePermissionCapLocked(Landroid/content/pm/PermissionInfo;Lcom/android/server/pm/BasePermission;)V
 
-    .line 2724
     new-instance v1, Lcom/android/server/pm/BasePermission;
 
     .end local v1    # "bp":Lcom/android/server/pm/BasePermission;
@@ -40600,23 +38966,19 @@
 
     invoke-direct {v1, v6, v7, v8}, Lcom/android/server/pm/BasePermission;-><init>(Ljava/lang/String;Ljava/lang/String;I)V
 
-    .line 2738
     .restart local v1    # "bp":Lcom/android/server/pm/BasePermission;
     :cond_1
     :goto_1
     iput v3, v1, Lcom/android/server/pm/BasePermission;->protectionLevel:I
 
-    .line 2739
     new-instance v4, Landroid/content/pm/PermissionInfo;
 
     invoke-direct {v4, p1}, Landroid/content/pm/PermissionInfo;-><init>(Landroid/content/pm/PermissionInfo;)V
 
-    .line 2740
     .end local p1    # "info":Landroid/content/pm/PermissionInfo;
     .local v4, "info":Landroid/content/pm/PermissionInfo;
     iput v3, v4, Landroid/content/pm/PermissionInfo;->protectionLevel:I
 
-    .line 2741
     new-instance v6, Landroid/content/pm/PackageParser$Permission;
 
     iget-object v7, v5, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
@@ -40627,7 +38989,6 @@
 
     iput-object v6, v1, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
-    .line 2742
     iget-object v6, v1, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
     iget-object v6, v6, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
@@ -40640,15 +39001,12 @@
 
     iput-object v7, v6, Landroid/content/pm/PermissionInfo;->packageName:Ljava/lang/String;
 
-    .line 2743
     iget v6, v5, Lcom/android/server/pm/BasePermission;->uid:I
 
     iput v6, v1, Lcom/android/server/pm/BasePermission;->uid:I
 
-    .line 2744
     if-eqz v0, :cond_2
 
-    .line 2745
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v6, v6, Lcom/android/server/pm/Settings;->mPermissions:Landroid/util/ArrayMap;
@@ -40657,24 +39015,19 @@
 
     invoke-virtual {v6, v7, v1}, Landroid/util/ArrayMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 2747
     :cond_2
     if-eqz v2, :cond_3
 
-    .line 2748
     if-nez p2, :cond_7
 
-    .line 2749
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v6}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 2754
     :cond_3
     :goto_2
     return v0
 
-    .line 2719
     .end local v0    # "added":Z
     .end local v2    # "changed":Z
     .end local v3    # "fixedLevel":I
@@ -40685,7 +39038,6 @@
 
     goto :goto_0
 
-    .line 2726
     .restart local v0    # "added":Z
     .restart local v2    # "changed":Z
     .restart local v3    # "fixedLevel":I
@@ -40694,7 +39046,6 @@
 
     if-eq v6, v8, :cond_6
 
-    .line 2727
     new-instance v6, Ljava/lang/SecurityException;
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -40721,7 +39072,6 @@
 
     throw v6
 
-    .line 2731
     :cond_6
     iget v6, v1, Lcom/android/server/pm/BasePermission;->protectionLevel:I
 
@@ -40757,12 +39107,10 @@
 
     if-eqz v6, :cond_1
 
-    .line 2735
     const/4 v2, 0x0
 
     goto :goto_1
 
-    .line 2751
     .end local p1    # "info":Landroid/content/pm/PermissionInfo;
     .restart local v4    # "info":Landroid/content/pm/PermissionInfo;
     :cond_7
@@ -40778,18 +39126,15 @@
     .param p3, "userId"    # I
 
     .prologue
-    .line 13085
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v0
 
-    .line 13086
     .local v0, "callingUid":I
     const/16 v1, 0x3e8
 
     if-eq v0, v1, :cond_0
 
-    .line 13087
     new-instance v1, Ljava/lang/SecurityException;
 
     const-string v2, "addPersistentPreferredActivity can only be run by the system"
@@ -40798,7 +39143,6 @@
 
     throw v1
 
-    .line 13090
     :cond_0
     invoke-virtual {p1}, Landroid/content/IntentFilter;->countActions()I
 
@@ -40806,24 +39150,20 @@
 
     if-nez v1, :cond_1
 
-    .line 13091
     const-string v1, "PackageManager"
 
     const-string v2, "Cannot set a preferred activity with no filter actions"
 
     invoke-static {v1, v2}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 13102
     :goto_0
     return-void
 
-    .line 13094
     :cond_1
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 13095
     :try_start_0
     const-string v1, "PackageManager"
 
@@ -40863,7 +39203,6 @@
 
     invoke-static {v1, v3}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 13097
     new-instance v1, Landroid/util/LogPrinter;
 
     const/4 v3, 0x4
@@ -40876,7 +39215,6 @@
 
     invoke-virtual {p1, v1, v3}, Landroid/content/IntentFilter;->dump(Landroid/util/Printer;Ljava/lang/String;)V
 
-    .line 13098
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v1, p3}, Lcom/android/server/pm/Settings;->editPersistentPreferredActivitiesLPw(I)Lcom/android/server/pm/PersistentPreferredIntentResolver;
@@ -40889,10 +39227,8 @@
 
     invoke-virtual {v1, v3}, Lcom/android/server/pm/PersistentPreferredIntentResolver;->addFilter(Landroid/content/IntentFilter;)V
 
-    .line 13100
     invoke-virtual {p0, p3}, Lcom/android/server/pm/PackageManagerService;->scheduleWritePackageRestrictionsLocked(I)V
 
-    .line 13101
     monitor-exit v2
 
     goto :goto_0
@@ -40912,7 +39248,6 @@
     .param p1, "packageName"    # Ljava/lang/String;
 
     .prologue
-    .line 14691
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.INTERCEPT_PACKAGE_LAUNCH"
@@ -40921,12 +39256,10 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 14693
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPreLaunchCheckPackages:Ljava/util/Set;
 
     invoke-interface {v0, p1}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 14694
     return-void
 .end method
 
@@ -40939,7 +39272,6 @@
     .param p5, "userId"    # I
 
     .prologue
-    .line 12849
     const/4 v5, 0x1
 
     const-string v7, "Adding preferred"
@@ -40958,7 +39290,6 @@
 
     invoke-direct/range {v0 .. v7}, Lcom/android/server/pm/PackageManagerService;->addPreferredActivityInternal(Landroid/content/IntentFilter;I[Landroid/content/ComponentName;Landroid/content/ComponentName;ZILjava/lang/String;)V
 
-    .line 12851
     return-void
 .end method
 
@@ -40967,10 +39298,8 @@
     .param p1, "tree"    # Lcom/android/server/pm/BasePermission;
 
     .prologue
-    .line 2693
     const/4 v2, 0x0
 
-    .line 2694
     .local v2, "size":I
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -40999,7 +39328,6 @@
 
     check-cast v1, Lcom/android/server/pm/BasePermission;
 
-    .line 2695
     .local v1, "perm":Lcom/android/server/pm/BasePermission;
     iget v3, v1, Lcom/android/server/pm/BasePermission;->uid:I
 
@@ -41007,7 +39335,6 @@
 
     if-ne v3, v4, :cond_0
 
-    .line 2696
     iget-object v3, v1, Lcom/android/server/pm/BasePermission;->name:Ljava/lang/String;
 
     invoke-virtual {v3}, Ljava/lang/String;->length()I
@@ -41028,7 +39355,6 @@
 
     goto :goto_0
 
-    .line 2699
     .end local v1    # "perm":Lcom/android/server/pm/BasePermission;
     :cond_1
     return v2
@@ -41042,7 +39368,6 @@
     .param p4, "targetUserId"    # I
 
     .prologue
-    .line 3595
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v4, "android.permission.INTERACT_ACROSS_USERS_FULL"
@@ -41051,21 +39376,17 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 3597
     invoke-direct {p0, p1, p2, p3}, Lcom/android/server/pm/PackageManagerService;->getMatchingCrossProfileIntentFilters(Landroid/content/Intent;Ljava/lang/String;I)Ljava/util/List;
 
     move-result-object v1
 
-    .line 3599
     .local v1, "matches":Ljava/util/List;, "Ljava/util/List<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
     if-eqz v1, :cond_1
 
-    .line 3600
     invoke-interface {v1}, Ljava/util/List;->size()I
 
     move-result v2
 
-    .line 3601
     .local v2, "size":I
     const/4 v0, 0x0
 
@@ -41073,7 +39394,6 @@
     :goto_0
     if-ge v0, v2, :cond_1
 
-    .line 3602
     invoke-interface {v1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v3
@@ -41088,13 +39408,11 @@
 
     const/4 v3, 0x1
 
-    .line 3605
     .end local v0    # "i":I
     .end local v2    # "size":I
     :goto_1
     return v3
 
-    .line 3601
     .restart local v0    # "i":I
     .restart local v2    # "size":I
     :cond_0
@@ -41102,7 +39420,6 @@
 
     goto :goto_0
 
-    .line 3605
     .end local v0    # "i":I
     .end local v2    # "size":I
     :cond_1
@@ -41116,18 +39433,15 @@
     .param p1, "names"    # [Ljava/lang/String;
 
     .prologue
-    .line 2152
     array-length v3, p1
 
     new-array v2, v3, [Ljava/lang/String;
 
-    .line 2154
     .local v2, "out":[Ljava/lang/String;
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 2155
     :try_start_0
     array-length v3, p1
 
@@ -41137,7 +39451,6 @@
     :goto_0
     if-ltz v1, :cond_1
 
-    .line 2156
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v3, v3, Lcom/android/server/pm/Settings;->mRenamedPackages:Landroid/util/ArrayMap;
@@ -41150,7 +39463,6 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 2157
     .local v0, "cur":Ljava/lang/String;
     if-eqz v0, :cond_0
 
@@ -41158,27 +39470,22 @@
     :goto_1
     aput-object v0, v2, v1
 
-    .line 2155
     add-int/lit8 v1, v1, -0x1
 
     goto :goto_0
 
-    .line 2157
     .restart local v0    # "cur":Ljava/lang/String;
     :cond_0
     aget-object v0, p1, v1
 
     goto :goto_1
 
-    .line 2159
     .end local v0    # "cur":Ljava/lang/String;
     :cond_1
     monitor-exit v4
 
-    .line 2160
     return-object v2
 
-    .line 2159
     .end local v1    # "i":I
     :catchall_0
     move-exception v3
@@ -41198,12 +39505,10 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 2549
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 2550
     :try_start_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -41213,7 +39518,6 @@
 
     check-cast v0, Landroid/content/pm/PackageParser$Package;
 
-    .line 2551
     .local v0, "p":Landroid/content/pm/PackageParser$Package;
     if-eqz v0, :cond_1
 
@@ -41221,18 +39525,15 @@
 
     if-eqz v4, :cond_1
 
-    .line 2552
     iget-object v1, v0, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     check-cast v1, Lcom/android/server/pm/PackageSetting;
 
-    .line 2553
     .local v1, "ps":Lcom/android/server/pm/PackageSetting;
     iget-object v4, v1, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v4, :cond_0
 
-    .line 2554
     iget-object v4, v1, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     iget-object v4, v4, Lcom/android/server/pm/SharedUserSetting;->grantedPermissions:Landroid/util/ArraySet;
@@ -41243,15 +39544,12 @@
 
     if-eqz v4, :cond_1
 
-    .line 2555
     monitor-exit v3
 
-    .line 2562
     .end local v1    # "ps":Lcom/android/server/pm/PackageSetting;
     :goto_0
     return v2
 
-    .line 2557
     .restart local v1    # "ps":Lcom/android/server/pm/PackageSetting;
     :cond_0
     iget-object v4, v1, Lcom/android/server/pm/PackageSetting;->grantedPermissions:Landroid/util/ArraySet;
@@ -41262,12 +39560,10 @@
 
     if-eqz v4, :cond_1
 
-    .line 2558
     monitor-exit v3
 
     goto :goto_0
 
-    .line 2561
     .end local v0    # "p":Landroid/content/pm/PackageParser$Package;
     .end local v1    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -41286,7 +39582,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 2562
     const/4 v2, -0x1
 
     goto :goto_0
@@ -41298,12 +39593,10 @@
     .param p2, "pkg2"    # Ljava/lang/String;
 
     .prologue
-    .line 2924
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 2925
     :try_start_0
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -41313,7 +39606,6 @@
 
     check-cast v0, Landroid/content/pm/PackageParser$Package;
 
-    .line 2926
     .local v0, "p1":Landroid/content/pm/PackageParser$Package;
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -41323,7 +39615,6 @@
 
     check-cast v1, Landroid/content/pm/PackageParser$Package;
 
-    .line 2927
     .local v1, "p2":Landroid/content/pm/PackageParser$Package;
     if-eqz v0, :cond_0
 
@@ -41337,13 +39628,11 @@
 
     if-nez v2, :cond_1
 
-    .line 2929
     :cond_0
     const/4 v2, -0x4
 
     monitor-exit v3
 
-    .line 2931
     :goto_0
     return v2
 
@@ -41360,7 +39649,6 @@
 
     goto :goto_0
 
-    .line 2932
     .end local v0    # "p1":Landroid/content/pm/PackageParser$Package;
     .end local v1    # "p2":Landroid/content/pm/PackageParser$Package;
     :catchall_0
@@ -41381,12 +39669,10 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 2567
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 2568
     :try_start_0
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -41398,18 +39684,15 @@
 
     move-result-object v2
 
-    .line 2569
     .local v2, "obj":Ljava/lang/Object;
     if-eqz v2, :cond_0
 
-    .line 2570
     move-object v0, v2
 
     check-cast v0, Lcom/android/server/pm/GrantedPermissions;
 
     move-object v1, v0
 
-    .line 2571
     .local v1, "gp":Lcom/android/server/pm/GrantedPermissions;
     iget-object v6, v1, Lcom/android/server/pm/GrantedPermissions;->grantedPermissions:Landroid/util/ArraySet;
 
@@ -41419,15 +39702,12 @@
 
     if-eqz v6, :cond_1
 
-    .line 2572
     monitor-exit v5
 
-    .line 2581
     .end local v1    # "gp":Lcom/android/server/pm/GrantedPermissions;
     :goto_0
     return v4
 
-    .line 2575
     :cond_0
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSystemPermissions:Landroid/util/SparseArray;
 
@@ -41437,7 +39717,6 @@
 
     check-cast v3, Landroid/util/ArraySet;
 
-    .line 2576
     .local v3, "perms":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     if-eqz v3, :cond_1
 
@@ -41447,12 +39726,10 @@
 
     if-eqz v6, :cond_1
 
-    .line 2577
     monitor-exit v5
 
     goto :goto_0
 
-    .line 2580
     .end local v2    # "obj":Ljava/lang/Object;
     .end local v3    # "perms":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     :catchall_0
@@ -41471,7 +39748,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 2581
     const/4 v4, -0x1
 
     goto :goto_0
@@ -41485,22 +39761,18 @@
     .prologue
     const/4 v4, -0x4
 
-    .line 2938
     invoke-static {p1}, Landroid/os/UserHandle;->getAppId(I)I
 
     move-result p1
 
-    .line 2939
     invoke-static {p2}, Landroid/os/UserHandle;->getAppId(I)I
 
     move-result p2
 
-    .line 2941
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 2944
     :try_start_0
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -41508,16 +39780,13 @@
 
     move-result-object v1
 
-    .line 2945
     .local v1, "obj":Ljava/lang/Object;
     if-eqz v1, :cond_2
 
-    .line 2946
     instance-of v6, v1, Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v6, :cond_0
 
-    .line 2947
     check-cast v1, Lcom/android/server/pm/SharedUserSetting;
 
     .end local v1    # "obj":Ljava/lang/Object;
@@ -41525,7 +39794,6 @@
 
     iget-object v2, v6, Lcom/android/server/pm/PackageSignatures;->mSignatures:[Landroid/content/pm/Signature;
 
-    .line 2956
     .local v2, "s1":[Landroid/content/pm/Signature;
     :goto_0
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -41534,16 +39802,13 @@
 
     move-result-object v1
 
-    .line 2957
     .restart local v1    # "obj":Ljava/lang/Object;
     if-eqz v1, :cond_5
 
-    .line 2958
     instance-of v6, v1, Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v6, :cond_3
 
-    .line 2959
     move-object v0, v1
 
     check-cast v0, Lcom/android/server/pm/SharedUserSetting;
@@ -41554,7 +39819,6 @@
 
     iget-object v3, v4, Lcom/android/server/pm/PackageSignatures;->mSignatures:[Landroid/content/pm/Signature;
 
-    .line 2968
     .local v3, "s2":[Landroid/content/pm/Signature;
     :goto_1
     invoke-static {v2, v3}, Lcom/android/server/pm/PackageManagerService;->compareSignatures([Landroid/content/pm/Signature;[Landroid/content/pm/Signature;)I
@@ -41568,13 +39832,11 @@
     :goto_2
     return v4
 
-    .line 2948
     :cond_0
     instance-of v6, v1, Lcom/android/server/pm/PackageSetting;
 
     if-eqz v6, :cond_1
 
-    .line 2949
     check-cast v1, Lcom/android/server/pm/PackageSetting;
 
     .end local v1    # "obj":Ljava/lang/Object;
@@ -41585,7 +39847,6 @@
     .restart local v2    # "s1":[Landroid/content/pm/Signature;
     goto :goto_0
 
-    .line 2951
     .end local v2    # "s1":[Landroid/content/pm/Signature;
     .restart local v1    # "obj":Ljava/lang/Object;
     :cond_1
@@ -41593,7 +39854,6 @@
 
     goto :goto_2
 
-    .line 2969
     .end local v1    # "obj":Ljava/lang/Object;
     :catchall_0
     move-exception v4
@@ -41604,7 +39864,6 @@
 
     throw v4
 
-    .line 2954
     .restart local v1    # "obj":Ljava/lang/Object;
     :cond_2
     :try_start_1
@@ -41612,14 +39871,12 @@
 
     goto :goto_2
 
-    .line 2960
     .restart local v2    # "s1":[Landroid/content/pm/Signature;
     :cond_3
     instance-of v6, v1, Lcom/android/server/pm/PackageSetting;
 
     if-eqz v6, :cond_4
 
-    .line 2961
     move-object v0, v1
 
     check-cast v0, Lcom/android/server/pm/PackageSetting;
@@ -41633,14 +39890,12 @@
     .restart local v3    # "s2":[Landroid/content/pm/Signature;
     goto :goto_1
 
-    .line 2963
     .end local v3    # "s2":[Landroid/content/pm/Signature;
     :cond_4
     monitor-exit v5
 
     goto :goto_2
 
-    .line 2966
     :cond_5
     monitor-exit v5
     :try_end_1
@@ -41655,7 +39910,6 @@
     .param p2, "chatty"    # Z
 
     .prologue
-    .line 7584
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->providers:Ljava/util/ArrayList;
@@ -41664,11 +39918,9 @@
 
     move-result v1
 
-    .line 7585
     .local v1, "N":I
     const/4 v12, 0x0
 
-    .line 7587
     .local v12, "r":Ljava/lang/StringBuilder;
     const/4 v6, 0x0
 
@@ -41676,7 +39928,6 @@
     :goto_0
     if-ge v6, v1, :cond_3
 
-    .line 7588
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->providers:Ljava/util/ArrayList;
@@ -41687,7 +39938,6 @@
 
     check-cast v10, Landroid/content/pm/PackageParser$Provider;
 
-    .line 7589
     .local v10, "p":Landroid/content/pm/PackageParser$Provider;
     move-object/from16 v0, p0
 
@@ -41695,20 +39945,17 @@
 
     invoke-virtual {v14, v10}, Lcom/android/server/pm/PackageManagerService$ProviderIntentResolver;->removeProvider(Landroid/content/pm/PackageParser$Provider;)V
 
-    .line 7590
     iget-object v14, v10, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
 
     iget-object v14, v14, Landroid/content/pm/ProviderInfo;->authority:Ljava/lang/String;
 
     if-nez v14, :cond_1
 
-    .line 7587
     :cond_0
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_0
 
-    .line 7598
     :cond_1
     iget-object v14, v10, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
 
@@ -41720,7 +39967,6 @@
 
     move-result-object v9
 
-    .line 7599
     .local v9, "names":[Ljava/lang/String;
     const/4 v7, 0x0
 
@@ -41730,7 +39976,6 @@
 
     if-ge v7, v14, :cond_0
 
-    .line 7600
     move-object/from16 v0, p0
 
     iget-object v14, v0, Lcom/android/server/pm/PackageManagerService;->mProvidersByAuthority:Landroid/util/ArrayMap;
@@ -41743,7 +39988,6 @@
 
     if-ne v14, v10, :cond_2
 
-    .line 7601
     move-object/from16 v0, p0
 
     iget-object v14, v0, Lcom/android/server/pm/PackageManagerService;->mProvidersByAuthority:Landroid/util/ArrayMap;
@@ -41752,20 +39996,17 @@
 
     invoke-virtual {v14, v15}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 7599
     :cond_2
     add-int/lit8 v7, v7, 0x1
 
     goto :goto_1
 
-    .line 7619
     .end local v7    # "j":I
     .end local v9    # "names":[Ljava/lang/String;
     .end local v10    # "p":Landroid/content/pm/PackageParser$Provider;
     :cond_3
     if-eqz v12, :cond_4
 
-    .line 7623
     :cond_4
     move-object/from16 v0, p1
 
@@ -41775,16 +40016,13 @@
 
     move-result v1
 
-    .line 7624
     const/4 v12, 0x0
 
-    .line 7625
     const/4 v6, 0x0
 
     :goto_2
     if-ge v6, v1, :cond_7
 
-    .line 7626
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->services:Ljava/util/ArrayList;
@@ -41795,7 +40033,6 @@
 
     check-cast v13, Landroid/content/pm/PackageParser$Service;
 
-    .line 7627
     .local v13, "s":Landroid/content/pm/PackageParser$Service;
     move-object/from16 v0, p0
 
@@ -41803,13 +40040,10 @@
 
     invoke-virtual {v14, v13}, Lcom/android/server/pm/PackageManagerService$ServiceIntentResolver;->removeService(Landroid/content/pm/PackageParser$Service;)V
 
-    .line 7628
     if-eqz p2, :cond_5
 
-    .line 7629
     if-nez v12, :cond_6
 
-    .line 7630
     new-instance v12, Ljava/lang/StringBuilder;
 
     .end local v12    # "r":Ljava/lang/StringBuilder;
@@ -41817,7 +40051,6 @@
 
     invoke-direct {v12, v14}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 7634
     .restart local v12    # "r":Ljava/lang/StringBuilder;
     :goto_3
     iget-object v14, v13, Landroid/content/pm/PackageParser$Service;->info:Landroid/content/pm/ServiceInfo;
@@ -41826,13 +40059,11 @@
 
     invoke-virtual {v12, v14}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 7625
     :cond_5
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_2
 
-    .line 7632
     :cond_6
     const/16 v14, 0x20
 
@@ -41840,12 +40071,10 @@
 
     goto :goto_3
 
-    .line 7637
     .end local v13    # "s":Landroid/content/pm/PackageParser$Service;
     :cond_7
     if-eqz v12, :cond_8
 
-    .line 7641
     :cond_8
     move-object/from16 v0, p1
 
@@ -41855,16 +40084,13 @@
 
     move-result v1
 
-    .line 7642
     const/4 v12, 0x0
 
-    .line 7643
     const/4 v6, 0x0
 
     :goto_4
     if-ge v6, v1, :cond_9
 
-    .line 7644
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->receivers:Ljava/util/ArrayList;
@@ -41875,7 +40101,6 @@
 
     check-cast v2, Landroid/content/pm/PackageParser$Activity;
 
-    .line 7645
     .local v2, "a":Landroid/content/pm/PackageParser$Activity;
     move-object/from16 v0, p0
 
@@ -41885,17 +40110,14 @@
 
     invoke-virtual {v14, v2, v15}, Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;->removeActivity(Landroid/content/pm/PackageParser$Activity;Ljava/lang/String;)V
 
-    .line 7643
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_4
 
-    .line 7655
     .end local v2    # "a":Landroid/content/pm/PackageParser$Activity;
     :cond_9
     if-eqz v12, :cond_a
 
-    .line 7659
     :cond_a
     move-object/from16 v0, p1
 
@@ -41905,16 +40127,13 @@
 
     move-result v1
 
-    .line 7660
     const/4 v12, 0x0
 
-    .line 7661
     const/4 v6, 0x0
 
     :goto_5
     if-ge v6, v1, :cond_b
 
-    .line 7662
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->activities:Ljava/util/ArrayList;
@@ -41925,7 +40144,6 @@
 
     check-cast v2, Landroid/content/pm/PackageParser$Activity;
 
-    .line 7663
     .restart local v2    # "a":Landroid/content/pm/PackageParser$Activity;
     move-object/from16 v0, p0
 
@@ -41935,17 +40153,14 @@
 
     invoke-virtual {v14, v2, v15}, Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;->removeActivity(Landroid/content/pm/PackageParser$Activity;Ljava/lang/String;)V
 
-    .line 7661
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_5
 
-    .line 7673
     .end local v2    # "a":Landroid/content/pm/PackageParser$Activity;
     :cond_b
     if-eqz v12, :cond_c
 
-    .line 7677
     :cond_c
     move-object/from16 v0, p1
 
@@ -41955,16 +40170,13 @@
 
     move-result v1
 
-    .line 7678
     const/4 v12, 0x0
 
-    .line 7679
     const/4 v6, 0x0
 
     :goto_6
     if-ge v6, v1, :cond_10
 
-    .line 7680
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->permissions:Ljava/util/ArrayList;
@@ -41975,7 +40187,6 @@
 
     check-cast v10, Landroid/content/pm/PackageParser$Permission;
 
-    .line 7681
     .local v10, "p":Landroid/content/pm/PackageParser$Permission;
     move-object/from16 v0, p0
 
@@ -41993,11 +40204,9 @@
 
     check-cast v4, Lcom/android/server/pm/BasePermission;
 
-    .line 7682
     .local v4, "bp":Lcom/android/server/pm/BasePermission;
     if-nez v4, :cond_d
 
-    .line 7683
     move-object/from16 v0, p0
 
     iget-object v14, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -42015,7 +40224,6 @@
     .end local v4    # "bp":Lcom/android/server/pm/BasePermission;
     check-cast v4, Lcom/android/server/pm/BasePermission;
 
-    .line 7685
     .restart local v4    # "bp":Lcom/android/server/pm/BasePermission;
     :cond_d
     if-eqz v4, :cond_e
@@ -42024,12 +40232,10 @@
 
     if-ne v14, v10, :cond_e
 
-    .line 7686
     const/4 v14, 0x0
 
     iput-object v14, v4, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
-    .line 7696
     :cond_e
     iget-object v14, v10, Landroid/content/pm/PackageParser$Permission;->info:Landroid/content/pm/PermissionInfo;
 
@@ -42039,7 +40245,6 @@
 
     if-eqz v14, :cond_f
 
-    .line 7697
     move-object/from16 v0, p0
 
     iget-object v14, v0, Lcom/android/server/pm/PackageManagerService;->mAppOpPermissionPackages:Landroid/util/ArrayMap;
@@ -42054,31 +40259,26 @@
 
     check-cast v3, Landroid/util/ArraySet;
 
-    .line 7698
     .local v3, "appOpPerms":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     if-eqz v3, :cond_f
 
-    .line 7699
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
     invoke-virtual {v3, v14}, Landroid/util/ArraySet;->remove(Ljava/lang/Object;)Z
 
-    .line 7679
     .end local v3    # "appOpPerms":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     :cond_f
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_6
 
-    .line 7703
     .end local v4    # "bp":Lcom/android/server/pm/BasePermission;
     .end local v10    # "p":Landroid/content/pm/PackageParser$Permission;
     :cond_10
     if-eqz v12, :cond_11
 
-    .line 7707
     :cond_11
     move-object/from16 v0, p1
 
@@ -42088,16 +40288,13 @@
 
     move-result v1
 
-    .line 7708
     const/4 v12, 0x0
 
-    .line 7709
     const/4 v6, 0x0
 
     :goto_7
     if-ge v6, v1, :cond_13
 
-    .line 7710
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->requestedPermissions:Ljava/util/ArrayList;
@@ -42108,7 +40305,6 @@
 
     check-cast v11, Ljava/lang/String;
 
-    .line 7711
     .local v11, "perm":Ljava/lang/String;
     move-object/from16 v0, p0
 
@@ -42122,7 +40318,6 @@
 
     check-cast v4, Lcom/android/server/pm/BasePermission;
 
-    .line 7712
     .restart local v4    # "bp":Lcom/android/server/pm/BasePermission;
     if-eqz v4, :cond_12
 
@@ -42132,7 +40327,6 @@
 
     if-eqz v14, :cond_12
 
-    .line 7713
     move-object/from16 v0, p0
 
     iget-object v14, v0, Lcom/android/server/pm/PackageManagerService;->mAppOpPermissionPackages:Landroid/util/ArrayMap;
@@ -42143,45 +40337,38 @@
 
     check-cast v3, Landroid/util/ArraySet;
 
-    .line 7714
     .restart local v3    # "appOpPerms":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     if-eqz v3, :cond_12
 
-    .line 7715
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
     invoke-virtual {v3, v14}, Landroid/util/ArraySet;->remove(Ljava/lang/Object;)Z
 
-    .line 7716
     invoke-virtual {v3}, Landroid/util/ArraySet;->isEmpty()Z
 
     move-result v14
 
     if-eqz v14, :cond_12
 
-    .line 7717
     move-object/from16 v0, p0
 
     iget-object v14, v0, Lcom/android/server/pm/PackageManagerService;->mAppOpPermissionPackages:Landroid/util/ArrayMap;
 
     invoke-virtual {v14, v11}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 7709
     .end local v3    # "appOpPerms":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     :cond_12
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_7
 
-    .line 7722
     .end local v4    # "bp":Lcom/android/server/pm/BasePermission;
     .end local v11    # "perm":Ljava/lang/String;
     :cond_13
     if-eqz v12, :cond_14
 
-    .line 7726
     :cond_14
     move-object/from16 v0, p1
 
@@ -42191,16 +40378,13 @@
 
     move-result v1
 
-    .line 7727
     const/4 v12, 0x0
 
-    .line 7728
     const/4 v6, 0x0
 
     :goto_8
     if-ge v6, v1, :cond_15
 
-    .line 7729
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->instrumentation:Ljava/util/ArrayList;
@@ -42211,7 +40395,6 @@
 
     check-cast v2, Landroid/content/pm/PackageParser$Instrumentation;
 
-    .line 7730
     .local v2, "a":Landroid/content/pm/PackageParser$Instrumentation;
     move-object/from16 v0, p0
 
@@ -42223,21 +40406,17 @@
 
     invoke-virtual {v14, v15}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 7728
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_8
 
-    .line 7740
     .end local v2    # "a":Landroid/content/pm/PackageParser$Instrumentation;
     :cond_15
     if-eqz v12, :cond_16
 
-    .line 7744
     :cond_16
     const/4 v12, 0x0
 
-    .line 7745
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -42248,14 +40427,12 @@
 
     if-eqz v14, :cond_18
 
-    .line 7747
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->libraryNames:Ljava/util/ArrayList;
 
     if-eqz v14, :cond_18
 
-    .line 7748
     const/4 v6, 0x0
 
     :goto_9
@@ -42269,7 +40446,6 @@
 
     if-ge v6, v14, :cond_18
 
-    .line 7749
     move-object/from16 v0, p1
 
     iget-object v14, v0, Landroid/content/pm/PackageParser$Package;->libraryNames:Ljava/util/ArrayList;
@@ -42280,7 +40456,6 @@
 
     check-cast v8, Ljava/lang/String;
 
-    .line 7750
     .local v8, "name":Ljava/lang/String;
     move-object/from16 v0, p0
 
@@ -42292,7 +40467,6 @@
 
     check-cast v5, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
 
-    .line 7751
     .local v5, "cur":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     if-eqz v5, :cond_17
 
@@ -42312,26 +40486,22 @@
 
     if-eqz v14, :cond_17
 
-    .line 7752
     move-object/from16 v0, p0
 
     iget-object v14, v0, Lcom/android/server/pm/PackageManagerService;->mSharedLibraries:Landroid/util/ArrayMap;
 
     invoke-virtual {v14, v8}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 7748
     :cond_17
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_9
 
-    .line 7765
     .end local v5    # "cur":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     .end local v8    # "name":Ljava/lang/String;
     :cond_18
     if-eqz v12, :cond_19
 
-    .line 7768
     :cond_19
     return-void
 .end method
@@ -42342,7 +40512,6 @@
     .param p2, "userHandle"    # I
 
     .prologue
-    .line 14533
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mDirtyUsers:Landroid/util/ArraySet;
 
     invoke-static {p2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
@@ -42351,36 +40520,29 @@
 
     invoke-virtual {v0, v1}, Landroid/util/ArraySet;->remove(Ljava/lang/Object;)Z
 
-    .line 14534
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v0, p2}, Lcom/android/server/pm/Settings;->removeUserLPw(I)V
 
-    .line 14535
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPendingBroadcasts:Lcom/android/server/pm/PackageManagerService$PendingPackageBroadcasts;
 
     invoke-virtual {v0, p2}, Lcom/android/server/pm/PackageManagerService$PendingPackageBroadcasts;->remove(I)V
 
-    .line 14536
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mInstaller:Lcom/android/server/pm/Installer;
 
     if-eqz v0, :cond_0
 
-    .line 14540
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mInstaller:Lcom/android/server/pm/Installer;
 
     invoke-virtual {v0, p2}, Lcom/android/server/pm/Installer;->removeUserDataDirs(I)I
 
-    .line 14542
     :cond_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mUserNeedsBadging:Landroid/util/SparseBooleanArray;
 
     invoke-virtual {v0, p2}, Landroid/util/SparseBooleanArray;->delete(I)V
 
-    .line 14543
     invoke-direct {p0, p1, p2}, Lcom/android/server/pm/PackageManagerService;->removeUnusedPackagesLILPw(Lcom/android/server/pm/UserManagerService;I)V
 
-    .line 14544
     return-void
 .end method
 
@@ -42389,7 +40551,6 @@
     .param p1, "ps"    # Lcom/android/server/pm/PackageSetting;
 
     .prologue
-    .line 2048
     const/4 v0, 0x5
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -42414,17 +40575,14 @@
 
     invoke-static {v0, v1}, Lcom/android/server/pm/PackageManagerService;->logCriticalInfo(ILjava/lang/String;)V
 
-    .line 2050
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->name:Ljava/lang/String;
 
     invoke-direct {p0, v0}, Lcom/android/server/pm/PackageManagerService;->removeDataDirsLI(Ljava/lang/String;)I
 
-    .line 2051
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->codePath:Ljava/io/File;
 
     if-eqz v0, :cond_1
 
-    .line 2052
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->codePath:Ljava/io/File;
 
     invoke-virtual {v0}, Ljava/io/File;->isDirectory()Z
@@ -42433,18 +40591,15 @@
 
     if-eqz v0, :cond_0
 
-    .line 2053
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->codePath:Ljava/io/File;
 
     invoke-static {v0}, Landroid/os/FileUtils;->deleteContents(Ljava/io/File;)Z
 
-    .line 2055
     :cond_0
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->codePath:Ljava/io/File;
 
     invoke-virtual {v0}, Ljava/io/File;->delete()Z
 
-    .line 2057
     :cond_1
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->resourcePath:Ljava/io/File;
 
@@ -42460,7 +40615,6 @@
 
     if-nez v0, :cond_3
 
-    .line 2058
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->resourcePath:Ljava/io/File;
 
     invoke-virtual {v0}, Ljava/io/File;->isDirectory()Z
@@ -42469,18 +40623,15 @@
 
     if-eqz v0, :cond_2
 
-    .line 2059
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->resourcePath:Ljava/io/File;
 
     invoke-static {v0}, Landroid/os/FileUtils;->deleteContents(Ljava/io/File;)Z
 
-    .line 2061
     :cond_2
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->resourcePath:Ljava/io/File;
 
     invoke-virtual {v0}, Ljava/io/File;->delete()Z
 
-    .line 2063
     :cond_3
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -42488,7 +40639,6 @@
 
     invoke-virtual {v0, v1}, Lcom/android/server/pm/Settings;->removePackageLPw(Ljava/lang/String;)I
 
-    .line 2064
     return-void
 .end method
 
@@ -42499,7 +40649,6 @@
     .param p3, "userId"    # I
 
     .prologue
-    .line 12561
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.CLEAR_APP_USER_DATA"
@@ -42508,7 +40657,6 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 12563
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v1
@@ -42525,7 +40673,6 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 12565
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     new-instance v1, Lcom/android/server/pm/PackageManagerService$8;
@@ -42534,7 +40681,6 @@
 
     invoke-virtual {v0, v1}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->post(Ljava/lang/Runnable;)Z
 
-    .line 12590
     return-void
 .end method
 
@@ -42545,7 +40691,6 @@
     .param p3, "ownerUserId"    # I
 
     .prologue
-    .line 13182
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v7, "android.permission.INTERACT_ACROSS_USERS_FULL"
@@ -42554,32 +40699,26 @@
 
     invoke-virtual {v6, v7, v8}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 13184
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v0
 
-    .line 13185
     .local v0, "callingUid":I
     invoke-direct {p0, p2, p3, v0}, Lcom/android/server/pm/PackageManagerService;->enforceOwnerRights(Ljava/lang/String;II)V
 
-    .line 13186
     const-string v6, "no_debugging_features"
 
     invoke-virtual {p0, v6, v0, p1}, Lcom/android/server/pm/PackageManagerService;->enforceShellRestriction(Ljava/lang/String;II)V
 
-    .line 13187
     invoke-static {v0}, Landroid/os/UserHandle;->getUserId(I)I
 
     move-result v1
 
-    .line 13188
     .local v1, "callingUserId":I
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v7
 
-    .line 13189
     :try_start_0
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -42587,7 +40726,6 @@
 
     move-result-object v4
 
-    .line 13191
     .local v4, "resolver":Lcom/android/server/pm/CrossProfileIntentResolver;
     new-instance v5, Landroid/util/ArraySet;
 
@@ -42597,7 +40735,6 @@
 
     invoke-direct {v5, v6}, Landroid/util/ArraySet;-><init>(Ljava/util/Collection;)V
 
-    .line 13193
     .local v5, "set":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
     invoke-virtual {v5}, Landroid/util/ArraySet;->iterator()Ljava/util/Iterator;
 
@@ -42618,7 +40755,6 @@
 
     check-cast v2, Lcom/android/server/pm/CrossProfileIntentFilter;
 
-    .line 13194
     .local v2, "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     invoke-virtual {v2}, Lcom/android/server/pm/CrossProfileIntentFilter;->getOwnerPackage()Ljava/lang/String;
 
@@ -42636,12 +40772,10 @@
 
     if-ne v6, v1, :cond_0
 
-    .line 13196
     invoke-virtual {v4, v2}, Lcom/android/server/pm/CrossProfileIntentResolver;->removeFilter(Landroid/content/IntentFilter;)V
 
     goto :goto_0
 
-    .line 13200
     .end local v2    # "filter":Lcom/android/server/pm/CrossProfileIntentFilter;
     .end local v3    # "i$":Ljava/util/Iterator;
     .end local v4    # "resolver":Lcom/android/server/pm/CrossProfileIntentResolver;
@@ -42655,7 +40789,6 @@
 
     throw v6
 
-    .line 13199
     .restart local v3    # "i$":Ljava/util/Iterator;
     .restart local v4    # "resolver":Lcom/android/server/pm/CrossProfileIntentResolver;
     .restart local v5    # "set":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
@@ -42663,12 +40796,10 @@
     :try_start_1
     invoke-virtual {p0, p1}, Lcom/android/server/pm/PackageManagerService;->scheduleWritePackageRestrictionsLocked(I)V
 
-    .line 13200
     monitor-exit v7
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 13201
     return-void
 .end method
 
@@ -42678,18 +40809,15 @@
     .param p2, "userId"    # I
 
     .prologue
-    .line 13106
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v0
 
-    .line 13107
     .local v0, "callingUid":I
     const/16 v10, 0x3e8
 
     if-eq v0, v10, :cond_0
 
-    .line 13108
     new-instance v10, Ljava/lang/SecurityException;
 
     const-string v11, "clearPackagePersistentPreferredActivities can only be run by the system"
@@ -42698,21 +40826,17 @@
 
     throw v10
 
-    .line 13111
     :cond_0
     const/4 v7, 0x0
 
-    .line 13112
     .local v7, "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     const/4 v1, 0x0
 
-    .line 13113
     .local v1, "changed":Z
     iget-object v11, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v11
 
-    .line 13114
     const/4 v2, 0x0
 
     .local v2, "i":I
@@ -42728,7 +40852,6 @@
 
     if-ge v2, v10, :cond_4
 
-    .line 13115
     iget-object v10, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v10, v10, Lcom/android/server/pm/Settings;->mPersistentPreferredActivities:Landroid/util/SparseArray;
@@ -42737,7 +40860,6 @@
 
     move-result v9
 
-    .line 13116
     .local v9, "thisUserId":I
     iget-object v10, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -42749,17 +40871,14 @@
 
     check-cast v6, Lcom/android/server/pm/PersistentPreferredIntentResolver;
 
-    .line 13118
     .local v6, "ppir":Lcom/android/server/pm/PersistentPreferredIntentResolver;
     if-eq p2, v9, :cond_1
 
-    .line 13114
     :goto_1
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_0
 
-    .line 13121
     :cond_1
     invoke-virtual {v6}, Lcom/android/server/pm/PersistentPreferredIntentResolver;->filterIterator()Ljava/util/Iterator;
     :try_end_0
@@ -42770,7 +40889,6 @@
     .local v3, "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     move-object v8, v7
 
-    .line 13122
     .end local v7    # "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     .local v8, "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     :goto_2
@@ -42781,14 +40899,12 @@
 
     if-eqz v10, :cond_2
 
-    .line 13123
     invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v5
 
     check-cast v5, Lcom/android/server/pm/PersistentPreferredActivity;
 
-    .line 13125
     .local v5, "ppa":Lcom/android/server/pm/PersistentPreferredActivity;
     iget-object v10, v5, Lcom/android/server/pm/PersistentPreferredActivity;->mComponent:Landroid/content/ComponentName;
 
@@ -42802,17 +40918,14 @@
 
     if-eqz v10, :cond_8
 
-    .line 13126
     if-nez v8, :cond_7
 
-    .line 13127
     new-instance v7, Ljava/util/ArrayList;
 
     invoke-direct {v7}, Ljava/util/ArrayList;-><init>()V
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 13129
     .end local v8    # "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     .restart local v7    # "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     :goto_3
@@ -42824,17 +40937,14 @@
     :goto_4
     move-object v8, v7
 
-    .line 13131
     .end local v7    # "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     .restart local v8    # "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     goto :goto_2
 
-    .line 13132
     .end local v5    # "ppa":Lcom/android/server/pm/PersistentPreferredActivity;
     :cond_2
     if-eqz v8, :cond_6
 
-    .line 13133
     const/4 v4, 0x0
 
     .local v4, "j":I
@@ -42846,25 +40956,21 @@
 
     if-ge v4, v10, :cond_3
 
-    .line 13134
     invoke-virtual {v8, v4}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v5
 
     check-cast v5, Lcom/android/server/pm/PersistentPreferredActivity;
 
-    .line 13135
     .restart local v5    # "ppa":Lcom/android/server/pm/PersistentPreferredActivity;
     invoke-virtual {v6, v5}, Lcom/android/server/pm/PersistentPreferredIntentResolver;->removeFilter(Landroid/content/IntentFilter;)V
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 13133
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_5
 
-    .line 13137
     .end local v5    # "ppa":Lcom/android/server/pm/PersistentPreferredActivity;
     :cond_3
     const/4 v1, 0x1
@@ -42875,7 +40981,6 @@
     .restart local v7    # "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     goto :goto_1
 
-    .line 13141
     .end local v3    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PersistentPreferredActivity;>;"
     .end local v4    # "j":I
     .end local v6    # "ppir":Lcom/android/server/pm/PersistentPreferredIntentResolver;
@@ -42883,18 +40988,14 @@
     :cond_4
     if-eqz v1, :cond_5
 
-    .line 13142
     :try_start_4
     invoke-virtual {p0, p2}, Lcom/android/server/pm/PackageManagerService;->scheduleWritePackageRestrictionsLocked(I)V
 
-    .line 13144
     :cond_5
     monitor-exit v11
 
-    .line 13145
     return-void
 
-    .line 13144
     :catchall_0
     move-exception v10
 
@@ -42953,18 +41054,15 @@
     .param p1, "packageName"    # Ljava/lang/String;
 
     .prologue
-    .line 12977
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v1
 
-    .line 12979
     .local v1, "uid":I
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 12980
     :try_start_0
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -42974,7 +41072,6 @@
 
     check-cast v0, Landroid/content/pm/PackageParser$Package;
 
-    .line 12981
     .local v0, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v0, :cond_0
 
@@ -42984,7 +41081,6 @@
 
     if-eq v3, v1, :cond_2
 
-    .line 12982
     :cond_0
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
@@ -42996,7 +41092,6 @@
 
     if-eqz v3, :cond_2
 
-    .line 12985
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v3
@@ -43009,7 +41104,6 @@
 
     if-ge v3, v5, :cond_1
 
-    .line 12987
     const-string v3, "PackageManager"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -43036,14 +41130,11 @@
 
     invoke-static {v3, v5}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 12989
     monitor-exit v4
 
-    .line 13001
     :goto_0
     return-void
 
-    .line 12991
     :cond_1
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
@@ -43053,13 +41144,11 @@
 
     invoke-virtual {v3, v5, v6}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 12996
     :cond_2
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v2
 
-    .line 12997
     .local v2, "user":I
     invoke-virtual {p0, p1, v2}, Lcom/android/server/pm/PackageManagerService;->clearPackagePreferredActivitiesLPw(Ljava/lang/String;I)Z
 
@@ -43067,10 +41156,8 @@
 
     if-eqz v3, :cond_3
 
-    .line 12998
     invoke-virtual {p0, v2}, Lcom/android/server/pm/PackageManagerService;->scheduleWritePackageRestrictionsLocked(I)V
 
-    .line 13000
     :cond_3
     monitor-exit v4
 
@@ -43094,14 +41181,11 @@
     .param p2, "userId"    # I
 
     .prologue
-    .line 13005
     const/4 v6, 0x0
 
-    .line 13006
     .local v6, "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PreferredActivity;>;"
     const/4 v0, 0x0
 
-    .line 13007
     .local v0, "changed":Z
     const/4 v1, 0x0
 
@@ -43117,7 +41201,6 @@
 
     if-ge v1, v8, :cond_7
 
-    .line 13008
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v8, v8, Lcom/android/server/pm/Settings;->mPreferredActivities:Landroid/util/SparseArray;
@@ -43126,7 +41209,6 @@
 
     move-result v7
 
-    .line 13009
     .local v7, "thisUserId":I
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -43138,7 +41220,6 @@
 
     check-cast v5, Lcom/android/server/pm/PreferredIntentResolver;
 
-    .line 13010
     .local v5, "pir":Lcom/android/server/pm/PreferredIntentResolver;
     const/4 v8, -0x1
 
@@ -43146,20 +41227,17 @@
 
     if-eq p2, v7, :cond_1
 
-    .line 13007
     :cond_0
     :goto_1
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_0
 
-    .line 13013
     :cond_1
     invoke-virtual {v5}, Lcom/android/server/pm/PreferredIntentResolver;->filterIterator()Ljava/util/Iterator;
 
     move-result-object v2
 
-    .line 13014
     .local v2, "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PreferredActivity;>;"
     :cond_2
     :goto_2
@@ -43169,14 +41247,12 @@
 
     if-eqz v8, :cond_5
 
-    .line 13015
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v4
 
     check-cast v4, Lcom/android/server/pm/PreferredActivity;
 
-    .line 13018
     .local v4, "pa":Lcom/android/server/pm/PreferredActivity;
     if-eqz p1, :cond_3
 
@@ -43200,29 +41276,24 @@
 
     if-eqz v8, :cond_2
 
-    .line 13021
     :cond_3
     if-nez v6, :cond_4
 
-    .line 13022
     new-instance v6, Ljava/util/ArrayList;
 
     .end local v6    # "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PreferredActivity;>;"
     invoke-direct {v6}, Ljava/util/ArrayList;-><init>()V
 
-    .line 13024
     .restart local v6    # "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PreferredActivity;>;"
     :cond_4
     invoke-virtual {v6, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_2
 
-    .line 13027
     .end local v4    # "pa":Lcom/android/server/pm/PreferredActivity;
     :cond_5
     if-eqz v6, :cond_0
 
-    .line 13028
     const/4 v3, 0x0
 
     .local v3, "j":I
@@ -43233,30 +41304,25 @@
 
     if-ge v3, v8, :cond_6
 
-    .line 13029
     invoke-virtual {v6, v3}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v4
 
     check-cast v4, Lcom/android/server/pm/PreferredActivity;
 
-    .line 13030
     .restart local v4    # "pa":Lcom/android/server/pm/PreferredActivity;
     invoke-virtual {v5, v4}, Lcom/android/server/pm/PreferredIntentResolver;->removeFilter(Landroid/content/IntentFilter;)V
 
-    .line 13028
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_3
 
-    .line 13032
     .end local v4    # "pa":Lcom/android/server/pm/PreferredActivity;
     :cond_6
     const/4 v0, 0x1
 
     goto :goto_1
 
-    .line 13035
     .end local v2    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PreferredActivity;>;"
     .end local v3    # "j":I
     .end local v5    # "pir":Lcom/android/server/pm/PreferredIntentResolver;
@@ -43269,7 +41335,6 @@
     .locals 3
 
     .prologue
-    .line 14705
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.INTERCEPT_PACKAGE_LAUNCH"
@@ -43278,19 +41343,16 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 14707
     const-string v0, "PackageManager"
 
     const-string v1, "Clearing Pre Launch Check Packages."
 
     invoke-static {v0, v1}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14708
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPreLaunchCheckPackages:Ljava/util/Set;
 
     invoke-interface {v0}, Ljava/util/Set;->clear()V
 
-    .line 14709
     return-void
 .end method
 
@@ -43300,31 +41362,25 @@
     .param p2, "path"    # Ljava/io/File;
 
     .prologue
-    .line 14594
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mInstaller:Lcom/android/server/pm/Installer;
 
     if-eqz v0, :cond_0
 
-    .line 14595
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mInstaller:Lcom/android/server/pm/Installer;
 
     invoke-virtual {v0, p1}, Lcom/android/server/pm/Installer;->createUserConfig(I)I
 
-    .line 14596
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mInstaller:Lcom/android/server/pm/Installer;
 
     invoke-virtual {v0, p0, v1, p1, p2}, Lcom/android/server/pm/Settings;->createNewUserLILPw(Lcom/android/server/pm/PackageManagerService;Lcom/android/server/pm/Installer;ILjava/io/File;)V
 
-    .line 14599
     const/16 v7, 0x1a0
 
-    .line 14600
     .local v7, "scanFlags":I
     invoke-direct {p0}, Lcom/android/server/pm/PackageManagerService;->createAndSetCustomResources()V
 
-    .line 14601
     invoke-static {}, Landroid/os/Environment;->getPrebundledDirectory()Ljava/io/File;
 
     move-result-object v1
@@ -43343,12 +41399,10 @@
 
     invoke-direct/range {v0 .. v6}, Lcom/android/server/pm/PackageManagerService;->scanDirLI(Ljava/io/File;IIJLandroid/os/UserHandle;)V
 
-    .line 14604
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mCustomResources:Landroid/content/res/Resources;
 
-    .line 14606
     .end local v7    # "scanFlags":I
     :cond_0
     return-void
@@ -43359,18 +41413,15 @@
     .param p1, "names"    # [Ljava/lang/String;
 
     .prologue
-    .line 2139
     array-length v3, p1
 
     new-array v1, v3, [Ljava/lang/String;
 
-    .line 2141
     .local v1, "out":[Ljava/lang/String;
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 2142
     :try_start_0
     array-length v3, p1
 
@@ -43380,7 +41431,6 @@
     :goto_0
     if-ltz v0, :cond_1
 
-    .line 2143
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v3, v3, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -43393,7 +41443,6 @@
 
     check-cast v2, Lcom/android/server/pm/PackageSetting;
 
-    .line 2144
     .local v2, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v2, :cond_0
 
@@ -43406,26 +41455,21 @@
     :goto_1
     aput-object v3, v1, v0
 
-    .line 2142
     add-int/lit8 v0, v0, -0x1
 
     goto :goto_0
 
-    .line 2144
     :cond_0
     aget-object v3, p1, v0
 
     goto :goto_1
 
-    .line 2146
     .end local v2    # "ps":Lcom/android/server/pm/PackageSetting;
     :cond_1
     monitor-exit v4
 
-    .line 2147
     return-object v1
 
-    .line 2146
     .end local v0    # "i":I
     :catchall_0
     move-exception v3
@@ -43443,7 +41487,6 @@
     .param p2, "observer"    # Landroid/content/pm/IPackageDataObserver;
 
     .prologue
-    .line 12673
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v2, "android.permission.DELETE_CACHE_FILES"
@@ -43452,12 +41495,10 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 12676
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v0
 
-    .line 12677
     .local v0, "userId":I
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
@@ -43467,7 +41508,6 @@
 
     invoke-virtual {v1, v2}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->post(Ljava/lang/Runnable;)Z
 
-    .line 12694
     return-void
 .end method
 
@@ -43481,19 +41521,16 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 11922
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.DELETE_PACKAGES"
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 11924
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v7
 
-    .line 11925
     .local v7, "uid":I
     invoke-static {v7}, Landroid/os/UserHandle;->getUserId(I)I
 
@@ -43501,7 +41538,6 @@
 
     if-eq v0, p3, :cond_0
 
-    .line 11926
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.INTERACT_ACROSS_USERS_FULL"
@@ -43526,7 +41562,6 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 11930
     :cond_0
     const-string v0, "no_uninstall_apps"
 
@@ -43536,7 +41571,6 @@
 
     if-eqz v0, :cond_1
 
-    .line 11932
     const/4 v0, -0x3
 
     const/4 v1, 0x0
@@ -43546,28 +41580,23 @@
     :try_end_0
     .catch Landroid/os/RemoteException; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 11977
     :goto_0
     return-void
 
-    .line 11939
     :cond_1
     const/4 v8, 0x0
 
-    .line 11940
     .local v8, "uninstallBlocked":Z
     and-int/lit8 v0, p4, 0x2
 
     if-eqz v0, :cond_4
 
-    .line 11941
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0}, Lcom/android/server/pm/UserManagerService;->getUserIds()[I
 
     move-result-object v9
 
-    .line 11942
     .local v9, "users":[I
     const/4 v6, 0x0
 
@@ -43577,7 +41606,6 @@
 
     if-ge v6, v0, :cond_2
 
-    .line 11943
     aget v0, v9, v6
 
     invoke-virtual {p0, p1, v0}, Lcom/android/server/pm/PackageManagerService;->getBlockUninstallForUser(Ljava/lang/String;I)Z
@@ -43586,17 +41614,14 @@
 
     if-eqz v0, :cond_3
 
-    .line 11944
     const/4 v8, 0x1
 
-    .line 11951
     .end local v6    # "i":I
     .end local v9    # "users":[I
     :cond_2
     :goto_2
     if-eqz v8, :cond_5
 
-    .line 11953
     const/4 v0, -0x4
 
     const/4 v1, 0x0
@@ -43608,13 +41633,11 @@
 
     goto :goto_0
 
-    .line 11955
     :catch_0
     move-exception v0
 
     goto :goto_0
 
-    .line 11942
     .restart local v6    # "i":I
     .restart local v9    # "users":[I
     :cond_3
@@ -43622,7 +41645,6 @@
 
     goto :goto_1
 
-    .line 11949
     .end local v6    # "i":I
     .end local v9    # "users":[I
     :cond_4
@@ -43632,7 +41654,6 @@
 
     goto :goto_2
 
-    .line 11964
     :cond_5
     iget-object v10, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
@@ -43654,7 +41675,6 @@
 
     goto :goto_0
 
-    .line 11934
     .end local v8    # "uninstallBlocked":Z
     :catch_1
     move-exception v0
@@ -43670,7 +41690,6 @@
     .param p4, "flags"    # I
 
     .prologue
-    .line 11915
     new-instance v0, Landroid/content/pm/PackageManager$LegacyPackageDeleteObserver;
 
     invoke-direct {v0, p2}, Landroid/content/pm/PackageManager$LegacyPackageDeleteObserver;-><init>(Landroid/content/pm/IPackageDeleteObserver;)V
@@ -43681,7 +41700,6 @@
 
     invoke-virtual {p0, p1, v0, p3, p4}, Lcom/android/server/pm/PackageManagerService;->deletePackage(Ljava/lang/String;Landroid/content/pm/IPackageDeleteObserver2;II)V
 
-    .line 11917
     return-void
 .end method
 
@@ -43692,7 +41710,6 @@
     .param p3, "args"    # [Ljava/lang/String;
 
     .prologue
-    .line 13619
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
@@ -43705,7 +41722,6 @@
 
     if-eqz v3, :cond_0
 
-    .line 13621
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -43758,33 +41774,26 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 14000
     :goto_0
     return-void
 
-    .line 13629
     :cond_0
     new-instance v12, Lcom/android/server/pm/PackageManagerService$DumpState;
 
     invoke-direct {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;-><init>()V
 
-    .line 13630
     .local v12, "dumpState":Lcom/android/server/pm/PackageManagerService$DumpState;
     const/16 v17, 0x0
 
-    .line 13631
     .local v17, "fullPreferred":Z
     const/4 v10, 0x0
 
-    .line 13633
     .local v10, "checkin":Z
     const/4 v6, 0x0
 
-    .line 13635
     .local v6, "packageName":Ljava/lang/String;
     const/16 v28, 0x0
 
-    .line 13636
     .local v28, "opti":I
     :cond_1
     :goto_1
@@ -43796,10 +41805,8 @@
 
     if-ge v0, v3, :cond_2
 
-    .line 13637
     aget-object v27, p3, v28
 
-    .line 13638
     .local v27, "opt":Ljava/lang/String;
     if-eqz v27, :cond_2
 
@@ -43821,7 +41828,6 @@
 
     if-eq v3, v4, :cond_d
 
-    .line 13679
     .end local v27    # "opt":Ljava/lang/String;
     :cond_2
     move-object/from16 v0, p3
@@ -43832,14 +41838,11 @@
 
     if-ge v0, v3, :cond_4
 
-    .line 13680
     aget-object v11, p3, v28
 
-    .line 13681
     .local v11, "cmd":Ljava/lang/String;
     add-int/lit8 v28, v28, 0x1
 
-    .line 13683
     const-string v3, "android"
 
     invoke-virtual {v3, v11}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -43856,29 +41859,24 @@
 
     if-eqz v3, :cond_11
 
-    .line 13684
     :cond_3
     move-object v6, v11
 
-    .line 13687
     const/4 v3, 0x1
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setOptionEnabled(I)V
 
-    .line 13729
     .end local v11    # "cmd":Ljava/lang/String;
     :cond_4
     :goto_2
     if-eqz v10, :cond_5
 
-    .line 13730
     const-string v3, "vers,1"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13734
     :cond_5
     move-object/from16 v0, p0
 
@@ -43888,7 +41886,6 @@
 
     monitor-enter v36
 
-    .line 13735
     const/16 v3, 0x1000
 
     :try_start_0
@@ -43900,20 +41897,16 @@
 
     if-nez v6, :cond_7
 
-    .line 13736
     if-nez v10, :cond_7
 
-    .line 13737
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->onTitlePrinted()Z
 
     move-result v3
 
     if-eqz v3, :cond_6
 
-    .line 13738
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13739
     :cond_6
     const-string v3, "Database versions:"
 
@@ -43921,21 +41914,18 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13740
     const-string v3, "  SDK Version:"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13741
     const-string v3, " internal="
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13742
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -43946,14 +41936,12 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(I)V
 
-    .line 13743
     const-string v3, " external="
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13744
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -43964,21 +41952,18 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(I)V
 
-    .line 13745
     const-string v3, "  DB Version:"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13746
     const-string v3, " internal="
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13747
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -43989,14 +41974,12 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(I)V
 
-    .line 13748
     const-string v3, " external="
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13749
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -44007,7 +41990,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(I)V
 
-    .line 13753
     :cond_7
     const/16 v3, 0x100
 
@@ -44019,20 +42001,16 @@
 
     if-nez v6, :cond_9
 
-    .line 13754
     if-nez v10, :cond_2b
 
-    .line 13755
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->onTitlePrinted()Z
 
     move-result v3
 
     if-eqz v3, :cond_8
 
-    .line 13756
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13757
     :cond_8
     const-string v3, "Verifiers:"
 
@@ -44040,14 +42018,12 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13758
     const-string v3, "  Required: "
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13759
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mRequiredVerifierPackage:Ljava/lang/String;
@@ -44056,14 +42032,12 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13760
     const-string v3, " (uid="
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13761
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mRequiredVerifierPackage:Ljava/lang/String;
@@ -44080,14 +42054,12 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(I)V
 
-    .line 13762
     const-string v3, ")"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13769
     :cond_9
     :goto_3
     const/4 v3, 0x1
@@ -44100,10 +42072,8 @@
 
     if-nez v6, :cond_30
 
-    .line 13770
     const/16 v31, 0x0
 
-    .line 13771
     .local v31, "printedHeader":Z
     move-object/from16 v0, p0
 
@@ -44117,7 +42087,6 @@
 
     move-result-object v24
 
-    .line 13772
     .local v24, "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     :goto_4
     invoke-interface/range {v24 .. v24}, Ljava/util/Iterator;->hasNext()Z
@@ -44126,14 +42095,12 @@
 
     if-eqz v3, :cond_30
 
-    .line 13773
     invoke-interface/range {v24 .. v24}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v26
 
     check-cast v26, Ljava/lang/String;
 
-    .line 13774
     .local v26, "name":Ljava/lang/String;
     move-object/from16 v0, p0
 
@@ -44147,24 +42114,19 @@
 
     check-cast v14, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
 
-    .line 13775
     .local v14, "ent":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     if-nez v10, :cond_2c
 
-    .line 13776
     if-nez v31, :cond_b
 
-    .line 13777
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->onTitlePrinted()Z
 
     move-result v3
 
     if-eqz v3, :cond_a
 
-    .line 13778
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13779
     :cond_a
     const-string v3, "Libraries:"
 
@@ -44172,10 +42134,8 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13780
     const/16 v31, 0x1
 
-    .line 13782
     :cond_b
     const-string v3, "  "
 
@@ -44183,7 +42143,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13786
     :goto_5
     move-object/from16 v0, p2
 
@@ -44191,46 +42150,38 @@
 
     invoke-virtual {v0, v1}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13787
     if-nez v10, :cond_c
 
-    .line 13788
     const-string v3, " -> "
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13790
     :cond_c
     iget-object v3, v14, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;->path:Ljava/lang/String;
 
     if-eqz v3, :cond_2e
 
-    .line 13791
     if-nez v10, :cond_2d
 
-    .line 13792
     const-string v3, "(jar) "
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13793
     iget-object v3, v14, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;->path:Ljava/lang/String;
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13807
     :goto_6
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
     goto :goto_4
 
-    .line 13999
     .end local v14    # "ent":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     .end local v24    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     .end local v26    # "name":Ljava/lang/String;
@@ -44244,12 +42195,10 @@
 
     throw v3
 
-    .line 13641
     .restart local v27    # "opt":Ljava/lang/String;
     :cond_d
     add-int/lit8 v28, v28, 0x1
 
-    .line 13643
     const-string v3, "-a"
 
     move-object/from16 v0, v27
@@ -44260,7 +42209,6 @@
 
     if-nez v3, :cond_1
 
-    .line 13645
     const-string v3, "-h"
 
     move-object/from16 v0, v27
@@ -44271,154 +42219,132 @@
 
     if-eqz v3, :cond_e
 
-    .line 13646
     const-string v3, "Package manager dump options:"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13647
     const-string v3, "  [-h] [-f] [--checkin] [cmd] ..."
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13648
     const-string v3, "    --checkin: dump for a checkin"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13649
     const-string v3, "    -f: print details of intent filters"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13650
     const-string v3, "    -h: print this help"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13651
     const-string v3, "  cmd may be one of:"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13652
     const-string v3, "    l[ibraries]: list known shared libraries"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13653
     const-string v3, "    f[ibraries]: list device features"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13654
     const-string v3, "    k[eysets]: print known keysets"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13655
     const-string v3, "    r[esolvers]: dump intent resolvers"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13656
     const-string v3, "    perm[issions]: dump permissions"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13657
     const-string v3, "    pref[erred]: print preferred package settings"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13658
     const-string v3, "    preferred-xml [--full]: print preferred package settings as xml"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13659
     const-string v3, "    prov[iders]: dump content providers"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13660
     const-string v3, "    p[ackages]: dump installed packages"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13661
     const-string v3, "    s[hared-users]: dump shared user IDs"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13662
     const-string v3, "    m[essages]: print collected runtime messages"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13663
     const-string v3, "    v[erifiers]: print package verifier info"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13664
     const-string v3, "    version: print database version info"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13665
     const-string v3, "    write: write current settings now"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13666
     const-string v3, "    <package.name>: info about given package"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13667
     const-string v3, "    installs: details about install sessions"
 
     move-object/from16 v0, p2
@@ -44427,7 +42353,6 @@
 
     goto/16 :goto_0
 
-    .line 13669
     :cond_e
     const-string v3, "--checkin"
 
@@ -44439,12 +42364,10 @@
 
     if-eqz v3, :cond_f
 
-    .line 13670
     const/4 v10, 0x1
 
     goto/16 :goto_1
 
-    .line 13671
     :cond_f
     const-string v3, "-f"
 
@@ -44456,14 +42379,12 @@
 
     if-eqz v3, :cond_10
 
-    .line 13672
     const/4 v3, 0x1
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setOptionEnabled(I)V
 
     goto/16 :goto_1
 
-    .line 13674
     :cond_10
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -44497,7 +42418,6 @@
 
     goto/16 :goto_1
 
-    .line 13688
     .end local v27    # "opt":Ljava/lang/String;
     .restart local v11    # "cmd":Ljava/lang/String;
     :cond_11
@@ -44517,7 +42437,6 @@
 
     if-eqz v3, :cond_13
 
-    .line 13689
     :cond_12
     const/4 v3, 0x1
 
@@ -44525,7 +42444,6 @@
 
     goto/16 :goto_2
 
-    .line 13690
     :cond_13
     const-string v3, "f"
 
@@ -44543,7 +42461,6 @@
 
     if-eqz v3, :cond_15
 
-    .line 13691
     :cond_14
     const/4 v3, 0x2
 
@@ -44551,7 +42468,6 @@
 
     goto/16 :goto_2
 
-    .line 13692
     :cond_15
     const-string v3, "r"
 
@@ -44569,7 +42485,6 @@
 
     if-eqz v3, :cond_17
 
-    .line 13693
     :cond_16
     const/4 v3, 0x4
 
@@ -44577,7 +42492,6 @@
 
     goto/16 :goto_2
 
-    .line 13694
     :cond_17
     const-string v3, "perm"
 
@@ -44595,7 +42509,6 @@
 
     if-eqz v3, :cond_19
 
-    .line 13695
     :cond_18
     const/16 v3, 0x8
 
@@ -44603,7 +42516,6 @@
 
     goto/16 :goto_2
 
-    .line 13696
     :cond_19
     const-string v3, "pref"
 
@@ -44621,7 +42533,6 @@
 
     if-eqz v3, :cond_1b
 
-    .line 13697
     :cond_1a
     const/16 v3, 0x200
 
@@ -44629,7 +42540,6 @@
 
     goto/16 :goto_2
 
-    .line 13698
     :cond_1b
     const-string v3, "preferred-xml"
 
@@ -44639,12 +42549,10 @@
 
     if-eqz v3, :cond_1c
 
-    .line 13699
     const/16 v3, 0x400
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setDump(I)V
 
-    .line 13700
     move-object/from16 v0, p3
 
     array-length v3, v0
@@ -44663,15 +42571,12 @@
 
     if-eqz v3, :cond_4
 
-    .line 13701
     const/16 v17, 0x1
 
-    .line 13702
     add-int/lit8 v28, v28, 0x1
 
     goto/16 :goto_2
 
-    .line 13704
     :cond_1c
     const-string v3, "p"
 
@@ -44689,7 +42594,6 @@
 
     if-eqz v3, :cond_1e
 
-    .line 13705
     :cond_1d
     const/16 v3, 0x10
 
@@ -44697,7 +42601,6 @@
 
     goto/16 :goto_2
 
-    .line 13706
     :cond_1e
     const-string v3, "s"
 
@@ -44715,7 +42618,6 @@
 
     if-eqz v3, :cond_20
 
-    .line 13707
     :cond_1f
     const/16 v3, 0x20
 
@@ -44723,7 +42625,6 @@
 
     goto/16 :goto_2
 
-    .line 13708
     :cond_20
     const-string v3, "prov"
 
@@ -44741,7 +42642,6 @@
 
     if-eqz v3, :cond_22
 
-    .line 13709
     :cond_21
     const/16 v3, 0x80
 
@@ -44749,7 +42649,6 @@
 
     goto/16 :goto_2
 
-    .line 13710
     :cond_22
     const-string v3, "m"
 
@@ -44767,7 +42666,6 @@
 
     if-eqz v3, :cond_24
 
-    .line 13711
     :cond_23
     const/16 v3, 0x40
 
@@ -44775,7 +42673,6 @@
 
     goto/16 :goto_2
 
-    .line 13712
     :cond_24
     const-string v3, "v"
 
@@ -44793,7 +42690,6 @@
 
     if-eqz v3, :cond_26
 
-    .line 13713
     :cond_25
     const/16 v3, 0x100
 
@@ -44801,7 +42697,6 @@
 
     goto/16 :goto_2
 
-    .line 13714
     :cond_26
     const-string v3, "version"
 
@@ -44811,14 +42706,12 @@
 
     if-eqz v3, :cond_27
 
-    .line 13715
     const/16 v3, 0x1000
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setDump(I)V
 
     goto/16 :goto_2
 
-    .line 13716
     :cond_27
     const-string v3, "k"
 
@@ -44836,7 +42729,6 @@
 
     if-eqz v3, :cond_29
 
-    .line 13717
     :cond_28
     const/16 v3, 0x800
 
@@ -44844,7 +42736,6 @@
 
     goto/16 :goto_2
 
-    .line 13718
     :cond_29
     const-string v3, "installs"
 
@@ -44854,14 +42745,12 @@
 
     if-eqz v3, :cond_2a
 
-    .line 13719
     const/16 v3, 0x2000
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setDump(I)V
 
     goto/16 :goto_2
 
-    .line 13720
     :cond_2a
     const-string v3, "write"
 
@@ -44871,14 +42760,12 @@
 
     if-eqz v3, :cond_4
 
-    .line 13721
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 13722
     :try_start_1
     move-object/from16 v0, p0
 
@@ -44886,19 +42773,16 @@
 
     invoke-virtual {v3}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 13723
     const-string v3, "Settings written."
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13724
     monitor-exit v4
 
     goto/16 :goto_0
 
-    .line 13725
     :catchall_1
     move-exception v3
 
@@ -44908,7 +42792,6 @@
 
     throw v3
 
-    .line 13763
     .end local v11    # "cmd":Ljava/lang/String;
     :cond_2b
     :try_start_2
@@ -44918,7 +42801,6 @@
 
     if-eqz v3, :cond_9
 
-    .line 13764
     const-string v3, "vrfy,"
 
     move-object/from16 v0, p2
@@ -44933,7 +42815,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13765
     const-string v3, ","
 
     move-object/from16 v0, p2
@@ -44958,7 +42839,6 @@
 
     goto/16 :goto_3
 
-    .line 13784
     .restart local v14    # "ent":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     .restart local v24    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     .restart local v26    # "name":Ljava/lang/String;
@@ -44972,7 +42852,6 @@
 
     goto/16 :goto_5
 
-    .line 13795
     :cond_2d
     const-string v3, ",jar,"
 
@@ -44980,7 +42859,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13796
     iget-object v3, v14, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;->path:Ljava/lang/String;
 
     move-object/from16 v0, p2
@@ -44989,18 +42867,15 @@
 
     goto/16 :goto_6
 
-    .line 13799
     :cond_2e
     if-nez v10, :cond_2f
 
-    .line 13800
     const-string v3, "(apk) "
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13801
     iget-object v3, v14, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;->apk:Ljava/lang/String;
 
     move-object/from16 v0, p2
@@ -45009,7 +42884,6 @@
 
     goto/16 :goto_6
 
-    .line 13803
     :cond_2f
     const-string v3, ",apk,"
 
@@ -45017,7 +42891,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13804
     iget-object v3, v14, Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;->apk:Ljava/lang/String;
 
     move-object/from16 v0, p2
@@ -45026,7 +42899,6 @@
 
     goto/16 :goto_6
 
-    .line 13811
     .end local v14    # "ent":Lcom/android/server/pm/PackageManagerService$SharedLibraryEntry;
     .end local v24    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     .end local v26    # "name":Ljava/lang/String;
@@ -45042,28 +42914,23 @@
 
     if-nez v6, :cond_34
 
-    .line 13812
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->onTitlePrinted()Z
 
     move-result v3
 
     if-eqz v3, :cond_31
 
-    .line 13813
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13814
     :cond_31
     if-nez v10, :cond_32
 
-    .line 13815
     const-string v3, "Features:"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13817
     :cond_32
     move-object/from16 v0, p0
 
@@ -45077,7 +42944,6 @@
 
     move-result-object v24
 
-    .line 13818
     .restart local v24    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     :goto_7
     invoke-interface/range {v24 .. v24}, Ljava/util/Iterator;->hasNext()Z
@@ -45086,25 +42952,21 @@
 
     if-eqz v3, :cond_34
 
-    .line 13819
     invoke-interface/range {v24 .. v24}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v26
 
     check-cast v26, Ljava/lang/String;
 
-    .line 13820
     .restart local v26    # "name":Ljava/lang/String;
     if-nez v10, :cond_33
 
-    .line 13821
     const-string v3, "  "
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13825
     :goto_8
     move-object/from16 v0, p2
 
@@ -45114,7 +42976,6 @@
 
     goto :goto_7
 
-    .line 13823
     :cond_33
     const-string v3, "feat,"
 
@@ -45124,7 +42985,6 @@
 
     goto :goto_8
 
-    .line 13829
     .end local v24    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     .end local v26    # "name":Ljava/lang/String;
     :cond_34
@@ -45138,7 +42998,6 @@
 
     if-eqz v3, :cond_38
 
-    .line 13830
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/android/server/pm/PackageManagerService;->mActivities:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
@@ -45170,12 +43029,10 @@
 
     if-eqz v3, :cond_35
 
-    .line 13833
     const/4 v3, 0x1
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setTitlePrinted(Z)V
 
-    .line 13835
     :cond_35
     move-object/from16 v0, p0
 
@@ -45208,12 +43065,10 @@
 
     if-eqz v3, :cond_36
 
-    .line 13838
     const/4 v3, 0x1
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setTitlePrinted(Z)V
 
-    .line 13840
     :cond_36
     move-object/from16 v0, p0
 
@@ -45246,12 +43101,10 @@
 
     if-eqz v3, :cond_37
 
-    .line 13843
     const/4 v3, 0x1
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setTitlePrinted(Z)V
 
-    .line 13845
     :cond_37
     move-object/from16 v0, p0
 
@@ -45284,12 +43137,10 @@
 
     if-eqz v3, :cond_38
 
-    .line 13848
     const/4 v3, 0x1
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setTitlePrinted(Z)V
 
-    .line 13852
     :cond_38
     if-nez v10, :cond_3f
 
@@ -45301,7 +43152,6 @@
 
     if-eqz v3, :cond_3f
 
-    .line 13853
     const/16 v18, 0x0
 
     .local v18, "i":I
@@ -45320,7 +43170,6 @@
 
     if-ge v0, v3, :cond_3f
 
-    .line 13854
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -45335,7 +43184,6 @@
 
     check-cast v2, Lcom/android/server/pm/PreferredIntentResolver;
 
-    .line 13855
     .local v2, "pir":Lcom/android/server/pm/PreferredIntentResolver;
     move-object/from16 v0, p0
 
@@ -45349,7 +43197,6 @@
 
     move-result v35
 
-    .line 13856
     .local v35, "user":I
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->getTitlePrinted()Z
 
@@ -45398,18 +43245,15 @@
 
     if-eqz v3, :cond_39
 
-    .line 13861
     const/4 v3, 0x1
 
     invoke-virtual {v12, v3}, Lcom/android/server/pm/PackageManagerService$DumpState;->setTitlePrinted(Z)V
 
-    .line 13853
     :cond_39
     add-int/lit8 v18, v18, 0x1
 
     goto :goto_d
 
-    .line 13830
     .end local v2    # "pir":Lcom/android/server/pm/PreferredIntentResolver;
     .end local v18    # "i":I
     .end local v35    # "user":I
@@ -45418,25 +43262,21 @@
 
     goto/16 :goto_9
 
-    .line 13835
     :cond_3b
     const-string v4, "Receiver Resolver Table:"
 
     goto/16 :goto_a
 
-    .line 13840
     :cond_3c
     const-string v4, "Service Resolver Table:"
 
     goto/16 :goto_b
 
-    .line 13845
     :cond_3d
     const-string v4, "Provider Resolver Table:"
 
     goto/16 :goto_c
 
-    .line 13856
     .restart local v2    # "pir":Lcom/android/server/pm/PreferredIntentResolver;
     .restart local v18    # "i":I
     .restart local v35    # "user":I
@@ -45469,7 +43309,6 @@
 
     goto :goto_e
 
-    .line 13866
     .end local v2    # "pir":Lcom/android/server/pm/PreferredIntentResolver;
     .end local v18    # "i":I
     .end local v35    # "user":I
@@ -45484,10 +43323,8 @@
 
     if-eqz v3, :cond_40
 
-    .line 13867
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->flush()V
 
-    .line 13868
     new-instance v16, Ljava/io/FileOutputStream;
 
     move-object/from16 v0, v16
@@ -45496,7 +43333,6 @@
 
     invoke-direct {v0, v1}, Ljava/io/FileOutputStream;-><init>(Ljava/io/FileDescriptor;)V
 
-    .line 13869
     .local v16, "fout":Ljava/io/FileOutputStream;
     new-instance v34, Ljava/io/BufferedOutputStream;
 
@@ -45506,7 +43342,6 @@
 
     invoke-direct {v0, v1}, Ljava/io/BufferedOutputStream;-><init>(Ljava/io/OutputStream;)V
 
-    .line 13870
     .local v34, "str":Ljava/io/BufferedOutputStream;
     new-instance v33, Lcom/android/internal/util/FastXmlSerializer;
 
@@ -45514,7 +43349,6 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 13872
     .local v33, "serializer":Lorg/xmlpull/v1/XmlSerializer;
     :try_start_3
     const-string v3, "utf-8"
@@ -45525,7 +43359,6 @@
 
     invoke-interface {v0, v1, v3}, Lorg/xmlpull/v1/XmlSerializer;->setOutput(Ljava/io/OutputStream;Ljava/lang/String;)V
 
-    .line 13873
     const/4 v3, 0x0
 
     const/4 v4, 0x1
@@ -45538,7 +43371,6 @@
 
     invoke-interface {v0, v3, v4}, Lorg/xmlpull/v1/XmlSerializer;->startDocument(Ljava/lang/String;Ljava/lang/Boolean;)V
 
-    .line 13874
     const-string v3, "http://xmlpull.org/v1/doc/features.html#indent-output"
 
     const/4 v4, 0x1
@@ -45547,7 +43379,6 @@
 
     invoke-interface {v0, v3, v4}, Lorg/xmlpull/v1/XmlSerializer;->setFeature(Ljava/lang/String;Z)V
 
-    .line 13876
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -45560,10 +43391,8 @@
 
     invoke-virtual {v3, v0, v4, v1}, Lcom/android/server/pm/Settings;->writePreferredActivitiesLPr(Lorg/xmlpull/v1/XmlSerializer;IZ)V
 
-    .line 13877
     invoke-interface/range {v33 .. v33}, Lorg/xmlpull/v1/XmlSerializer;->endDocument()V
 
-    .line 13878
     invoke-interface/range {v33 .. v33}, Lorg/xmlpull/v1/XmlSerializer;->flush()V
     :try_end_3
     .catch Ljava/lang/IllegalArgumentException; {:try_start_3 .. :try_end_3} :catch_0
@@ -45571,7 +43400,6 @@
     .catch Ljava/io/IOException; {:try_start_3 .. :try_end_3} :catch_2
     .catchall {:try_start_3 .. :try_end_3} :catchall_0
 
-    .line 13888
     .end local v16    # "fout":Ljava/io/FileOutputStream;
     .end local v33    # "serializer":Lorg/xmlpull/v1/XmlSerializer;
     .end local v34    # "str":Ljava/io/BufferedOutputStream;
@@ -45588,7 +43416,6 @@
 
     if-eqz v3, :cond_44
 
-    .line 13889
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -45597,10 +43424,8 @@
 
     invoke-virtual {v3, v0, v6, v12}, Lcom/android/server/pm/Settings;->dumpPermissionsLPr(Ljava/io/PrintWriter;Ljava/lang/String;Lcom/android/server/pm/PackageManagerService$DumpState;)V
 
-    .line 13890
     if-nez v6, :cond_44
 
-    .line 13891
     const/16 v22, 0x0
 
     .local v22, "iperm":I
@@ -45617,20 +43442,16 @@
 
     if-ge v0, v3, :cond_44
 
-    .line 13892
     if-nez v22, :cond_42
 
-    .line 13893
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->onTitlePrinted()Z
 
     move-result v3
 
     if-eqz v3, :cond_41
 
-    .line 13894
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13895
     :cond_41
     const-string v3, "AppOp Permissions:"
 
@@ -45638,7 +43459,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13897
     :cond_42
     const-string v3, "  AppOp Permission "
 
@@ -45646,7 +43466,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13898
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mAppOpPermissionPackages:Landroid/util/ArrayMap;
@@ -45663,14 +43482,12 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13899
     const-string v3, ":"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13900
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mAppOpPermissionPackages:Landroid/util/ArrayMap;
@@ -45683,7 +43500,6 @@
 
     check-cast v30, Landroid/util/ArraySet;
 
-    .line 13901
     .local v30, "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     const/16 v23, 0x0
 
@@ -45697,7 +43513,6 @@
 
     if-ge v0, v3, :cond_43
 
-    .line 13902
     const-string v3, "    "
 
     move-object/from16 v0, p2
@@ -45718,12 +43533,10 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13901
     add-int/lit8 v23, v23, 0x1
 
     goto :goto_11
 
-    .line 13879
     .end local v22    # "iperm":I
     .end local v23    # "ipkg":I
     .end local v30    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
@@ -45733,7 +43546,6 @@
     :catch_0
     move-exception v13
 
-    .line 13880
     .local v13, "e":Ljava/lang/IllegalArgumentException;
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -45759,12 +43571,10 @@
 
     goto/16 :goto_f
 
-    .line 13881
     .end local v13    # "e":Ljava/lang/IllegalArgumentException;
     :catch_1
     move-exception v13
 
-    .line 13882
     .local v13, "e":Ljava/lang/IllegalStateException;
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -45790,12 +43600,10 @@
 
     goto/16 :goto_f
 
-    .line 13883
     .end local v13    # "e":Ljava/lang/IllegalStateException;
     :catch_2
     move-exception v13
 
-    .line 13884
     .local v13, "e":Ljava/io/IOException;
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -45821,7 +43629,6 @@
 
     goto/16 :goto_f
 
-    .line 13891
     .end local v13    # "e":Ljava/io/IOException;
     .end local v16    # "fout":Ljava/io/FileOutputStream;
     .end local v33    # "serializer":Lorg/xmlpull/v1/XmlSerializer;
@@ -45834,7 +43641,6 @@
 
     goto/16 :goto_10
 
-    .line 13908
     .end local v22    # "iperm":I
     .end local v23    # "ipkg":I
     .end local v30    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
@@ -45849,10 +43655,8 @@
 
     if-eqz v3, :cond_4e
 
-    .line 13909
     const/16 v32, 0x0
 
-    .line 13910
     .local v32, "printedSomething":Z
     move-object/from16 v0, p0
 
@@ -45886,7 +43690,6 @@
 
     check-cast v29, Landroid/content/pm/PackageParser$Provider;
 
-    .line 13911
     .local v29, "p":Landroid/content/pm/PackageParser$Provider;
     if-eqz v6, :cond_46
 
@@ -45902,21 +43705,17 @@
 
     if-eqz v3, :cond_45
 
-    .line 13914
     :cond_46
     if-nez v32, :cond_48
 
-    .line 13915
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->onTitlePrinted()Z
 
     move-result v3
 
     if-eqz v3, :cond_47
 
-    .line 13916
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13917
     :cond_47
     const-string v3, "Registered ContentProviders:"
 
@@ -45924,10 +43723,8 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13918
     const/16 v32, 0x1
 
-    .line 13920
     :cond_48
     const-string v3, "  "
 
@@ -45947,7 +43744,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13921
     const-string v3, "    "
 
     move-object/from16 v0, p2
@@ -45964,12 +43760,10 @@
 
     goto :goto_12
 
-    .line 13923
     .end local v29    # "p":Landroid/content/pm/PackageParser$Provider;
     :cond_49
     const/16 v32, 0x0
 
-    .line 13925
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mProvidersByAuthority:Landroid/util/ArrayMap;
@@ -45996,7 +43790,6 @@
 
     check-cast v15, Ljava/util/Map$Entry;
 
-    .line 13926
     .local v15, "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/content/pm/PackageParser$Provider;>;"
     invoke-interface {v15}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
@@ -46004,7 +43797,6 @@
 
     check-cast v29, Landroid/content/pm/PackageParser$Provider;
 
-    .line 13927
     .restart local v29    # "p":Landroid/content/pm/PackageParser$Provider;
     if-eqz v6, :cond_4b
 
@@ -46020,21 +43812,17 @@
 
     if-eqz v3, :cond_4a
 
-    .line 13930
     :cond_4b
     if-nez v32, :cond_4d
 
-    .line 13931
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->onTitlePrinted()Z
 
     move-result v3
 
     if-eqz v3, :cond_4c
 
-    .line 13932
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13933
     :cond_4c
     const-string v3, "ContentProvider Authorities:"
 
@@ -46042,10 +43830,8 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13934
     const/16 v32, 0x1
 
-    .line 13936
     :cond_4d
     const-string v3, "  ["
 
@@ -46069,7 +43855,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13937
     const-string v3, "    "
 
     move-object/from16 v0, p2
@@ -46084,7 +43869,6 @@
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->println(Ljava/lang/String;)V
 
-    .line 13938
     move-object/from16 v0, v29
 
     iget-object v3, v0, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
@@ -46099,7 +43883,6 @@
 
     if-eqz v3, :cond_4a
 
-    .line 13939
     move-object/from16 v0, v29
 
     iget-object v3, v0, Landroid/content/pm/PackageParser$Provider;->info:Landroid/content/pm/ProviderInfo;
@@ -46110,7 +43893,6 @@
 
     move-result-object v9
 
-    .line 13940
     .local v9, "appInfo":Ljava/lang/String;
     const-string v3, "      applicationInfo="
 
@@ -46124,7 +43906,6 @@
 
     goto/16 :goto_13
 
-    .line 13945
     .end local v9    # "appInfo":Ljava/lang/String;
     .end local v15    # "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/content/pm/PackageParser$Provider;>;"
     .end local v19    # "i$":Ljava/util/Iterator;
@@ -46141,7 +43922,6 @@
 
     if-eqz v3, :cond_4f
 
-    .line 13946
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -46152,7 +43932,6 @@
 
     invoke-virtual {v3, v0, v6, v12}, Lcom/android/server/pm/KeySetManagerService;->dumpLPr(Ljava/io/PrintWriter;Ljava/lang/String;Lcom/android/server/pm/PackageManagerService$DumpState;)V
 
-    .line 13949
     :cond_4f
     const/16 v3, 0x10
 
@@ -46162,7 +43941,6 @@
 
     if-eqz v3, :cond_50
 
-    .line 13950
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -46171,7 +43949,6 @@
 
     invoke-virtual {v3, v0, v6, v12, v10}, Lcom/android/server/pm/Settings;->dumpPackagesLPr(Ljava/io/PrintWriter;Ljava/lang/String;Lcom/android/server/pm/PackageManagerService$DumpState;Z)V
 
-    .line 13953
     :cond_50
     const/16 v3, 0x20
 
@@ -46181,7 +43958,6 @@
 
     if-eqz v3, :cond_51
 
-    .line 13954
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -46190,7 +43966,6 @@
 
     invoke-virtual {v3, v0, v6, v12, v10}, Lcom/android/server/pm/Settings;->dumpSharedUsersLPr(Ljava/io/PrintWriter;Ljava/lang/String;Lcom/android/server/pm/PackageManagerService$DumpState;Z)V
 
-    .line 13957
     :cond_51
     if-nez v10, :cond_53
 
@@ -46204,7 +43979,6 @@
 
     if-nez v6, :cond_53
 
-    .line 13960
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->onTitlePrinted()Z
 
     move-result v3
@@ -46213,7 +43987,6 @@
 
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13961
     :cond_52
     move-object/from16 v0, p0
 
@@ -46231,7 +44004,6 @@
 
     invoke-virtual {v3, v4}, Lcom/android/server/pm/PackageInstallerService;->dump(Lcom/android/internal/util/IndentingPrintWriter;)V
 
-    .line 13964
     :cond_53
     if-nez v10, :cond_56
 
@@ -46245,7 +44017,6 @@
 
     if-nez v6, :cond_56
 
-    .line 13965
     invoke-virtual {v12}, Lcom/android/server/pm/PackageManagerService$DumpState;->onTitlePrinted()Z
 
     move-result v3
@@ -46254,7 +44025,6 @@
 
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13966
     :cond_54
     move-object/from16 v0, p0
 
@@ -46264,10 +44034,8 @@
 
     invoke-virtual {v3, v0, v12}, Lcom/android/server/pm/Settings;->dumpReadMessagesLPr(Ljava/io/PrintWriter;Lcom/android/server/pm/PackageManagerService$DumpState;)V
 
-    .line 13968
     invoke-virtual/range {p2 .. p2}, Ljava/io/PrintWriter;->println()V
 
-    .line 13969
     const-string v3, "Package warning messages:"
 
     move-object/from16 v0, p2
@@ -46276,14 +44044,11 @@
     :try_end_4
     .catchall {:try_start_4 .. :try_end_4} :catchall_0
 
-    .line 13970
     const/16 v20, 0x0
 
-    .line 13971
     .local v20, "in":Ljava/io/BufferedReader;
     const/16 v25, 0x0
 
-    .line 13973
     .local v25, "line":Ljava/lang/String;
     :try_start_5
     new-instance v21, Ljava/io/BufferedReader;
@@ -46303,7 +44068,6 @@
     .catch Ljava/io/IOException; {:try_start_5 .. :try_end_5} :catch_6
     .catchall {:try_start_5 .. :try_end_5} :catchall_2
 
-    .line 13974
     .end local v20    # "in":Ljava/io/BufferedReader;
     .local v21, "in":Ljava/io/BufferedReader;
     :cond_55
@@ -46315,7 +44079,6 @@
 
     if-eqz v25, :cond_59
 
-    .line 13975
     const-string v3, "ignored: updated version"
 
     move-object/from16 v0, v25
@@ -46326,7 +44089,6 @@
 
     if-nez v3, :cond_55
 
-    .line 13976
     move-object/from16 v0, p2
 
     move-object/from16 v1, v25
@@ -46338,20 +44100,17 @@
 
     goto :goto_14
 
-    .line 13978
     :catch_3
     move-exception v3
 
     move-object/from16 v20, v21
 
-    .line 13980
     .end local v21    # "in":Ljava/io/BufferedReader;
     .restart local v20    # "in":Ljava/io/BufferedReader;
     :goto_15
     :try_start_7
     invoke-static/range {v20 .. v20}, Llibcore/io/IoUtils;->closeQuietly(Ljava/lang/AutoCloseable;)V
 
-    .line 13984
     .end local v20    # "in":Ljava/io/BufferedReader;
     .end local v25    # "line":Ljava/lang/String;
     :cond_56
@@ -46368,14 +44127,11 @@
 
     if-eqz v3, :cond_58
 
-    .line 13985
     const/16 v20, 0x0
 
-    .line 13986
     .restart local v20    # "in":Ljava/io/BufferedReader;
     const/16 v25, 0x0
 
-    .line 13988
     .restart local v25    # "line":Ljava/lang/String;
     :try_start_8
     new-instance v21, Ljava/io/BufferedReader;
@@ -46395,7 +44151,6 @@
     .catch Ljava/io/IOException; {:try_start_8 .. :try_end_8} :catch_5
     .catchall {:try_start_8 .. :try_end_8} :catchall_3
 
-    .line 13989
     .end local v20    # "in":Ljava/io/BufferedReader;
     .restart local v21    # "in":Ljava/io/BufferedReader;
     :cond_57
@@ -46407,7 +44162,6 @@
 
     if-eqz v25, :cond_5a
 
-    .line 13990
     const-string v3, "ignored: updated version"
 
     move-object/from16 v0, v25
@@ -46418,14 +44172,12 @@
 
     if-nez v3, :cond_57
 
-    .line 13991
     const-string v3, "msg,"
 
     move-object/from16 v0, p2
 
     invoke-virtual {v0, v3}, Ljava/io/PrintWriter;->print(Ljava/lang/String;)V
 
-    .line 13992
     move-object/from16 v0, p2
 
     move-object/from16 v1, v25
@@ -46437,20 +44189,17 @@
 
     goto :goto_17
 
-    .line 13994
     :catch_4
     move-exception v3
 
     move-object/from16 v20, v21
 
-    .line 13996
     .end local v21    # "in":Ljava/io/BufferedReader;
     .restart local v20    # "in":Ljava/io/BufferedReader;
     :goto_18
     :try_start_a
     invoke-static/range {v20 .. v20}, Llibcore/io/IoUtils;->closeQuietly(Ljava/lang/AutoCloseable;)V
 
-    .line 13999
     .end local v20    # "in":Ljava/io/BufferedReader;
     .end local v25    # "line":Ljava/lang/String;
     :cond_58
@@ -46459,7 +44208,6 @@
 
     goto/16 :goto_0
 
-    .line 13980
     .restart local v21    # "in":Ljava/io/BufferedReader;
     .restart local v25    # "line":Ljava/lang/String;
     :cond_59
@@ -46477,7 +44225,6 @@
 
     throw v3
 
-    .line 13996
     .end local v20    # "in":Ljava/io/BufferedReader;
     .restart local v21    # "in":Ljava/io/BufferedReader;
     :cond_5a
@@ -46508,13 +44255,11 @@
     .restart local v20    # "in":Ljava/io/BufferedReader;
     goto :goto_1b
 
-    .line 13994
     :catch_5
     move-exception v3
 
     goto :goto_18
 
-    .line 13980
     .end local v20    # "in":Ljava/io/BufferedReader;
     .restart local v21    # "in":Ljava/io/BufferedReader;
     :catchall_5
@@ -46526,7 +44271,6 @@
     .restart local v20    # "in":Ljava/io/BufferedReader;
     goto :goto_1a
 
-    .line 13978
     :catch_6
     move-exception v3
 
@@ -46542,10 +44286,8 @@
     .param p5, "message"    # Ljava/lang/String;
 
     .prologue
-    .line 2592
     if-gez p2, :cond_0
 
-    .line 2593
     new-instance v1, Ljava/lang/IllegalArgumentException;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -46570,16 +44312,13 @@
 
     throw v1
 
-    .line 2595
     :cond_0
     if-eqz p4, :cond_1
 
-    .line 2596
     const-string v1, "no_debugging_features"
 
     invoke-virtual {p0, v1, p1, p2}, Lcom/android/server/pm/PackageManagerService;->enforceShellRestriction(Ljava/lang/String;II)V
 
-    .line 2598
     :cond_1
     invoke-static {p1}, Landroid/os/UserHandle;->getUserId(I)I
 
@@ -46587,12 +44326,10 @@
 
     if-ne p2, v1, :cond_3
 
-    .line 2613
     :cond_2
     :goto_0
     return-void
 
-    .line 2599
     :cond_3
     const/16 v1, 0x3e8
 
@@ -46600,10 +44337,8 @@
 
     if-eqz p1, :cond_2
 
-    .line 2600
     if-eqz p3, :cond_4
 
-    .line 2601
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v2, "android.permission.INTERACT_ACROSS_USERS_FULL"
@@ -46612,7 +44347,6 @@
 
     goto :goto_0
 
-    .line 2605
     :cond_4
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
@@ -46625,11 +44359,9 @@
 
     goto :goto_0
 
-    .line 2607
     :catch_0
     move-exception v0
 
-    .line 2608
     .local v0, "se":Ljava/lang/SecurityException;
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
@@ -46646,19 +44378,16 @@
     .param p2, "tree"    # Lcom/android/server/pm/BasePermission;
 
     .prologue
-    .line 2705
     iget v1, p2, Lcom/android/server/pm/BasePermission;->uid:I
 
     const/16 v2, 0x3e8
 
     if-eq v1, v2, :cond_0
 
-    .line 2706
     invoke-virtual {p0, p2}, Lcom/android/server/pm/PackageManagerService;->calculateCurrentPermissionFootprintLocked(Lcom/android/server/pm/BasePermission;)I
 
     move-result v0
 
-    .line 2707
     .local v0, "curTreeSize":I
     invoke-virtual {p0, p1}, Lcom/android/server/pm/PackageManagerService;->permissionInfoFootprint(Landroid/content/pm/PermissionInfo;)I
 
@@ -46670,7 +44399,6 @@
 
     if-le v1, v2, :cond_0
 
-    .line 2708
     new-instance v1, Ljava/lang/SecurityException;
 
     const-string v2, "Permission tree size cap exceeded"
@@ -46679,7 +44407,6 @@
 
     throw v1
 
-    .line 2711
     .end local v0    # "curTreeSize":I
     :cond_0
     return-void
@@ -46692,12 +44419,10 @@
     .param p3, "userHandle"    # I
 
     .prologue
-    .line 2616
     const/16 v0, 0x7d0
 
     if-ne p2, v0, :cond_1
 
-    .line 2617
     if-ltz p3, :cond_0
 
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
@@ -46708,7 +44433,6 @@
 
     if-eqz v0, :cond_0
 
-    .line 2619
     new-instance v0, Ljava/lang/SecurityException;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -46733,11 +44457,9 @@
 
     throw v0
 
-    .line 2621
     :cond_0
     if-gez p3, :cond_1
 
-    .line 2622
     const-string v0, "PackageManager"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -46776,7 +44498,6 @@
 
     invoke-static {v0, v1}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 2626
     :cond_1
     return-void
 .end method
@@ -46785,22 +44506,18 @@
     .locals 1
 
     .prologue
-    .line 13464
     const-string v0, "Only the system can request entering safe mode"
 
     invoke-static {v0}, Lcom/android/server/pm/PackageManagerService;->enforceSystemOrRoot(Ljava/lang/String;)V
 
-    .line 13466
     iget-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mSystemReady:Z
 
     if-nez v0, :cond_0
 
-    .line 13467
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mSafeMode:Z
 
-    .line 13469
     :cond_0
     return-void
 .end method
@@ -46812,7 +44529,6 @@
     .param p3, "millisecondsToDelay"    # J
 
     .prologue
-    .line 9418
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v4, "android.permission.PACKAGE_VERIFICATION_AGENT"
@@ -46821,7 +44537,6 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 9422
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPendingVerification:Landroid/util/SparseArray;
 
     invoke-virtual {v3, p1}, Landroid/util/SparseArray;->get(I)Ljava/lang/Object;
@@ -46830,7 +44545,6 @@
 
     check-cast v2, Lcom/android/server/pm/PackageVerificationState;
 
-    .line 9423
     .local v2, "state":Lcom/android/server/pm/PackageVerificationState;
     new-instance v1, Lcom/android/server/pm/PackageVerificationResponse;
 
@@ -46840,7 +44554,6 @@
 
     invoke-direct {v1, p2, v3}, Lcom/android/server/pm/PackageVerificationResponse;-><init>(II)V
 
-    .line 9426
     .local v1, "response":Lcom/android/server/pm/PackageVerificationResponse;
     const-wide/32 v4, 0x36ee80
 
@@ -46848,10 +44561,8 @@
 
     if-lez v3, :cond_0
 
-    .line 9427
     const-wide/32 p3, 0x36ee80
 
-    .line 9429
     :cond_0
     const-wide/16 v4, 0x0
 
@@ -46859,10 +44570,8 @@
 
     if-gez v3, :cond_1
 
-    .line 9430
     const-wide/16 p3, 0x0
 
-    .line 9432
     :cond_1
     const/4 v3, 0x1
 
@@ -46872,10 +44581,8 @@
 
     if-eq p2, v3, :cond_2
 
-    .line 9434
     const/4 p2, -0x1
 
-    .line 9437
     :cond_2
     if-eqz v2, :cond_3
 
@@ -46885,10 +44592,8 @@
 
     if-nez v3, :cond_3
 
-    .line 9438
     invoke-virtual {v2}, Lcom/android/server/pm/PackageVerificationState;->extendTimeout()V
 
-    .line 9440
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     const/16 v4, 0xf
@@ -46897,19 +44602,15 @@
 
     move-result-object v0
 
-    .line 9441
     .local v0, "msg":Landroid/os/Message;
     iput p1, v0, Landroid/os/Message;->arg1:I
 
-    .line 9442
     iput-object v1, v0, Landroid/os/Message;->obj:Ljava/lang/Object;
 
-    .line 9443
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     invoke-virtual {v3, v0, p3, p4}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->sendMessageDelayed(Landroid/os/Message;J)Z
 
-    .line 9445
     .end local v0    # "msg":Landroid/os/Message;
     :cond_3
     return-void
@@ -46920,27 +44621,22 @@
     .param p1, "res"    # Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;
 
     .prologue
-    .line 1320
     const/4 v0, 0x0
 
-    .line 1321
     .local v0, "extras":Landroid/os/Bundle;
     iget v1, p1, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->returnCode:I
 
     packed-switch v1, :pswitch_data_0
 
-    .line 1331
     :goto_0
     return-object v0
 
-    .line 1323
     :pswitch_0
     new-instance v0, Landroid/os/Bundle;
 
     .end local v0    # "extras":Landroid/os/Bundle;
     invoke-direct {v0}, Landroid/os/Bundle;-><init>()V
 
-    .line 1324
     .restart local v0    # "extras":Landroid/os/Bundle;
     const-string v1, "android.content.pm.extra.FAILURE_EXISTING_PERMISSION"
 
@@ -46948,7 +44644,6 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/os/Bundle;->putString(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1326
     const-string v1, "android.content.pm.extra.FAILURE_EXISTING_PACKAGE"
 
     iget-object v2, p1, Lcom/android/server/pm/PackageManagerService$PackageInstalledInfo;->origPackage:Ljava/lang/String;
@@ -46957,7 +44652,6 @@
 
     goto :goto_0
 
-    .line 1321
     nop
 
     :pswitch_data_0
@@ -46991,7 +44685,6 @@
     .end annotation
 
     .prologue
-    .line 3440
     .local p4, "query":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     sget-object v6, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
@@ -47005,11 +44698,9 @@
 
     const/16 v20, 0x0
 
-    .line 3586
     :goto_0
     return-object v20
 
-    .line 3442
     :cond_0
     move-object/from16 v0, p0
 
@@ -47019,7 +44710,6 @@
 
     monitor-enter v22
 
-    .line 3443
     :try_start_0
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
@@ -47027,7 +44717,6 @@
 
     if-eqz v6, :cond_1
 
-    .line 3444
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
     move-result-object p1
@@ -47047,21 +44736,17 @@
 
     move/from16 v10, p9
 
-    .line 3449
     invoke-direct/range {v4 .. v10}, Lcom/android/server/pm/PackageManagerService;->findPersistentPreferredActivityLP(Landroid/content/Intent;Ljava/lang/String;ILjava/util/List;ZI)Landroid/content/pm/ResolveInfo;
 
     move-result-object v20
 
-    .line 3453
     .local v20, "pri":Landroid/content/pm/ResolveInfo;
     if-eqz v20, :cond_2
 
-    .line 3454
     monitor-exit v22
 
     goto :goto_0
 
-    .line 3584
     .end local v20    # "pri":Landroid/content/pm/ResolveInfo;
     :catchall_0
     move-exception v6
@@ -47072,7 +44757,6 @@
 
     throw v6
 
-    .line 3457
     .restart local v20    # "pri":Landroid/content/pm/ResolveInfo;
     :cond_2
     :try_start_1
@@ -47090,7 +44774,6 @@
 
     check-cast v18, Lcom/android/server/pm/PreferredIntentResolver;
 
-    .line 3459
     .local v18, "pir":Lcom/android/server/pm/PreferredIntentResolver;
     if-eqz p8, :cond_3
 
@@ -47100,7 +44783,6 @@
 
     invoke-static {v6, v7}, Landroid/util/Slog;->v(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3460
     :cond_3
     if-eqz v18, :cond_8
 
@@ -47125,7 +44807,6 @@
 
     move-result-object v19
 
-    .line 3464
     .local v19, "prefs":Ljava/util/List;, "Ljava/util/List<Lcom/android/server/pm/PreferredActivity;>;"
     :goto_2
     if-eqz v19, :cond_1c
@@ -47138,14 +44819,11 @@
 
     if-lez v6, :cond_1c
 
-    .line 3465
     const/4 v14, 0x0
 
-    .line 3470
     .local v14, "changed":Z
     const/16 v17, 0x0
 
-    .line 3472
     .local v17, "match":I
     if-eqz p8, :cond_4
 
@@ -47156,13 +44834,11 @@
 
     invoke-static {v6, v7}, Landroid/util/Slog;->v(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3474
     :cond_4
     invoke-interface/range {p4 .. p4}, Ljava/util/List;->size()I
 
     move-result v12
 
-    .line 3475
     .local v12, "N":I
     const/16 v16, 0x0
 
@@ -47172,7 +44848,6 @@
 
     if-ge v0, v12, :cond_9
 
-    .line 3476
     move-object/from16 v0, p4
 
     move/from16 v1, v16
@@ -47183,7 +44858,6 @@
 
     check-cast v21, Landroid/content/pm/ResolveInfo;
 
-    .line 3477
     .local v21, "ri":Landroid/content/pm/ResolveInfo;
     if-eqz p8, :cond_5
 
@@ -47227,7 +44901,6 @@
 
     invoke-static {v6, v7}, Landroid/util/Slog;->v(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3479
     :cond_5
     move-object/from16 v0, v21
 
@@ -47237,20 +44910,17 @@
 
     if-le v6, v0, :cond_6
 
-    .line 3480
     move-object/from16 v0, v21
 
     iget v0, v0, Landroid/content/pm/ResolveInfo;->match:I
 
     move/from16 v17, v0
 
-    .line 3475
     :cond_6
     add-int/lit8 v16, v16, 0x1
 
     goto :goto_3
 
-    .line 3460
     .end local v12    # "N":I
     .end local v14    # "changed":Z
     .end local v16    # "j":I
@@ -47267,7 +44937,6 @@
 
     goto :goto_2
 
-    .line 3484
     .restart local v12    # "N":I
     .restart local v14    # "changed":Z
     .restart local v16    # "j":I
@@ -47302,18 +44971,15 @@
 
     invoke-static {v6, v7}, Landroid/util/Slog;->v(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3487
     :cond_a
     const/high16 v6, 0xfff0000
 
     and-int v17, v17, v6
 
-    .line 3488
     invoke-interface/range {v19 .. v19}, Ljava/util/List;->size()I
 
     move-result v11
 
-    .line 3489
     .local v11, "M":I
     const/4 v15, 0x0
 
@@ -47321,7 +44987,6 @@
     :goto_4
     if-ge v15, v11, :cond_1b
 
-    .line 3490
     move-object/from16 v0, v19
 
     invoke-interface {v0, v15}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -47330,11 +44995,9 @@
 
     check-cast v5, Lcom/android/server/pm/PreferredActivity;
 
-    .line 3491
     .local v5, "pa":Lcom/android/server/pm/PreferredActivity;
     if-eqz p8, :cond_b
 
-    .line 3492
     const-string v7, "PackageManager"
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -47384,7 +45047,6 @@
 
     invoke-static {v7, v6}, Landroid/util/Slog;->v(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3495
     new-instance v6, Landroid/util/LogPrinter;
 
     const/4 v7, 0x2
@@ -47399,7 +45061,6 @@
 
     invoke-virtual {v5, v6, v7}, Lcom/android/server/pm/PreferredActivity;->dump(Landroid/util/Printer;Ljava/lang/String;)V
 
-    .line 3497
     :cond_b
     iget-object v6, v5, Lcom/android/server/pm/PreferredActivity;->mPref:Lcom/android/server/pm/PreferredComponent;
 
@@ -47409,7 +45070,6 @@
 
     if-eq v6, v0, :cond_e
 
-    .line 3498
     if-eqz p8, :cond_c
 
     const-string v6, "PackageManager"
@@ -47442,20 +45102,17 @@
 
     invoke-static {v6, v7}, Landroid/util/Slog;->v(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3489
     :cond_c
     :goto_6
     add-int/lit8 v15, v15, 0x1
 
     goto :goto_4
 
-    .line 3492
     :cond_d
     const-string v6, "<none>"
 
     goto :goto_5
 
-    .line 3504
     :cond_e
     if-eqz p6, :cond_10
 
@@ -47465,7 +45122,6 @@
 
     if-nez v6, :cond_10
 
-    .line 3505
     if-eqz p8, :cond_c
 
     const-string v6, "PackageManager"
@@ -47478,7 +45134,6 @@
 
     goto :goto_6
 
-    .line 3576
     .end local v5    # "pa":Lcom/android/server/pm/PreferredActivity;
     .end local v11    # "M":I
     .end local v12    # "N":I
@@ -47489,7 +45144,6 @@
 
     if-eqz v14, :cond_f
 
-    .line 3580
     :try_start_3
     move-object/from16 v0, p0
 
@@ -47502,7 +45156,6 @@
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_0
 
-    .line 3508
     .restart local v5    # "pa":Lcom/android/server/pm/PreferredActivity;
     .restart local v11    # "M":I
     .restart local v12    # "N":I
@@ -47526,21 +45179,17 @@
 
     move-result-object v13
 
-    .line 3510
     .local v13, "ai":Landroid/content/pm/ActivityInfo;
     if-eqz p8, :cond_11
 
-    .line 3511
     const-string v6, "PackageManager"
 
     const-string v7, "Found preferred activity:"
 
     invoke-static {v6, v7}, Landroid/util/Slog;->v(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3512
     if-eqz v13, :cond_12
 
-    .line 3513
     new-instance v6, Landroid/util/LogPrinter;
 
     const/4 v7, 0x2
@@ -47555,12 +45204,10 @@
 
     invoke-virtual {v13, v6, v7}, Landroid/content/pm/ActivityInfo;->dump(Landroid/util/Printer;Ljava/lang/String;)V
 
-    .line 3518
     :cond_11
     :goto_7
     if-nez v13, :cond_13
 
-    .line 3524
     const-string v6, "PackageManager"
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -47587,18 +45234,14 @@
 
     invoke-static {v6, v7}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3526
     move-object/from16 v0, v18
 
     invoke-virtual {v0, v5}, Lcom/android/server/pm/PreferredIntentResolver;->removeFilter(Landroid/content/IntentFilter;)V
 
-    .line 3527
     const/4 v14, 0x1
 
-    .line 3528
     goto :goto_6
 
-    .line 3515
     :cond_12
     const-string v6, "PackageManager"
 
@@ -47608,7 +45251,6 @@
 
     goto :goto_7
 
-    .line 3530
     :cond_13
     const/16 v16, 0x0
 
@@ -47617,7 +45259,6 @@
 
     if-ge v0, v12, :cond_c
 
-    .line 3531
     move-object/from16 v0, p4
 
     move/from16 v1, v16
@@ -47628,7 +45269,6 @@
 
     check-cast v21, Landroid/content/pm/ResolveInfo;
 
-    .line 3532
     .restart local v21    # "ri":Landroid/content/pm/ResolveInfo;
     move-object/from16 v0, v21
 
@@ -47648,13 +45288,11 @@
 
     if-nez v6, :cond_15
 
-    .line 3530
     :cond_14
     add-int/lit8 v16, v16, 0x1
 
     goto :goto_8
 
-    .line 3536
     :cond_15
     move-object/from16 v0, v21
 
@@ -47670,21 +45308,16 @@
 
     if-eqz v6, :cond_14
 
-    .line 3540
     if-eqz p7, :cond_16
 
-    .line 3541
     move-object/from16 v0, v18
 
     invoke-virtual {v0, v5}, Lcom/android/server/pm/PreferredIntentResolver;->removeFilter(Landroid/content/IntentFilter;)V
 
-    .line 3542
     const/4 v14, 0x1
 
-    .line 3546
     goto/16 :goto_6
 
-    .line 3553
     :cond_16
     if-eqz p6, :cond_18
 
@@ -47698,7 +45331,6 @@
 
     if-nez v6, :cond_18
 
-    .line 3554
     const-string v6, "PackageManager"
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -47735,12 +45367,10 @@
 
     invoke-static {v6, v7}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3560
     move-object/from16 v0, v18
 
     invoke-virtual {v0, v5}, Lcom/android/server/pm/PreferredIntentResolver;->removeFilter(Landroid/content/IntentFilter;)V
 
-    .line 3562
     new-instance v4, Lcom/android/server/pm/PreferredActivity;
 
     iget-object v6, v5, Lcom/android/server/pm/PreferredActivity;->mPref:Lcom/android/server/pm/PreferredComponent;
@@ -47757,7 +45387,6 @@
 
     invoke-direct/range {v4 .. v9}, Lcom/android/server/pm/PreferredActivity;-><init>(Landroid/content/IntentFilter;I[Landroid/content/ComponentName;Landroid/content/ComponentName;Z)V
 
-    .line 3564
     .local v4, "lastChosen":Lcom/android/server/pm/PreferredActivity;
     move-object/from16 v0, v18
 
@@ -47765,17 +45394,13 @@
     :try_end_4
     .catchall {:try_start_4 .. :try_end_4} :catchall_1
 
-    .line 3565
     const/4 v14, 0x1
 
-    .line 3566
     const/16 v20, 0x0
 
-    .line 3576
     .end local v20    # "pri":Landroid/content/pm/ResolveInfo;
     if-eqz v14, :cond_17
 
-    .line 3580
     :try_start_5
     move-object/from16 v0, p0
 
@@ -47790,7 +45415,6 @@
 
     goto/16 :goto_0
 
-    .line 3570
     .end local v4    # "lastChosen":Lcom/android/server/pm/PreferredActivity;
     .restart local v20    # "pri":Landroid/content/pm/ResolveInfo;
     :cond_18
@@ -47843,11 +45467,9 @@
     :try_end_6
     .catchall {:try_start_6 .. :try_end_6} :catchall_1
 
-    .line 3576
     :cond_19
     if-eqz v14, :cond_1a
 
-    .line 3580
     :try_start_7
     move-object/from16 v0, p0
 
@@ -47862,21 +45484,18 @@
 
     goto/16 :goto_0
 
-    .line 3576
     .end local v5    # "pa":Lcom/android/server/pm/PreferredActivity;
     .end local v13    # "ai":Landroid/content/pm/ActivityInfo;
     .end local v21    # "ri":Landroid/content/pm/ResolveInfo;
     :cond_1b
     if-eqz v14, :cond_1c
 
-    .line 3580
     move-object/from16 v0, p0
 
     move/from16 v1, p9
 
     invoke-virtual {v0, v1}, Lcom/android/server/pm/PackageManagerService;->scheduleWritePackageRestrictionsLocked(I)V
 
-    .line 3584
     .end local v11    # "M":I
     .end local v12    # "N":I
     .end local v14    # "changed":Z
@@ -47888,7 +45507,6 @@
     :try_end_7
     .catchall {:try_start_7 .. :try_end_7} :catchall_0
 
-    .line 3585
     if-eqz p8, :cond_1d
 
     const-string v6, "PackageManager"
@@ -47897,7 +45515,6 @@
 
     invoke-static {v6, v7}, Landroid/util/Slog;->v(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 3586
     :cond_1d
     const/16 v20, 0x0
 
@@ -47909,12 +45526,10 @@
     .param p1, "token"    # I
 
     .prologue
-    .line 9556
     const-string v1, "Only the system is allowed to finish installs"
 
     invoke-static {v1}, Lcom/android/server/pm/PackageManagerService;->enforceSystemOrRoot(Ljava/lang/String;)V
 
-    .line 9562
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     const/16 v2, 0x9
@@ -47925,13 +45540,11 @@
 
     move-result-object v0
 
-    .line 9563
     .local v0, "msg":Landroid/os/Message;
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     invoke-virtual {v1, v0}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->sendMessage(Landroid/os/Message;)Z
 
-    .line 9564
     return-void
 .end method
 
@@ -47942,17 +45555,14 @@
     .prologue
     const/4 v8, 0x1
 
-    .line 5367
     const-string v0, "forceDexOpt"
 
     invoke-static {v0}, Lcom/android/server/pm/PackageManagerService;->enforceSystemOrRoot(Ljava/lang/String;)V
 
-    .line 5370
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 5371
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -47962,11 +45572,9 @@
 
     check-cast v1, Landroid/content/pm/PackageParser$Package;
 
-    .line 5372
     .local v1, "pkg":Landroid/content/pm/PackageParser$Package;
     if-nez v1, :cond_0
 
-    .line 5373
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -47991,7 +45599,6 @@
 
     throw v0
 
-    .line 5375
     .end local v1    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v0
@@ -48009,12 +45616,10 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 5377
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mInstallLock:Ljava/lang/Object;
 
     monitor-enter v7
 
-    .line 5378
     const/4 v0, 0x1
 
     :try_start_2
@@ -48030,7 +45635,6 @@
 
     aput-object v3, v2, v0
 
-    .line 5380
     .local v2, "instructionSets":[Ljava/lang/String;
     const/4 v3, 0x1
 
@@ -48044,11 +45648,9 @@
 
     move-result v6
 
-    .line 5381
     .local v6, "res":I
     if-eq v6, v8, :cond_1
 
-    .line 5382
     new-instance v0, Ljava/lang/IllegalStateException;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -48073,7 +45675,6 @@
 
     throw v0
 
-    .line 5384
     .end local v2    # "instructionSets":[Ljava/lang/String;
     .end local v6    # "res":I
     :catchall_1
@@ -48093,7 +45694,6 @@
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 5385
     return-void
 .end method
 
@@ -48107,12 +45707,10 @@
     .end annotation
 
     .prologue
-    .line 2397
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mInstallLock:Ljava/lang/Object;
 
     monitor-enter v1
 
-    .line 2398
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mInstaller:Lcom/android/server/pm/Installer;
 
@@ -48122,7 +45720,6 @@
 
     if-gez v0, :cond_0
 
-    .line 2399
     new-instance v0, Ljava/io/IOException;
 
     const-string v2, "Failed to free enough space"
@@ -48131,7 +45728,6 @@
 
     throw v0
 
-    .line 2401
     :catchall_0
     move-exception v0
 
@@ -48147,7 +45743,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 2402
     return-void
 .end method
 
@@ -48157,7 +45752,6 @@
     .param p3, "pi"    # Landroid/content/IntentSender;
 
     .prologue
-    .line 2369
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.CLEAR_APP_CACHE"
@@ -48166,7 +45760,6 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 2372
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     new-instance v1, Lcom/android/server/pm/PackageManagerService$2;
@@ -48175,7 +45768,6 @@
 
     invoke-virtual {v0, v1}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->post(Ljava/lang/Runnable;)Z
 
-    .line 2394
     return-void
 .end method
 
@@ -48185,7 +45777,6 @@
     .param p3, "observer"    # Landroid/content/pm/IPackageDataObserver;
 
     .prologue
-    .line 2343
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.CLEAR_APP_CACHE"
@@ -48194,7 +45785,6 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 2346
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     new-instance v1, Lcom/android/server/pm/PackageManagerService$1;
@@ -48203,7 +45793,6 @@
 
     invoke-virtual {v0, v1}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->post(Ljava/lang/Runnable;)Z
 
-    .line 2365
     return-void
 .end method
 
@@ -48216,7 +45805,6 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 2087
     sget-object v2, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v2, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -48225,36 +45813,30 @@
 
     if-nez v2, :cond_1
 
-    .line 2094
     :cond_0
     :goto_0
     return-object v1
 
-    .line 2088
     :cond_1
     iget-object v11, p1, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     check-cast v11, Lcom/android/server/pm/PackageSetting;
 
-    .line 2089
     .local v11, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v11, :cond_0
 
-    .line 2092
     iget-object v1, v11, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v1, :cond_2
 
     iget-object v0, v11, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
-    .line 2093
     .local v0, "gp":Lcom/android/server/pm/GrantedPermissions;
     :goto_1
     invoke-virtual {v11, p3}, Lcom/android/server/pm/PackageSetting;->readUserState(I)Landroid/content/pm/PackageUserState;
 
     move-result-object v9
 
-    .line 2094
     .local v9, "state":Landroid/content/pm/PackageUserState;
     iget-object v2, v0, Lcom/android/server/pm/GrantedPermissions;->gids:[I
 
@@ -48281,7 +45863,6 @@
     :cond_2
     move-object v0, v11
 
-    .line 2092
     goto :goto_1
 .end method
 
@@ -48292,11 +45873,14 @@
     .param p3, "userId"    # I
 
     .prologue
+    invoke-static/range {p1 .. p1}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->replaceResolverName(Landroid/content/ComponentName;)Landroid/content/ComponentName;
+
+    move-result-object p1
+
     const/4 v3, 0x0
 
     const/4 v8, 0x0
 
-    .line 2406
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -48307,11 +45891,9 @@
 
     move-object v0, v8
 
-    .line 2423
     :goto_0
     return-object v0
 
-    .line 2407
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -48327,12 +45909,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 2408
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2409
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mActivities:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
 
@@ -48347,7 +45927,6 @@
 
     check-cast v6, Landroid/content/pm/PackageParser$Activity;
 
-    .line 2412
     .local v6, "a":Landroid/content/pm/PackageParser$Activity;
     if-eqz v6, :cond_2
 
@@ -48361,7 +45940,6 @@
 
     if-eqz v0, :cond_2
 
-    .line 2413
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v0, v0, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -48376,7 +45954,6 @@
 
     check-cast v7, Lcom/android/server/pm/PackageSetting;
 
-    .line 2414
     .local v7, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v7, :cond_1
 
@@ -48386,7 +45963,6 @@
 
     goto :goto_0
 
-    .line 2415
     :cond_1
     invoke-virtual {v7, p3}, Lcom/android/server/pm/PackageSetting;->readUserState(I)Landroid/content/pm/PackageUserState;
 
@@ -48400,7 +45976,6 @@
 
     goto :goto_0
 
-    .line 2422
     .end local v6    # "a":Landroid/content/pm/PackageParser$Activity;
     .end local v7    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -48412,7 +45987,6 @@
 
     throw v0
 
-    .line 2418
     .restart local v6    # "a":Landroid/content/pm/PackageParser$Activity;
     :cond_2
     :try_start_1
@@ -48424,7 +45998,6 @@
 
     if-eqz v0, :cond_3
 
-    .line 2419
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
     new-instance v2, Landroid/content/pm/PackageUserState;
@@ -48439,7 +46012,6 @@
 
     goto :goto_0
 
-    .line 2422
     :cond_3
     monitor-exit v1
     :try_end_1
@@ -48447,7 +46019,10 @@
 
     move-object v0, v8
 
-    .line 2423
+    invoke-static/range {p0 .. p1}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->getAccessActivityInfo(Lcom/android/server/pm/PackageManagerService;Landroid/content/ComponentName;)Landroid/content/pm/ActivityInfo;
+
+    move-result-object v0
+
     goto :goto_0
 .end method
 
@@ -48465,12 +46040,10 @@
     .end annotation
 
     .prologue
-    .line 2259
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 2260
     :try_start_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPermissionGroups:Landroid/util/ArrayMap;
 
@@ -48478,13 +46051,11 @@
 
     move-result v0
 
-    .line 2261
     .local v0, "N":I
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2, v0}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 2263
     .local v2, "out":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PermissionGroupInfo;>;"
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPermissionGroups:Landroid/util/ArrayMap;
 
@@ -48510,7 +46081,6 @@
 
     check-cast v3, Landroid/content/pm/PackageParser$PermissionGroup;
 
-    .line 2264
     .local v3, "pg":Landroid/content/pm/PackageParser$PermissionGroup;
     invoke-static {v3, p1}, Landroid/content/pm/PackageParser;->generatePermissionGroupInfo(Landroid/content/pm/PackageParser$PermissionGroup;I)Landroid/content/pm/PermissionGroupInfo;
 
@@ -48520,7 +46090,6 @@
 
     goto :goto_0
 
-    .line 2267
     .end local v0    # "N":I
     .end local v1    # "i$":Ljava/util/Iterator;
     .end local v2    # "out":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PermissionGroupInfo;>;"
@@ -48534,7 +46103,6 @@
 
     throw v4
 
-    .line 2266
     .restart local v0    # "N":I
     .restart local v1    # "i$":Ljava/util/Iterator;
     .restart local v2    # "out":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PermissionGroupInfo;>;"
@@ -48552,12 +46120,10 @@
     .param p1, "permissionName"    # Ljava/lang/String;
 
     .prologue
-    .line 3203
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 3204
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mAppOpPermissionPackages:Landroid/util/ArrayMap;
 
@@ -48567,16 +46133,13 @@
 
     check-cast v0, Landroid/util/ArraySet;
 
-    .line 3205
     .local v0, "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     if-nez v0, :cond_0
 
-    .line 3206
     const/4 v1, 0x0
 
     monitor-exit v2
 
-    .line 3208
     :goto_0
     return-object v1
 
@@ -48597,7 +46160,6 @@
 
     goto :goto_0
 
-    .line 3209
     .end local v0    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     :catchall_0
     move-exception v1
@@ -48617,7 +46179,6 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 13442
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p2}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -48628,17 +46189,14 @@
 
     const/4 v0, 0x2
 
-    .line 13447
     :goto_0
     return v0
 
-    .line 13443
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v1
 
-    .line 13444
     .local v1, "uid":I
     const-string v5, "get enabled"
 
@@ -48650,12 +46208,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 13446
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 13447
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -48667,7 +46223,6 @@
 
     goto :goto_0
 
-    .line 13448
     :catchall_0
     move-exception v0
 
@@ -48686,7 +46241,6 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 9329
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.MANAGE_USERS"
@@ -48695,7 +46249,6 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 9330
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v1
@@ -48726,12 +46279,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 9333
     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
 
     move-result-wide v6
 
-    .line 9336
     .local v6, "callingId":J
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
@@ -48740,7 +46291,6 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_1
 
-    .line 9337
     :try_start_1
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -48752,22 +46302,18 @@
 
     check-cast v8, Lcom/android/server/pm/PackageSetting;
 
-    .line 9338
     .local v8, "pkgSetting":Lcom/android/server/pm/PackageSetting;
     if-nez v8, :cond_0
 
-    .line 9339
     monitor-exit v1
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 9344
     invoke-static {v6, v7}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     :goto_0
     return v3
 
-    .line 9341
     :cond_0
     :try_start_2
     invoke-virtual {v8, p2}, Lcom/android/server/pm/PackageSetting;->getHidden(I)Z
@@ -48778,12 +46324,10 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 9344
     invoke-static {v6, v7}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     goto :goto_0
 
-    .line 9342
     .end local v8    # "pkgSetting":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v0
@@ -48798,7 +46342,6 @@
     :try_end_4
     .catchall {:try_start_4 .. :try_end_4} :catchall_1
 
-    .line 9344
     :catchall_1
     move-exception v0
 
@@ -48818,7 +46361,6 @@
 
     const/4 v8, 0x0
 
-    .line 2315
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -48829,11 +46371,9 @@
 
     move-object v0, v8
 
-    .line 2337
     :goto_0
     return-object v0
 
-    .line 2316
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -48849,12 +46389,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 2318
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2319
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -48864,11 +46402,9 @@
 
     check-cast v6, Landroid/content/pm/PackageParser$Package;
 
-    .line 2323
     .local v6, "p":Landroid/content/pm/PackageParser$Package;
     if-eqz v6, :cond_2
 
-    .line 2324
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v0, v0, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -48879,7 +46415,6 @@
 
     check-cast v7, Lcom/android/server/pm/PackageSetting;
 
-    .line 2325
     .local v7, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v7, :cond_1
 
@@ -48889,7 +46424,6 @@
 
     goto :goto_0
 
-    .line 2327
     :cond_1
     invoke-virtual {v7, p3}, Lcom/android/server/pm/PackageSetting;->readUserState(I)Landroid/content/pm/PackageUserState;
 
@@ -48903,7 +46437,6 @@
 
     goto :goto_0
 
-    .line 2336
     .end local v6    # "p":Landroid/content/pm/PackageParser$Package;
     .end local v7    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -48915,7 +46448,6 @@
 
     throw v0
 
-    .line 2330
     .restart local v6    # "p":Landroid/content/pm/PackageParser$Package;
     :cond_2
     :try_start_1
@@ -48935,7 +46467,6 @@
 
     if-eqz v0, :cond_4
 
-    .line 2331
     :cond_3
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mAndroidApplication:Landroid/content/pm/ApplicationInfo;
 
@@ -48943,13 +46474,11 @@
 
     goto :goto_0
 
-    .line 2333
     :cond_4
     and-int/lit16 v0, p2, 0x2000
 
     if-eqz v0, :cond_5
 
-    .line 2334
     invoke-direct {p0, p1, p2, p3}, Lcom/android/server/pm/PackageManagerService;->generateApplicationInfoFromSettingsLPw(Ljava/lang/String;II)Landroid/content/pm/ApplicationInfo;
 
     move-result-object v0
@@ -48958,7 +46487,6 @@
 
     goto :goto_0
 
-    .line 2336
     :cond_5
     monitor-exit v1
     :try_end_1
@@ -48966,7 +46494,6 @@
 
     move-object v0, v8
 
-    .line 2337
     goto :goto_0
 .end method
 
@@ -48976,12 +46503,10 @@
     .param p2, "userId"    # I
 
     .prologue
-    .line 12358
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 12359
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -48993,11 +46518,9 @@
 
     check-cast v0, Lcom/android/server/pm/PackageSetting;
 
-    .line 12360
     .local v0, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v0, :cond_0
 
-    .line 12361
     const-string v1, "PackageManager"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -49020,12 +46543,10 @@
 
     invoke-static {v1, v3}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 12362
     const/4 v1, 0x0
 
     monitor-exit v2
 
-    .line 12364
     :goto_0
     return v1
 
@@ -49038,7 +46559,6 @@
 
     goto :goto_0
 
-    .line 12365
     .end local v0    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v1
@@ -49058,7 +46578,6 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 13453
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p2}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -49069,17 +46588,14 @@
 
     const/4 v0, 0x2
 
-    .line 13458
     :goto_0
     return v0
 
-    .line 13454
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v1
 
-    .line 13455
     .local v1, "uid":I
     const-string v5, "get component enabled"
 
@@ -49091,12 +46607,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 13457
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 13458
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -49108,7 +46622,6 @@
 
     goto :goto_0
 
-    .line 13459
     :catchall_0
     move-exception v0
 
@@ -49123,7 +46636,6 @@
     .locals 1
 
     .prologue
-    .line 14994
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mIconPackHelper:Landroid/app/IconPackHelper;
 
     if-eqz v0, :cond_0
@@ -49148,7 +46660,6 @@
     .param p1, "userId"    # I
 
     .prologue
-    .line 5415
     new-instance v0, Ljava/io/File;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -49189,12 +46700,10 @@
     .param p1, "uid"    # I
 
     .prologue
-    .line 3166
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 3167
     :try_start_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -49206,44 +46715,37 @@
 
     move-result-object v1
 
-    .line 3168
     .local v1, "obj":Ljava/lang/Object;
     instance-of v4, v1, Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v4, :cond_0
 
-    .line 3169
     move-object v0, v1
 
     check-cast v0, Lcom/android/server/pm/SharedUserSetting;
 
     move-object v3, v0
 
-    .line 3170
     .local v3, "sus":Lcom/android/server/pm/SharedUserSetting;
     iget v4, v3, Lcom/android/server/pm/SharedUserSetting;->pkgFlags:I
 
     monitor-exit v5
 
-    .line 3176
     .end local v3    # "sus":Lcom/android/server/pm/SharedUserSetting;
     :goto_0
     return v4
 
-    .line 3171
     :cond_0
     instance-of v4, v1, Lcom/android/server/pm/PackageSetting;
 
     if-eqz v4, :cond_1
 
-    .line 3172
     move-object v0, v1
 
     check-cast v0, Lcom/android/server/pm/PackageSetting;
 
     move-object v2, v0
 
-    .line 3173
     .local v2, "ps":Lcom/android/server/pm/PackageSetting;
     iget v4, v2, Lcom/android/server/pm/PackageSetting;->pkgFlags:I
 
@@ -49251,7 +46753,6 @@
 
     goto :goto_0
 
-    .line 3175
     .end local v1    # "obj":Ljava/lang/Object;
     .end local v2    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -49270,7 +46771,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 3176
     const/4 v4, 0x0
 
     goto :goto_0
@@ -49295,25 +46795,21 @@
 
     const/4 v3, 0x0
 
-    .line 13228
     new-instance v1, Landroid/content/Intent;
 
     const-string v0, "android.intent.action.MAIN"
 
     invoke-direct {v1, v0}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 13229
     .local v1, "intent":Landroid/content/Intent;
     const-string v0, "android.intent.category.HOME"
 
     invoke-virtual {v1, v0}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 13231
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v9
 
-    .line 13232
     .local v9, "callingUserId":I
     const/16 v0, 0x80
 
@@ -49321,7 +46817,6 @@
 
     move-result-object v4
 
-    .line 13234
     .local v4, "list":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     const/4 v6, 0x1
 
@@ -49337,14 +46832,11 @@
 
     move-result-object v11
 
-    .line 13237
     .local v11, "preferred":Landroid/content/pm/ResolveInfo;
     invoke-interface {p1}, Ljava/util/List;->clear()V
 
-    .line 13238
     if-eqz v4, :cond_0
 
-    .line 13239
     invoke-interface {v4}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v10
@@ -49363,13 +46855,11 @@
 
     check-cast v12, Landroid/content/pm/ResolveInfo;
 
-    .line 13240
     .local v12, "ri":Landroid/content/pm/ResolveInfo;
     invoke-interface {p1, v12}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_0
 
-    .line 13243
     .end local v10    # "i$":Ljava/util/Iterator;
     .end local v12    # "ri":Landroid/content/pm/ResolveInfo;
     :cond_0
@@ -49403,7 +46893,6 @@
     .locals 4
 
     .prologue
-    .line 14520
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     invoke-virtual {v1}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
@@ -49418,7 +46907,6 @@
 
     move-result v0
 
-    .line 14524
     .local v0, "mInstallLocation":I
     const/4 v1, 0x2
 
@@ -49436,10 +46924,8 @@
 
     if-nez v1, :cond_0
 
-    .line 14526
     const/4 v0, 0x0
 
-    .line 14528
     :cond_0
     return v0
 .end method
@@ -49459,7 +46945,6 @@
     .end annotation
 
     .prologue
-    .line 4175
     sget-object v6, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v6, p2}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -49470,11 +46955,9 @@
 
     const/4 v6, 0x0
 
-    .line 4208
     :goto_0
     return-object v6
 
-    .line 4176
     :cond_0
     and-int/lit16 v6, p1, 0x2000
 
@@ -49482,17 +46965,14 @@
 
     const/4 v3, 0x1
 
-    .line 4179
     .local v3, "listUninstalled":Z
     :goto_1
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v7
 
-    .line 4181
     if-eqz v3, :cond_4
 
-    .line 4182
     :try_start_0
     new-instance v2, Ljava/util/ArrayList;
 
@@ -49506,7 +46986,6 @@
 
     invoke-direct {v2, v6}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 4183
     .local v2, "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ApplicationInfo;>;"
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -49535,13 +47014,11 @@
 
     check-cast v5, Lcom/android/server/pm/PackageSetting;
 
-    .line 4185
     .local v5, "ps":Lcom/android/server/pm/PackageSetting;
     iget-object v6, v5, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
     if-eqz v6, :cond_3
 
-    .line 4186
     iget-object v6, v5, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
     invoke-virtual {v5, p2}, Lcom/android/server/pm/PackageSetting;->readUserState(I)Landroid/content/pm/PackageUserState;
@@ -49552,17 +47029,14 @@
 
     move-result-object v0
 
-    .line 4191
     .local v0, "ai":Landroid/content/pm/ApplicationInfo;
     :goto_3
     if-eqz v0, :cond_1
 
-    .line 4192
     invoke-virtual {v2, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_2
 
-    .line 4209
     .end local v0    # "ai":Landroid/content/pm/ApplicationInfo;
     .end local v1    # "i$":Ljava/util/Iterator;
     .end local v2    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ApplicationInfo;>;"
@@ -49576,14 +47050,12 @@
 
     throw v6
 
-    .line 4176
     .end local v3    # "listUninstalled":Z
     :cond_2
     const/4 v3, 0x0
 
     goto :goto_1
 
-    .line 4189
     .restart local v1    # "i$":Ljava/util/Iterator;
     .restart local v2    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ApplicationInfo;>;"
     .restart local v3    # "listUninstalled":Z
@@ -49599,7 +47071,6 @@
     .restart local v0    # "ai":Landroid/content/pm/ApplicationInfo;
     goto :goto_3
 
-    .line 4196
     .end local v0    # "ai":Landroid/content/pm/ApplicationInfo;
     .end local v1    # "i$":Ljava/util/Iterator;
     .end local v2    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ApplicationInfo;>;"
@@ -49615,7 +47086,6 @@
 
     invoke-direct {v2, v6}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 4197
     .restart local v2    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ApplicationInfo;>;"
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -49642,13 +47112,11 @@
 
     check-cast v4, Landroid/content/pm/PackageParser$Package;
 
-    .line 4198
     .local v4, "p":Landroid/content/pm/PackageParser$Package;
     iget-object v6, v4, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     if-eqz v6, :cond_5
 
-    .line 4199
     iget-object v6, v4, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     check-cast v6, Lcom/android/server/pm/PackageSetting;
@@ -49661,16 +47129,13 @@
 
     move-result-object v0
 
-    .line 4201
     .restart local v0    # "ai":Landroid/content/pm/ApplicationInfo;
     if-eqz v0, :cond_5
 
-    .line 4202
     invoke-virtual {v2, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_4
 
-    .line 4208
     .end local v0    # "ai":Landroid/content/pm/ApplicationInfo;
     .end local v4    # "p":Landroid/content/pm/PackageParser$Package;
     :cond_6
@@ -49704,14 +47169,12 @@
 
     const/4 v4, 0x0
 
-    .line 4069
     and-int/lit16 v0, p1, 0x2000
 
     if-eqz v0, :cond_1
 
     move v8, v3
 
-    .line 4071
     .local v8, "listUninstalled":Z
     :goto_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
@@ -49726,15 +47189,12 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 4074
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 4076
     if-eqz v8, :cond_3
 
-    .line 4077
     :try_start_0
     new-instance v7, Ljava/util/ArrayList;
 
@@ -49748,7 +47208,6 @@
 
     invoke-direct {v7, v0}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 4078
     .local v7, "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageInfo;>;"
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -49777,30 +47236,25 @@
 
     check-cast v11, Lcom/android/server/pm/PackageSetting;
 
-    .line 4080
     .local v11, "ps":Lcom/android/server/pm/PackageSetting;
     iget-object v0, v11, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
     if-eqz v0, :cond_2
 
-    .line 4081
     iget-object v0, v11, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
     invoke-virtual {p0, v0, p1, p2}, Lcom/android/server/pm/PackageManagerService;->generatePackageInfo(Landroid/content/pm/PackageParser$Package;II)Landroid/content/pm/PackageInfo;
 
     move-result-object v10
 
-    .line 4085
     .local v10, "pi":Landroid/content/pm/PackageInfo;
     :goto_2
     if-eqz v10, :cond_0
 
-    .line 4086
     invoke-virtual {v7, v10}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_1
 
-    .line 4100
     .end local v6    # "i$":Ljava/util/Iterator;
     .end local v7    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageInfo;>;"
     .end local v10    # "pi":Landroid/content/pm/PackageInfo;
@@ -49818,10 +47272,8 @@
     :cond_1
     move v8, v4
 
-    .line 4069
     goto :goto_0
 
-    .line 4083
     .restart local v6    # "i$":Ljava/util/Iterator;
     .restart local v7    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageInfo;>;"
     .restart local v8    # "listUninstalled":Z
@@ -49837,7 +47289,6 @@
     .restart local v10    # "pi":Landroid/content/pm/PackageInfo;
     goto :goto_2
 
-    .line 4090
     .end local v6    # "i$":Ljava/util/Iterator;
     .end local v7    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageInfo;>;"
     .end local v10    # "pi":Landroid/content/pm/PackageInfo;
@@ -49853,7 +47304,6 @@
 
     invoke-direct {v7, v0}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 4091
     .restart local v7    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageInfo;>;"
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -49880,22 +47330,18 @@
 
     check-cast v9, Landroid/content/pm/PackageParser$Package;
 
-    .line 4092
     .local v9, "p":Landroid/content/pm/PackageParser$Package;
     invoke-virtual {p0, v9, p1, p2}, Lcom/android/server/pm/PackageManagerService;->generatePackageInfo(Landroid/content/pm/PackageParser$Package;II)Landroid/content/pm/PackageInfo;
 
     move-result-object v10
 
-    .line 4093
     .restart local v10    # "pi":Landroid/content/pm/PackageInfo;
     if-eqz v10, :cond_4
 
-    .line 4094
     invoke-virtual {v7, v10}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_3
 
-    .line 4099
     .end local v9    # "p":Landroid/content/pm/PackageParser$Package;
     .end local v10    # "pi":Landroid/content/pm/PackageInfo;
     :cond_5
@@ -49915,12 +47361,10 @@
     .param p1, "packageName"    # Ljava/lang/String;
 
     .prologue
-    .line 13435
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 13436
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -49932,7 +47376,6 @@
 
     return-object v0
 
-    .line 13437
     :catchall_0
     move-exception v0
 
@@ -49949,12 +47392,10 @@
     .param p2, "flags"    # I
 
     .prologue
-    .line 4329
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 4330
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mInstrumentation:Landroid/util/ArrayMap;
 
@@ -49964,7 +47405,6 @@
 
     check-cast v0, Landroid/content/pm/PackageParser$Instrumentation;
 
-    .line 4331
     .local v0, "i":Landroid/content/pm/PackageParser$Instrumentation;
     invoke-static {v0, p2}, Landroid/content/pm/PackageParser;->generateInstrumentationInfo(Landroid/content/pm/PackageParser$Instrumentation;I)Landroid/content/pm/InstrumentationInfo;
 
@@ -49974,7 +47414,6 @@
 
     return-object v1
 
-    .line 4332
     .end local v0    # "i":Landroid/content/pm/PackageParser$Instrumentation;
     :catchall_0
     move-exception v1
@@ -49992,26 +47431,21 @@
     .param p2, "alias"    # Ljava/lang/String;
 
     .prologue
-    .line 14819
     if-eqz p1, :cond_0
 
     if-nez p2, :cond_1
 
-    .line 14820
     :cond_0
     const/4 v2, 0x0
 
-    .line 14829
     :goto_0
     return-object v2
 
-    .line 14822
     :cond_1
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 14823
     :try_start_0
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -50021,11 +47455,9 @@
 
     check-cast v1, Landroid/content/pm/PackageParser$Package;
 
-    .line 14824
     .local v1, "pkg":Landroid/content/pm/PackageParser$Package;
     if-nez v1, :cond_2
 
-    .line 14825
     const-string v2, "PackageManager"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -50048,7 +47480,6 @@
 
     invoke-static {v2, v4}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14826
     new-instance v2, Ljava/lang/IllegalArgumentException;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -50073,7 +47504,6 @@
 
     throw v2
 
-    .line 14830
     .end local v1    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v2
@@ -50084,7 +47514,6 @@
 
     throw v2
 
-    .line 14828
     .restart local v1    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_2
     :try_start_1
@@ -50092,7 +47521,6 @@
 
     iget-object v0, v2, Lcom/android/server/pm/Settings;->mKeySetManagerService:Lcom/android/server/pm/KeySetManagerService;
 
-    .line 14829
     .local v0, "ksms":Lcom/android/server/pm/KeySetManagerService;
     new-instance v2, Landroid/content/pm/KeySet;
 
@@ -50118,12 +47546,10 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 3246
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v9
 
-    .line 3248
     .local v9, "userId":I
     invoke-virtual {p0, p1, p2, p3, v9}, Lcom/android/server/pm/PackageManagerService;->queryIntentActivities(Landroid/content/Intent;Ljava/lang/String;II)Ljava/util/List;
 
@@ -50144,7 +47570,6 @@
 
     move v8, v5
 
-    .line 3249
     invoke-virtual/range {v0 .. v9}, Lcom/android/server/pm/PackageManagerService;->findPreferredActivity(Landroid/content/Intent;Ljava/lang/String;ILjava/util/List;IZZZI)Landroid/content/pm/ResolveInfo;
 
     move-result-object v0
@@ -50157,12 +47582,10 @@
     .param p1, "uid"    # I
 
     .prologue
-    .line 3136
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 3137
     :try_start_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -50174,20 +47597,17 @@
 
     move-result-object v1
 
-    .line 3138
     .local v1, "obj":Ljava/lang/Object;
     instance-of v4, v1, Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v4, :cond_0
 
-    .line 3139
     move-object v0, v1
 
     check-cast v0, Lcom/android/server/pm/SharedUserSetting;
 
     move-object v3, v0
 
-    .line 3140
     .local v3, "sus":Lcom/android/server/pm/SharedUserSetting;
     new-instance v4, Ljava/lang/StringBuilder;
 
@@ -50217,25 +47637,21 @@
 
     monitor-exit v5
 
-    .line 3146
     .end local v3    # "sus":Lcom/android/server/pm/SharedUserSetting;
     :goto_0
     return-object v4
 
-    .line 3141
     :cond_0
     instance-of v4, v1, Lcom/android/server/pm/PackageSetting;
 
     if-eqz v4, :cond_1
 
-    .line 3142
     move-object v0, v1
 
     check-cast v0, Lcom/android/server/pm/PackageSetting;
 
     move-object v2, v0
 
-    .line 3143
     .local v2, "ps":Lcom/android/server/pm/PackageSetting;
     iget-object v4, v2, Lcom/android/server/pm/PackageSetting;->name:Ljava/lang/String;
 
@@ -50243,7 +47659,6 @@
 
     goto :goto_0
 
-    .line 3145
     .end local v1    # "obj":Ljava/lang/Object;
     .end local v2    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -50262,7 +47677,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 3146
     const/4 v4, 0x0
 
     goto :goto_0
@@ -50273,12 +47687,10 @@
     .param p1, "packageName"    # Ljava/lang/String;
 
     .prologue
-    .line 2185
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 2186
     :try_start_0
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -50288,16 +47700,13 @@
 
     check-cast v0, Landroid/content/pm/PackageParser$Package;
 
-    .line 2189
     .local v0, "p":Landroid/content/pm/PackageParser$Package;
     if-eqz v0, :cond_0
 
-    .line 2190
     iget-object v1, v0, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     check-cast v1, Lcom/android/server/pm/PackageSetting;
 
-    .line 2191
     .local v1, "ps":Lcom/android/server/pm/PackageSetting;
     invoke-virtual {v1}, Lcom/android/server/pm/PackageSetting;->getGids()[I
 
@@ -50305,25 +47714,21 @@
 
     monitor-exit v3
 
-    .line 2195
     .end local v1    # "ps":Lcom/android/server/pm/PackageSetting;
     :goto_0
     return-object v2
 
-    .line 2193
     :cond_0
     monitor-exit v3
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 2195
     const/4 v2, 0x0
 
     new-array v2, v2, [I
 
     goto :goto_0
 
-    .line 2193
     .end local v0    # "p":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v2
@@ -50347,7 +47752,6 @@
 
     const/4 v3, 0x0
 
-    .line 2120
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -50358,11 +47762,9 @@
 
     move-object v0, v7
 
-    .line 2134
     :goto_0
     return-object v0
 
-    .line 2121
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -50378,12 +47780,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 2123
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2124
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -50393,11 +47793,9 @@
 
     check-cast v6, Landroid/content/pm/PackageParser$Package;
 
-    .line 2127
     .local v6, "p":Landroid/content/pm/PackageParser$Package;
     if-eqz v6, :cond_1
 
-    .line 2128
     invoke-virtual {p0, v6, p2, p3}, Lcom/android/server/pm/PackageManagerService;->generatePackageInfo(Landroid/content/pm/PackageParser$Package;II)Landroid/content/pm/PackageInfo;
 
     move-result-object v0
@@ -50406,7 +47804,6 @@
 
     goto :goto_0
 
-    .line 2133
     .end local v6    # "p":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v0
@@ -50417,14 +47814,12 @@
 
     throw v0
 
-    .line 2130
     .restart local v6    # "p":Landroid/content/pm/PackageParser$Package;
     :cond_1
     and-int/lit16 v0, p2, 0x2000
 
     if-eqz v0, :cond_2
 
-    .line 2131
     :try_start_1
     invoke-direct {p0, p1, p2, p3}, Lcom/android/server/pm/PackageManagerService;->generatePackageInfoFromSettingsLPw(Ljava/lang/String;II)Landroid/content/pm/PackageInfo;
 
@@ -50434,7 +47829,6 @@
 
     goto :goto_0
 
-    .line 2133
     :cond_2
     monitor-exit v1
     :try_end_1
@@ -50442,7 +47836,6 @@
 
     move-object v0, v7
 
-    .line 2134
     goto :goto_0
 .end method
 
@@ -50450,7 +47843,6 @@
     .locals 1
 
     .prologue
-    .line 14792
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mInstallerService:Lcom/android/server/pm/PackageInstallerService;
 
     return-object v0
@@ -50463,7 +47855,6 @@
     .param p3, "observer"    # Landroid/content/pm/IPackageStatsObserver;
 
     .prologue
-    .line 12726
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v3, "android.permission.GET_PACKAGE_SIZE"
@@ -50472,10 +47863,8 @@
 
     invoke-virtual {v2, v3, v4}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 12728
     if-nez p1, :cond_0
 
-    .line 12729
     new-instance v2, Ljava/lang/IllegalArgumentException;
 
     const-string v3, "Attempt to get size of null packageName"
@@ -50484,13 +47873,11 @@
 
     throw v2
 
-    .line 12732
     :cond_0
     new-instance v1, Landroid/content/pm/PackageStats;
 
     invoke-direct {v1, p1, p2}, Landroid/content/pm/PackageStats;-><init>(Ljava/lang/String;I)V
 
-    .line 12738
     .local v1, "stats":Landroid/content/pm/PackageStats;
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
@@ -50500,7 +47887,6 @@
 
     move-result-object v0
 
-    .line 12739
     .local v0, "msg":Landroid/os/Message;
     new-instance v2, Lcom/android/server/pm/PackageManagerService$MeasureParams;
 
@@ -50508,12 +47894,10 @@
 
     iput-object v2, v0, Landroid/os/Message;->obj:Ljava/lang/Object;
 
-    .line 12740
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     invoke-virtual {v2, v0}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->sendMessage(Landroid/os/Message;)Z
 
-    .line 12741
     return-void
 .end method
 
@@ -50527,7 +47911,6 @@
 
     const/4 v8, -0x1
 
-    .line 2165
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p2}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -50538,11 +47921,9 @@
 
     move v0, v8
 
-    .line 2178
     :goto_0
     return v0
 
-    .line 2166
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -50558,12 +47939,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 2168
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2169
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -50573,11 +47952,9 @@
 
     check-cast v6, Landroid/content/pm/PackageParser$Package;
 
-    .line 2170
     .local v6, "p":Landroid/content/pm/PackageParser$Package;
     if-eqz v6, :cond_1
 
-    .line 2171
     iget-object v0, v6, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
     iget v0, v0, Landroid/content/pm/ApplicationInfo;->uid:I
@@ -50590,7 +47967,6 @@
 
     goto :goto_0
 
-    .line 2179
     .end local v6    # "p":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v0
@@ -50601,7 +47977,6 @@
 
     throw v0
 
-    .line 2173
     .restart local v6    # "p":Landroid/content/pm/PackageParser$Package;
     :cond_1
     :try_start_1
@@ -50615,7 +47990,6 @@
 
     check-cast v7, Lcom/android/server/pm/PackageSetting;
 
-    .line 2174
     .local v7, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v7, :cond_2
 
@@ -50629,7 +48003,6 @@
 
     if-nez v0, :cond_3
 
-    .line 2175
     :cond_2
     monitor-exit v1
 
@@ -50637,11 +48010,9 @@
 
     goto :goto_0
 
-    .line 2177
     :cond_3
     iget-object v6, v7, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
-    .line 2178
     if-eqz v6, :cond_4
 
     iget-object v0, v6, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -50670,17 +48041,14 @@
     .param p1, "uid"    # I
 
     .prologue
-    .line 3111
     invoke-static {p1}, Landroid/os/UserHandle;->getAppId(I)I
 
     move-result p1
 
-    .line 3113
     iget-object v10, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v10
 
-    .line 3114
     :try_start_0
     iget-object v9, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -50688,20 +48056,17 @@
 
     move-result-object v5
 
-    .line 3115
     .local v5, "obj":Ljava/lang/Object;
     instance-of v9, v5, Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v9, :cond_1
 
-    .line 3116
     move-object v0, v5
 
     check-cast v0, Lcom/android/server/pm/SharedUserSetting;
 
     move-object v8, v0
 
-    .line 3117
     .local v8, "sus":Lcom/android/server/pm/SharedUserSetting;
     iget-object v9, v8, Lcom/android/server/pm/SharedUserSetting;->packages:Landroid/util/ArraySet;
 
@@ -50709,11 +48074,9 @@
 
     move-result v1
 
-    .line 3118
     .local v1, "N":I
     new-array v7, v1, [Ljava/lang/String;
 
-    .line 3119
     .local v7, "res":[Ljava/lang/String;
     iget-object v9, v8, Lcom/android/server/pm/SharedUserSetting;->packages:Landroid/util/ArraySet;
 
@@ -50721,14 +48084,12 @@
 
     move-result-object v4
 
-    .line 3120
     .local v4, "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PackageSetting;>;"
     const/4 v2, 0x0
 
     .local v2, "i":I
     move v3, v2
 
-    .line 3121
     .end local v2    # "i":I
     .local v3, "i":I
     :goto_0
@@ -50738,7 +48099,6 @@
 
     if-eqz v9, :cond_0
 
-    .line 3122
     add-int/lit8 v2, v3, 0x1
 
     .end local v3    # "i":I
@@ -50759,11 +48119,9 @@
     .restart local v3    # "i":I
     goto :goto_0
 
-    .line 3124
     :cond_0
     monitor-exit v10
 
-    .line 3130
     .end local v1    # "N":I
     .end local v3    # "i":I
     .end local v4    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PackageSetting;>;"
@@ -50772,20 +48130,17 @@
     :goto_1
     return-object v7
 
-    .line 3125
     :cond_1
     instance-of v9, v5, Lcom/android/server/pm/PackageSetting;
 
     if-eqz v9, :cond_2
 
-    .line 3126
     move-object v0, v5
 
     check-cast v0, Lcom/android/server/pm/PackageSetting;
 
     move-object v6, v0
 
-    .line 3127
     .local v6, "ps":Lcom/android/server/pm/PackageSetting;
     const/4 v9, 0x1
 
@@ -50801,7 +48156,6 @@
 
     goto :goto_1
 
-    .line 3129
     .end local v5    # "obj":Ljava/lang/Object;
     .end local v6    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -50820,7 +48174,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 3130
     const/4 v7, 0x0
 
     goto :goto_1
@@ -50844,7 +48197,6 @@
     .end annotation
 
     .prologue
-    .line 4148
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -50855,11 +48207,9 @@
 
     const/4 v0, 0x0
 
-    .line 4169
     :goto_0
     return-object v0
 
-    .line 4149
     :cond_0
     and-int/lit16 v0, p2, 0x2000
 
@@ -50867,30 +48217,25 @@
 
     const/4 v8, 0x1
 
-    .line 4152
     .local v8, "listUninstalled":Z
     :goto_1
     iget-object v10, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v10
 
-    .line 4153
     :try_start_0
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 4154
     .local v1, "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageInfo;>;"
     array-length v0, p1
 
     new-array v4, v0, [Z
 
-    .line 4155
     .local v4, "tmpBools":[Z
     if-eqz v8, :cond_2
 
-    .line 4156
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v0, v0, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -50926,12 +48271,10 @@
 
     move v6, p3
 
-    .line 4157
     invoke-direct/range {v0 .. v6}, Lcom/android/server/pm/PackageManagerService;->addPackageHoldingPermissions(Ljava/util/ArrayList;Lcom/android/server/pm/PackageSetting;[Ljava/lang/String;[ZII)V
 
     goto :goto_2
 
-    .line 4170
     .end local v1    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageInfo;>;"
     .end local v2    # "ps":Lcom/android/server/pm/PackageSetting;
     .end local v4    # "tmpBools":[Z
@@ -50945,14 +48288,12 @@
 
     throw v0
 
-    .line 4149
     .end local v8    # "listUninstalled":Z
     :cond_1
     const/4 v8, 0x0
 
     goto :goto_1
 
-    .line 4160
     .restart local v1    # "list":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageInfo;>;"
     .restart local v4    # "tmpBools":[Z
     .restart local v8    # "listUninstalled":Z
@@ -50983,13 +48324,11 @@
 
     check-cast v9, Landroid/content/pm/PackageParser$Package;
 
-    .line 4161
     .local v9, "pkg":Landroid/content/pm/PackageParser$Package;
     iget-object v2, v9, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     check-cast v2, Lcom/android/server/pm/PackageSetting;
 
-    .line 4162
     .restart local v2    # "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v2, :cond_3
 
@@ -51001,12 +48340,10 @@
 
     move v6, p3
 
-    .line 4163
     invoke-direct/range {v0 .. v6}, Lcom/android/server/pm/PackageManagerService;->addPackageHoldingPermissions(Ljava/util/ArrayList;Lcom/android/server/pm/PackageSetting;[Ljava/lang/String;[ZII)V
 
     goto :goto_3
 
-    .line 4169
     .end local v2    # "ps":Lcom/android/server/pm/PackageSetting;
     .end local v9    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_4
@@ -51034,16 +48371,13 @@
     .end annotation
 
     .prologue
-    .line 5123
     const/4 v2, 0x0
 
-    .line 5124
     .local v2, "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 5125
     :try_start_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -51077,7 +48411,6 @@
 
     check-cast v1, Landroid/content/pm/PackageParser$Package;
 
-    .line 5129
     .local v1, "p":Landroid/content/pm/PackageParser$Package;
     iget-object v4, v1, Landroid/content/pm/PackageParser$Package;->mDexOptPerformed:Landroid/util/ArraySet;
 
@@ -51087,17 +48420,14 @@
 
     if-eqz v4, :cond_0
 
-    .line 5132
     if-nez v3, :cond_2
 
-    .line 5133
     new-instance v2, Landroid/util/ArraySet;
 
     invoke-direct {v2}, Landroid/util/ArraySet;-><init>()V
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 5135
     .end local v3    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     .restart local v2    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     :goto_1
@@ -51110,12 +48440,10 @@
 
     move-object v3, v2
 
-    .line 5136
     .end local v2    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     .restart local v3    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     goto :goto_0
 
-    .line 5137
     .end local v1    # "p":Landroid/content/pm/PackageParser$Package;
     :cond_1
     :try_start_3
@@ -51123,10 +48451,8 @@
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 5138
     return-object v3
 
-    .line 5137
     .end local v0    # "i$":Ljava/util/Iterator;
     .end local v3    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     .restart local v2    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
@@ -51170,12 +48496,10 @@
     .param p2, "flags"    # I
 
     .prologue
-    .line 2250
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2251
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPermissionGroups:Landroid/util/ArrayMap;
 
@@ -51193,7 +48517,6 @@
 
     return-object v0
 
-    .line 2253
     :catchall_0
     move-exception v0
 
@@ -51210,12 +48533,10 @@
     .param p2, "flags"    # I
 
     .prologue
-    .line 2214
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 2215
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -51227,18 +48548,15 @@
 
     check-cast v0, Lcom/android/server/pm/BasePermission;
 
-    .line 2216
     .local v0, "p":Lcom/android/server/pm/BasePermission;
     if-eqz v0, :cond_0
 
-    .line 2217
     invoke-static {v0, p2}, Lcom/android/server/pm/PackageManagerService;->generatePermissionInfo(Lcom/android/server/pm/BasePermission;I)Landroid/content/pm/PermissionInfo;
 
     move-result-object v1
 
     monitor-exit v2
 
-    .line 2219
     :goto_0
     return-object v1
 
@@ -51249,7 +48567,6 @@
 
     goto :goto_0
 
-    .line 2220
     .end local v0    # "p":Lcom/android/server/pm/BasePermission;
     :catchall_0
     move-exception v1
@@ -51275,18 +48592,15 @@
     .end annotation
 
     .prologue
-    .line 4213
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 4216
     .local v1, "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ApplicationInfo;>;"
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v7
 
-    .line 4217
     :try_start_0
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -51298,13 +48612,11 @@
 
     move-result-object v2
 
-    .line 4218
     .local v2, "i":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageParser$Package;>;"
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v5
 
-    .line 4219
     .local v5, "userId":I
     :cond_0
     :goto_0
@@ -51314,14 +48626,12 @@
 
     if-eqz v6, :cond_2
 
-    .line 4220
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v3
 
     check-cast v3, Landroid/content/pm/PackageParser$Package;
 
-    .line 4221
     .local v3, "p":Landroid/content/pm/PackageParser$Package;
     iget-object v6, v3, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
@@ -51345,7 +48655,6 @@
 
     if-eqz v6, :cond_0
 
-    .line 4224
     :cond_1
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -51359,11 +48668,9 @@
 
     check-cast v4, Lcom/android/server/pm/PackageSetting;
 
-    .line 4225
     .local v4, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v4, :cond_0
 
-    .line 4226
     invoke-virtual {v4, v5}, Lcom/android/server/pm/PackageSetting;->readUserState(I)Landroid/content/pm/PackageUserState;
 
     move-result-object v6
@@ -51372,16 +48679,13 @@
 
     move-result-object v0
 
-    .line 4228
     .local v0, "ai":Landroid/content/pm/ApplicationInfo;
     if-eqz v0, :cond_0
 
-    .line 4229
     invoke-virtual {v1, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_0
 
-    .line 4234
     .end local v0    # "ai":Landroid/content/pm/ApplicationInfo;
     .end local v2    # "i":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageParser$Package;>;"
     .end local v3    # "p":Landroid/content/pm/PackageParser$Package;
@@ -51404,7 +48708,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 4236
     return-object v1
 .end method
 
@@ -51428,24 +48731,20 @@
     .end annotation
 
     .prologue
-    .line 13056
     .local p1, "outFilters":Ljava/util/List;, "Ljava/util/List<Landroid/content/IntentFilter;>;"
     .local p2, "outActivities":Ljava/util/List;, "Ljava/util/List<Landroid/content/ComponentName;>;"
     const/4 v1, 0x0
 
-    .line 13057
     .local v1, "num":I
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v4
 
-    .line 13059
     .local v4, "userId":I
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v6
 
-    .line 13060
     :try_start_0
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -51457,16 +48756,13 @@
 
     check-cast v3, Lcom/android/server/pm/PreferredIntentResolver;
 
-    .line 13061
     .local v3, "pir":Lcom/android/server/pm/PreferredIntentResolver;
     if-eqz v3, :cond_3
 
-    .line 13062
     invoke-virtual {v3}, Lcom/android/server/pm/PreferredIntentResolver;->filterIterator()Ljava/util/Iterator;
 
     move-result-object v0
 
-    .line 13063
     .local v0, "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PreferredActivity;>;"
     :cond_0
     :goto_0
@@ -51476,14 +48772,12 @@
 
     if-eqz v5, :cond_3
 
-    .line 13064
     invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v2
 
     check-cast v2, Lcom/android/server/pm/PreferredActivity;
 
-    .line 13065
     .local v2, "pa":Lcom/android/server/pm/PreferredActivity;
     if-eqz p3, :cond_1
 
@@ -51507,22 +48801,18 @@
 
     if-eqz v5, :cond_0
 
-    .line 13068
     :cond_1
     if-eqz p1, :cond_2
 
-    .line 13069
     new-instance v5, Landroid/content/IntentFilter;
 
     invoke-direct {v5, v2}, Landroid/content/IntentFilter;-><init>(Landroid/content/IntentFilter;)V
 
     invoke-interface {p1, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 13071
     :cond_2
     if-eqz p2, :cond_0
 
-    .line 13072
     iget-object v5, v2, Lcom/android/server/pm/PreferredActivity;->mPref:Lcom/android/server/pm/PreferredComponent;
 
     iget-object v5, v5, Lcom/android/server/pm/PreferredComponent;->mComponent:Landroid/content/ComponentName;
@@ -51531,7 +48821,6 @@
 
     goto :goto_0
 
-    .line 13077
     .end local v0    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PreferredActivity;>;"
     .end local v2    # "pa":Lcom/android/server/pm/PreferredActivity;
     .end local v3    # "pir":Lcom/android/server/pm/PreferredIntentResolver;
@@ -51551,7 +48840,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 13079
     return v1
 .end method
 
@@ -51569,7 +48857,6 @@
     .end annotation
 
     .prologue
-    .line 12820
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -51588,7 +48875,6 @@
 
     const/4 v8, 0x0
 
-    .line 2482
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -51599,11 +48885,9 @@
 
     move-object v0, v8
 
-    .line 2495
     :goto_0
     return-object v0
 
-    .line 2483
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -51619,12 +48903,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 2484
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2485
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mProviders:Lcom/android/server/pm/PackageManagerService$ProviderIntentResolver;
 
@@ -51639,7 +48921,6 @@
 
     check-cast v6, Landroid/content/pm/PackageParser$Provider;
 
-    .line 2488
     .local v6, "p":Landroid/content/pm/PackageParser$Provider;
     if-eqz v6, :cond_2
 
@@ -51653,7 +48934,6 @@
 
     if-eqz v0, :cond_2
 
-    .line 2489
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v0, v0, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -51668,7 +48948,6 @@
 
     check-cast v7, Lcom/android/server/pm/PackageSetting;
 
-    .line 2490
     .local v7, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v7, :cond_1
 
@@ -51678,7 +48957,6 @@
 
     goto :goto_0
 
-    .line 2491
     :cond_1
     invoke-virtual {v7, p3}, Lcom/android/server/pm/PackageSetting;->readUserState(I)Landroid/content/pm/PackageUserState;
 
@@ -51692,7 +48970,6 @@
 
     goto :goto_0
 
-    .line 2494
     .end local v6    # "p":Landroid/content/pm/PackageParser$Provider;
     .end local v7    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -51713,7 +48990,6 @@
 
     move-object v0, v8
 
-    .line 2495
     goto :goto_0
 .end method
 
@@ -51728,7 +49004,6 @@
 
     const/4 v8, 0x0
 
-    .line 2446
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -51739,11 +49014,9 @@
 
     move-object v0, v8
 
-    .line 2459
     :goto_0
     return-object v0
 
-    .line 2447
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -51759,12 +49032,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 2448
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2449
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mReceivers:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
 
@@ -51779,7 +49050,6 @@
 
     check-cast v6, Landroid/content/pm/PackageParser$Activity;
 
-    .line 2452
     .local v6, "a":Landroid/content/pm/PackageParser$Activity;
     if-eqz v6, :cond_2
 
@@ -51793,7 +49063,6 @@
 
     if-eqz v0, :cond_2
 
-    .line 2453
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v0, v0, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -51808,7 +49077,6 @@
 
     check-cast v7, Lcom/android/server/pm/PackageSetting;
 
-    .line 2454
     .local v7, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v7, :cond_1
 
@@ -51818,7 +49086,6 @@
 
     goto :goto_0
 
-    .line 2455
     :cond_1
     invoke-virtual {v7, p3}, Lcom/android/server/pm/PackageSetting;->readUserState(I)Landroid/content/pm/PackageUserState;
 
@@ -51832,7 +49099,6 @@
 
     goto :goto_0
 
-    .line 2458
     .end local v6    # "a":Landroid/content/pm/PackageParser$Activity;
     .end local v7    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -51853,7 +49119,6 @@
 
     move-object v0, v8
 
-    .line 2459
     goto :goto_0
 .end method
 
@@ -51868,7 +49133,6 @@
 
     const/4 v8, 0x0
 
-    .line 2464
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -51879,11 +49143,9 @@
 
     move-object v0, v8
 
-    .line 2477
     :goto_0
     return-object v0
 
-    .line 2465
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -51899,12 +49161,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 2466
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2467
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mServices:Lcom/android/server/pm/PackageManagerService$ServiceIntentResolver;
 
@@ -51919,7 +49179,6 @@
 
     check-cast v7, Landroid/content/pm/PackageParser$Service;
 
-    .line 2470
     .local v7, "s":Landroid/content/pm/PackageParser$Service;
     if-eqz v7, :cond_2
 
@@ -51933,7 +49192,6 @@
 
     if-eqz v0, :cond_2
 
-    .line 2471
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v0, v0, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -51948,7 +49206,6 @@
 
     check-cast v6, Lcom/android/server/pm/PackageSetting;
 
-    .line 2472
     .local v6, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v6, :cond_1
 
@@ -51958,7 +49215,6 @@
 
     goto :goto_0
 
-    .line 2473
     :cond_1
     invoke-virtual {v6, p3}, Lcom/android/server/pm/PackageSetting;->readUserState(I)Landroid/content/pm/PackageUserState;
 
@@ -51972,7 +49228,6 @@
 
     goto :goto_0
 
-    .line 2476
     .end local v6    # "ps":Lcom/android/server/pm/PackageSetting;
     .end local v7    # "s":Landroid/content/pm/PackageParser$Service;
     :catchall_0
@@ -51993,7 +49248,6 @@
 
     move-object v0, v8
 
-    .line 2477
     goto :goto_0
 .end method
 
@@ -52002,23 +49256,18 @@
     .param p1, "packageName"    # Ljava/lang/String;
 
     .prologue
-    .line 14835
     if-nez p1, :cond_0
 
-    .line 14836
     const/4 v2, 0x0
 
-    .line 14849
     :goto_0
     return-object v2
 
-    .line 14838
     :cond_0
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 14839
     :try_start_0
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -52028,11 +49277,9 @@
 
     check-cast v1, Landroid/content/pm/PackageParser$Package;
 
-    .line 14840
     .local v1, "pkg":Landroid/content/pm/PackageParser$Package;
     if-nez v1, :cond_1
 
-    .line 14841
     const-string v2, "PackageManager"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -52055,7 +49302,6 @@
 
     invoke-static {v2, v4}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14842
     new-instance v2, Ljava/lang/IllegalArgumentException;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -52080,7 +49326,6 @@
 
     throw v2
 
-    .line 14850
     .end local v1    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v2
@@ -52091,7 +49336,6 @@
 
     throw v2
 
-    .line 14844
     .restart local v1    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_1
     :try_start_1
@@ -52113,7 +49357,6 @@
 
     if-eq v2, v4, :cond_2
 
-    .line 14846
     new-instance v2, Ljava/lang/SecurityException;
 
     const-string v4, "May not access signing KeySet of other apps."
@@ -52122,13 +49365,11 @@
 
     throw v2
 
-    .line 14848
     :cond_2
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v0, v2, Lcom/android/server/pm/Settings;->mKeySetManagerService:Lcom/android/server/pm/KeySetManagerService;
 
-    .line 14849
     .local v0, "ksms":Lcom/android/server/pm/KeySetManagerService;
     new-instance v2, Landroid/content/pm/KeySet;
 
@@ -52149,12 +49390,10 @@
     .locals 7
 
     .prologue
-    .line 2516
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 2517
     :try_start_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mAvailableFeatures:Landroid/util/ArrayMap;
 
@@ -52162,31 +49401,25 @@
 
     move-result-object v0
 
-    .line 2518
     .local v0, "featSet":Ljava/util/Collection;, "Ljava/util/Collection<Landroid/content/pm/FeatureInfo;>;"
     invoke-interface {v0}, Ljava/util/Collection;->size()I
 
     move-result v3
 
-    .line 2519
     .local v3, "size":I
     if-lez v3, :cond_0
 
-    .line 2520
     add-int/lit8 v4, v3, 0x1
 
     new-array v1, v4, [Landroid/content/pm/FeatureInfo;
 
-    .line 2521
     .local v1, "features":[Landroid/content/pm/FeatureInfo;
     invoke-interface {v0, v1}, Ljava/util/Collection;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
 
-    .line 2522
     new-instance v2, Landroid/content/pm/FeatureInfo;
 
     invoke-direct {v2}, Landroid/content/pm/FeatureInfo;-><init>()V
 
-    .line 2523
     .local v2, "fi":Landroid/content/pm/FeatureInfo;
     const-string v4, "ro.opengles.version"
 
@@ -52198,28 +49431,22 @@
 
     iput v4, v2, Landroid/content/pm/FeatureInfo;->reqGlEsVersion:I
 
-    .line 2525
     aput-object v2, v1, v3
 
-    .line 2526
     monitor-exit v5
 
-    .line 2529
     .end local v1    # "features":[Landroid/content/pm/FeatureInfo;
     .end local v2    # "fi":Landroid/content/pm/FeatureInfo;
     :goto_0
     return-object v1
 
-    .line 2528
     :cond_0
     monitor-exit v5
 
-    .line 2529
     const/4 v1, 0x0
 
     goto :goto_0
 
-    .line 2528
     .end local v0    # "featSet":Ljava/util/Collection;, "Ljava/util/Collection<Landroid/content/pm/FeatureInfo;>;"
     .end local v3    # "size":I
     :catchall_0
@@ -52236,12 +49463,10 @@
     .locals 5
 
     .prologue
-    .line 2501
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 2502
     :try_start_0
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSharedLibraries:Landroid/util/ArrayMap;
 
@@ -52249,41 +49474,32 @@
 
     move-result-object v0
 
-    .line 2503
     .local v0, "libSet":Ljava/util/Set;, "Ljava/util/Set<Ljava/lang/String;>;"
     invoke-interface {v0}, Ljava/util/Set;->size()I
 
     move-result v2
 
-    .line 2504
     .local v2, "size":I
     if-lez v2, :cond_0
 
-    .line 2505
     new-array v1, v2, [Ljava/lang/String;
 
-    .line 2506
     .local v1, "libs":[Ljava/lang/String;
     invoke-interface {v0, v1}, Ljava/util/Set;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
 
-    .line 2507
     monitor-exit v4
 
-    .line 2510
     .end local v1    # "libs":[Ljava/lang/String;
     :goto_0
     return-object v1
 
-    .line 2509
     :cond_0
     monitor-exit v4
 
-    .line 2510
     const/4 v1, 0x0
 
     goto :goto_0
 
-    .line 2509
     .end local v0    # "libSet":Ljava/util/Set;, "Ljava/util/Set<Ljava/lang/String;>;"
     .end local v2    # "size":I
     :catchall_0
@@ -52303,20 +49519,16 @@
     .prologue
     const/4 v1, -0x1
 
-    .line 3151
     if-nez p1, :cond_0
 
-    .line 3160
     :goto_0
     return v1
 
-    .line 3155
     :cond_0
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 3156
     :try_start_0
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -52328,16 +49540,13 @@
 
     move-result-object v0
 
-    .line 3157
     .local v0, "suid":Lcom/android/server/pm/SharedUserSetting;
     if-nez v0, :cond_1
 
-    .line 3158
     monitor-exit v2
 
     goto :goto_0
 
-    .line 3161
     .end local v0    # "suid":Lcom/android/server/pm/SharedUserSetting;
     :catchall_0
     move-exception v1
@@ -52348,7 +49557,6 @@
 
     throw v1
 
-    .line 3160
     .restart local v0    # "suid":Lcom/android/server/pm/SharedUserSetting;
     :cond_1
     :try_start_1
@@ -52365,7 +49573,6 @@
     .locals 12
 
     .prologue
-    .line 14894
     iget-object v9, p0, Lcom/android/server/pm/PackageManagerService;->mPackageUsage:Lcom/android/server/pm/PackageManagerService$PackageUsage;
 
     invoke-virtual {v9}, Lcom/android/server/pm/PackageManagerService$PackageUsage;->isHistoricalPackageUsageAvailable()Z
@@ -52374,7 +49581,6 @@
 
     if-nez v9, :cond_2
 
-    .line 14895
     iget-object v9, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v10, "usagestats"
@@ -52385,11 +49591,9 @@
 
     check-cast v8, Landroid/app/usage/UsageStatsManager;
 
-    .line 14896
     .local v8, "usm":Landroid/app/usage/UsageStatsManager;
     if-nez v8, :cond_0
 
-    .line 14897
     new-instance v9, Ljava/lang/IllegalStateException;
 
     const-string v10, "UsageStatsManager must be initialized"
@@ -52398,13 +49602,11 @@
 
     throw v9
 
-    .line 14899
     :cond_0
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 14900
     .local v2, "now":J
     iget-wide v10, p0, Lcom/android/server/pm/PackageManagerService;->mDexOptLRUThresholdInMills:J
 
@@ -52414,7 +49616,6 @@
 
     move-result-object v6
 
-    .line 14901
     .local v6, "stats":Ljava/util/Map;, "Ljava/util/Map<Ljava/lang/String;Landroid/app/usage/UsageStats;>;"
     invoke-interface {v6}, Ljava/util/Map;->entrySet()Ljava/util/Set;
 
@@ -52439,7 +49640,6 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 14902
     .local v0, "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/app/usage/UsageStats;>;"
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
@@ -52447,7 +49647,6 @@
 
     check-cast v4, Ljava/lang/String;
 
-    .line 14903
     .local v4, "packageName":Ljava/lang/String;
     iget-object v9, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -52457,18 +49656,15 @@
 
     check-cast v5, Landroid/content/pm/PackageParser$Package;
 
-    .line 14904
     .local v5, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v5, :cond_1
 
-    .line 14907
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v7
 
     check-cast v7, Landroid/app/usage/UsageStats;
 
-    .line 14908
     .local v7, "usage":Landroid/app/usage/UsageStats;
     invoke-virtual {v7}, Landroid/app/usage/UsageStats;->getLastTimeUsed()J
 
@@ -52476,7 +49672,6 @@
 
     iput-wide v10, v5, Landroid/content/pm/PackageParser$Package;->mLastPackageUsageTimeInMills:J
 
-    .line 14909
     iget-object v9, p0, Lcom/android/server/pm/PackageManagerService;->mPackageUsage:Lcom/android/server/pm/PackageManagerService$PackageUsage;
 
     const/4 v10, 0x1
@@ -52486,7 +49681,6 @@
 
     goto :goto_0
 
-    .line 14912
     .end local v0    # "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/app/usage/UsageStats;>;"
     .end local v1    # "i$":Ljava/util/Iterator;
     .end local v2    # "now":J
@@ -52508,7 +49702,6 @@
     .end annotation
 
     .prologue
-    .line 14610
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.PACKAGE_VERIFICATION_AGENT"
@@ -52517,12 +49710,10 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 14614
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 14615
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -52534,7 +49725,6 @@
 
     return-object v0
 
-    .line 14616
     :catchall_0
     move-exception v0
 
@@ -52551,7 +49741,6 @@
     .param p2, "permissionName"    # Ljava/lang/String;
 
     .prologue
-    .line 2828
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v5, "android.permission.GRANT_REVOKE_PERMISSIONS"
@@ -52560,12 +49749,10 @@
 
     invoke-virtual {v4, v5, v6}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 2830
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 2831
     :try_start_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -52575,11 +49762,9 @@
 
     check-cast v2, Landroid/content/pm/PackageParser$Package;
 
-    .line 2832
     .local v2, "pkg":Landroid/content/pm/PackageParser$Package;
     if-nez v2, :cond_0
 
-    .line 2833
     new-instance v4, Ljava/lang/IllegalArgumentException;
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -52604,7 +49789,6 @@
 
     throw v4
 
-    .line 2853
     .end local v2    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v4
@@ -52615,7 +49799,6 @@
 
     throw v4
 
-    .line 2835
     .restart local v2    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_0
     :try_start_1
@@ -52629,11 +49812,9 @@
 
     check-cast v0, Lcom/android/server/pm/BasePermission;
 
-    .line 2836
     .local v0, "bp":Lcom/android/server/pm/BasePermission;
     if-nez v0, :cond_1
 
-    .line 2837
     new-instance v4, Ljava/lang/IllegalArgumentException;
 
     new-instance v6, Ljava/lang/StringBuilder;
@@ -52658,27 +49839,21 @@
 
     throw v4
 
-    .line 2840
     :cond_1
     invoke-static {v2, v0}, Lcom/android/server/pm/PackageManagerService;->checkGrantRevokePermissions(Landroid/content/pm/PackageParser$Package;Lcom/android/server/pm/BasePermission;)V
 
-    .line 2842
     iget-object v3, v2, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     check-cast v3, Lcom/android/server/pm/PackageSetting;
 
-    .line 2843
     .local v3, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v3, :cond_2
 
-    .line 2844
     monitor-exit v5
 
-    .line 2854
     :goto_0
     return-void
 
-    .line 2846
     :cond_2
     iget-object v4, v3, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
@@ -52686,7 +49861,6 @@
 
     iget-object v1, v3, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
-    .line 2847
     .local v1, "gp":Lcom/android/server/pm/GrantedPermissions;
     :goto_1
     iget-object v4, v1, Lcom/android/server/pm/GrantedPermissions;->grantedPermissions:Landroid/util/ArraySet;
@@ -52697,12 +49871,10 @@
 
     if-eqz v4, :cond_4
 
-    .line 2848
     iget-boolean v4, v3, Lcom/android/server/pm/PackageSetting;->haveGids:Z
 
     if-eqz v4, :cond_3
 
-    .line 2849
     iget-object v4, v1, Lcom/android/server/pm/GrantedPermissions;->gids:[I
 
     iget-object v6, v0, Lcom/android/server/pm/BasePermission;->gids:[I
@@ -52713,13 +49885,11 @@
 
     iput-object v4, v1, Lcom/android/server/pm/GrantedPermissions;->gids:[I
 
-    .line 2851
     :cond_3
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v4}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 2853
     :cond_4
     monitor-exit v5
     :try_end_1
@@ -52731,7 +49901,6 @@
     :cond_5
     move-object v1, v3
 
-    .line 2846
     goto :goto_1
 .end method
 
@@ -52740,12 +49909,10 @@
     .param p1, "name"    # Ljava/lang/String;
 
     .prologue
-    .line 2534
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2535
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mAvailableFeatures:Landroid/util/ArrayMap;
 
@@ -52757,7 +49924,6 @@
 
     return v0
 
-    .line 2536
     :catchall_0
     move-exception v0
 
@@ -52772,7 +49938,6 @@
     .locals 1
 
     .prologue
-    .line 13532
     iget-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mHasSystemUidErrors:Z
 
     return v0
@@ -52786,7 +49951,6 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 9353
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v2, "android.permission.INSTALL_PACKAGES"
@@ -52795,12 +49959,10 @@
 
     invoke-virtual {v0, v2, v4}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 9356
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v1
 
-    .line 9357
     .local v1, "uid":I
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -52828,7 +49990,6 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 9359
     const-string v0, "no_install_apps"
 
     invoke-virtual {p0, p2, v0}, Lcom/android/server/pm/PackageManagerService;->isUserRestricted(ILjava/lang/String;)Z
@@ -52837,24 +49998,19 @@
 
     if-eqz v0, :cond_0
 
-    .line 9360
     const/16 v3, -0x6f
 
-    .line 9389
     :goto_0
     return v3
 
-    .line 9363
     :cond_0
     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
 
     move-result-wide v6
 
-    .line 9365
     .local v6, "callingId":J
     const/4 v10, 0x0
 
-    .line 9366
     .local v10, "sendAdded":Z
     :try_start_0
     new-instance v8, Landroid/os/Bundle;
@@ -52863,7 +50019,6 @@
 
     invoke-direct {v8, v0}, Landroid/os/Bundle;-><init>(I)V
 
-    .line 9369
     .local v8, "extras":Landroid/os/Bundle;
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -52871,7 +50026,6 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_1
 
-    .line 9370
     :try_start_1
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -52883,23 +50037,19 @@
 
     check-cast v9, Lcom/android/server/pm/PackageSetting;
 
-    .line 9371
     .local v9, "pkgSetting":Lcom/android/server/pm/PackageSetting;
     if-nez v9, :cond_1
 
-    .line 9372
     const/4 v3, -0x3
 
     monitor-exit v2
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 9386
     invoke-static {v6, v7}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     goto :goto_0
 
-    .line 9374
     :cond_1
     :try_start_2
     invoke-virtual {v9, p2}, Lcom/android/server/pm/PackageSetting;->getInstalled(I)Z
@@ -52908,46 +50058,37 @@
 
     if-nez v0, :cond_2
 
-    .line 9375
     const/4 v0, 0x1
 
     invoke-virtual {v9, v0, p2}, Lcom/android/server/pm/PackageSetting;->setInstalled(ZI)V
 
-    .line 9376
     const/4 v0, 0x0
 
     invoke-virtual {v9, v0, p2}, Lcom/android/server/pm/PackageSetting;->setHidden(ZI)V
 
-    .line 9377
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v0, p2}, Lcom/android/server/pm/Settings;->writePackageRestrictionsLPr(I)V
 
-    .line 9378
     const/4 v10, 0x1
 
-    .line 9380
     :cond_2
     monitor-exit v2
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 9382
     if-eqz v10, :cond_3
 
-    .line 9383
     :try_start_3
     invoke-direct {p0, p1, v9, p2}, Lcom/android/server/pm/PackageManagerService;->sendPackageAddedForUser(Ljava/lang/String;Lcom/android/server/pm/PackageSetting;I)V
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 9386
     :cond_3
     invoke-static {v6, v7}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     goto :goto_0
 
-    .line 9380
     .end local v9    # "pkgSetting":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v0
@@ -52962,7 +50103,6 @@
     :try_end_5
     .catchall {:try_start_5 .. :try_end_5} :catchall_1
 
-    .line 9386
     .end local v8    # "extras":Landroid/os/Bundle;
     :catchall_1
     move-exception v0
@@ -52982,7 +50122,6 @@
     .param p6, "packageAbiOverride"    # Ljava/lang/String;
 
     .prologue
-    .line 9158
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v7
@@ -53003,7 +50142,6 @@
 
     invoke-virtual/range {v0 .. v7}, Lcom/android/server/pm/PackageManagerService;->installPackageAsUser(Ljava/lang/String;Landroid/content/pm/IPackageInstallObserver2;ILjava/lang/String;Landroid/content/pm/VerificationParams;Ljava/lang/String;I)V
 
-    .line 9160
     return-void
 .end method
 
@@ -53018,7 +50156,6 @@
     .param p7, "userId"    # I
 
     .prologue
-    .line 9166
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v3, "android.permission.INSTALL_PACKAGES"
@@ -53027,12 +50164,10 @@
 
     invoke-virtual {v1, v3, v4}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 9168
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v2
 
-    .line 9169
     .local v2, "callingUid":I
     const/4 v4, 0x1
 
@@ -53046,7 +50181,6 @@
 
     invoke-virtual/range {v1 .. v6}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 9171
     const-string v1, "no_install_apps"
 
     move/from16 v0, p7
@@ -53057,10 +50191,8 @@
 
     if-eqz v1, :cond_1
 
-    .line 9173
     if-eqz p2, :cond_0
 
-    .line 9174
     :try_start_0
     const-string v1, ""
 
@@ -53076,12 +50208,10 @@
     :try_end_0
     .catch Landroid/os/RemoteException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 9218
     :cond_0
     :goto_0
     return-void
 
-    .line 9181
     :cond_1
     const/16 v1, 0x7d0
 
@@ -53089,38 +50219,31 @@
 
     if-nez v2, :cond_3
 
-    .line 9182
     :cond_2
     or-int/lit8 p3, p3, 0x20
 
-    .line 9193
     :goto_1
     and-int/lit8 v1, p3, 0x40
 
     if-eqz v1, :cond_4
 
-    .line 9194
     sget-object v10, Landroid/os/UserHandle;->ALL:Landroid/os/UserHandle;
 
-    .line 9199
     .local v10, "user":Landroid/os/UserHandle;
     :goto_2
     move-object/from16 v0, p5
 
     invoke-virtual {v0, v2}, Landroid/content/pm/VerificationParams;->setInstallerUid(I)V
 
-    .line 9201
     new-instance v13, Ljava/io/File;
 
     invoke-direct {v13, p1}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 9202
     .local v13, "originFile":Ljava/io/File;
     invoke-static {v13}, Lcom/android/server/pm/PackageManagerService$OriginInfo;->fromUntrustedFile(Ljava/io/File;)Lcom/android/server/pm/PackageManagerService$OriginInfo;
 
     move-result-object v5
 
-    .line 9205
     .local v5, "origin":Lcom/android/server/pm/PackageManagerService$OriginInfo;
     invoke-virtual {p0}, Lcom/android/server/pm/PackageManagerService;->getInstallLocation()I
 
@@ -53130,17 +50253,14 @@
 
     if-ne v1, v3, :cond_5
 
-    .line 9206
     const-string v1, "PackageManager"
 
     const-string v3, "PackageManager.INSTALL_INTERNAL"
 
     invoke-static {v1, v3}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 9207
     or-int/lit8 v7, p3, 0x10
 
-    .line 9214
     .local v7, "userFilteredFlags":I
     :goto_3
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
@@ -53151,7 +50271,6 @@
 
     move-result-object v12
 
-    .line 9215
     .local v12, "msg":Landroid/os/Message;
     new-instance v3, Lcom/android/server/pm/PackageManagerService$InstallParams;
 
@@ -53169,14 +50288,12 @@
 
     iput-object v3, v12, Landroid/os/Message;->obj:Ljava/lang/Object;
 
-    .line 9217
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     invoke-virtual {v1, v12}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->sendMessage(Landroid/os/Message;)Z
 
     goto :goto_0
 
-    .line 9188
     .end local v5    # "origin":Lcom/android/server/pm/PackageManagerService$OriginInfo;
     .end local v7    # "userFilteredFlags":I
     .end local v10    # "user":Landroid/os/UserHandle;
@@ -53185,12 +50302,10 @@
     :cond_3
     and-int/lit8 p3, p3, -0x21
 
-    .line 9189
     and-int/lit8 p3, p3, -0x41
 
     goto :goto_1
 
-    .line 9196
     :cond_4
     new-instance v10, Landroid/os/UserHandle;
 
@@ -53201,7 +50316,6 @@
     .restart local v10    # "user":Landroid/os/UserHandle;
     goto :goto_2
 
-    .line 9208
     .restart local v5    # "origin":Lcom/android/server/pm/PackageManagerService$OriginInfo;
     .restart local v13    # "originFile":Ljava/io/File;
     :cond_5
@@ -53213,20 +50327,17 @@
 
     if-ne v1, v3, :cond_6
 
-    .line 9209
     const-string v1, "PackageManager"
 
     const-string v3, "PackageManager.INSTALL_EXTERNAL"
 
     invoke-static {v1, v3}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 9210
     or-int/lit8 v7, p3, 0x8
 
     .restart local v7    # "userFilteredFlags":I
     goto :goto_3
 
-    .line 9212
     .end local v7    # "userFilteredFlags":I
     :cond_6
     move/from16 v7, p3
@@ -53234,7 +50345,6 @@
     .restart local v7    # "userFilteredFlags":I
     goto :goto_3
 
-    .line 9176
     .end local v5    # "origin":Lcom/android/server/pm/PackageManagerService$OriginInfo;
     .end local v7    # "userFilteredFlags":I
     .end local v10    # "user":Landroid/os/UserHandle;
@@ -53257,7 +50367,6 @@
     .param p8, "user"    # Landroid/os/UserHandle;
 
     .prologue
-    .line 9223
     new-instance v1, Landroid/content/pm/VerificationParams;
 
     const/4 v2, 0x0
@@ -53276,16 +50385,13 @@
 
     invoke-direct/range {v1 .. v6}, Landroid/content/pm/VerificationParams;-><init>(Landroid/net/Uri;Landroid/net/Uri;Landroid/net/Uri;ILandroid/content/pm/ManifestDigest;)V
 
-    .line 9227
     .local v1, "verifParams":Landroid/content/pm/VerificationParams;
     if-eqz p2, :cond_0
 
-    .line 9228
     invoke-static {p2}, Lcom/android/server/pm/PackageManagerService$OriginInfo;->fromStagedFile(Ljava/io/File;)Lcom/android/server/pm/PackageManagerService$OriginInfo;
 
     move-result-object v4
 
-    .line 9233
     .local v4, "origin":Lcom/android/server/pm/PackageManagerService$OriginInfo;
     :goto_0
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
@@ -53296,7 +50402,6 @@
 
     move-result-object v11
 
-    .line 9234
     .local v11, "msg":Landroid/os/Message;
     new-instance v2, Lcom/android/server/pm/PackageManagerService$InstallParams;
 
@@ -53322,15 +50427,12 @@
 
     iput-object v2, v11, Landroid/os/Message;->obj:Ljava/lang/Object;
 
-    .line 9236
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     invoke-virtual {v2, v11}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->sendMessage(Landroid/os/Message;)Z
 
-    .line 9237
     return-void
 
-    .line 9230
     .end local v4    # "origin":Lcom/android/server/pm/PackageManagerService$OriginInfo;
     .end local v11    # "msg":Landroid/os/Message;
     :cond_0
@@ -53346,7 +50448,6 @@
     .locals 1
 
     .prologue
-    .line 1983
     iget-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mRestoredSettings:Z
 
     if-nez v0, :cond_0
@@ -53366,7 +50467,6 @@
     .locals 1
 
     .prologue
-    .line 1988
     iget-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mOnlyCore:Z
 
     return v0
@@ -53380,7 +50480,6 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 2101
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p2}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -53389,11 +50488,9 @@
 
     if-nez v0, :cond_0
 
-    .line 2115
     :goto_0
     return v3
 
-    .line 2102
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -53409,12 +50506,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 2103
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2104
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -53424,29 +50519,23 @@
 
     check-cast v6, Landroid/content/pm/PackageParser$Package;
 
-    .line 2105
     .local v6, "p":Landroid/content/pm/PackageParser$Package;
     if-eqz v6, :cond_1
 
-    .line 2106
     iget-object v7, v6, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     check-cast v7, Lcom/android/server/pm/PackageSetting;
 
-    .line 2107
     .local v7, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v7, :cond_1
 
-    .line 2108
     invoke-virtual {v7, p2}, Lcom/android/server/pm/PackageSetting;->readUserState(I)Landroid/content/pm/PackageUserState;
 
     move-result-object v8
 
-    .line 2109
     .local v8, "state":Landroid/content/pm/PackageUserState;
     if-eqz v8, :cond_1
 
-    .line 2110
     invoke-static {v8}, Landroid/content/pm/PackageParser;->isAvailable(Landroid/content/pm/PackageUserState;)Z
 
     move-result v3
@@ -53455,7 +50544,6 @@
 
     goto :goto_0
 
-    .line 2114
     .end local v6    # "p":Landroid/content/pm/PackageParser$Package;
     .end local v7    # "ps":Lcom/android/server/pm/PackageSetting;
     .end local v8    # "state":Landroid/content/pm/PackageUserState;
@@ -53486,23 +50574,19 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 14855
     if-eqz p1, :cond_0
 
     if-nez p2, :cond_1
 
-    .line 14869
     :cond_0
     :goto_0
     return v3
 
-    .line 14858
     :cond_1
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 14859
     :try_start_0
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -53512,11 +50596,9 @@
 
     check-cast v2, Landroid/content/pm/PackageParser$Package;
 
-    .line 14860
     .local v2, "pkg":Landroid/content/pm/PackageParser$Package;
     if-nez v2, :cond_2
 
-    .line 14861
     const-string v3, "PackageManager"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -53539,7 +50621,6 @@
 
     invoke-static {v3, v5}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14862
     new-instance v3, Ljava/lang/IllegalArgumentException;
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -53564,7 +50645,6 @@
 
     throw v3
 
-    .line 14870
     .end local v2    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v3
@@ -53575,7 +50655,6 @@
 
     throw v3
 
-    .line 14864
     .restart local v2    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_2
     :try_start_1
@@ -53583,18 +50662,15 @@
 
     move-result-object v0
 
-    .line 14865
     .local v0, "ksh":Landroid/os/IBinder;
     instance-of v5, v0, Lcom/android/server/pm/KeySetHandle;
 
     if-eqz v5, :cond_3
 
-    .line 14866
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v1, v3, Lcom/android/server/pm/Settings;->mKeySetManagerService:Lcom/android/server/pm/KeySetManagerService;
 
-    .line 14867
     .local v1, "ksms":Lcom/android/server/pm/KeySetManagerService;
     check-cast v0, Lcom/android/server/pm/KeySetHandle;
 
@@ -53607,7 +50683,6 @@
 
     goto :goto_0
 
-    .line 14869
     .end local v1    # "ksms":Lcom/android/server/pm/KeySetManagerService;
     .restart local v0    # "ksh":Landroid/os/IBinder;
     :cond_3
@@ -53626,23 +50701,19 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 14875
     if-eqz p1, :cond_0
 
     if-nez p2, :cond_1
 
-    .line 14889
     :cond_0
     :goto_0
     return v3
 
-    .line 14878
     :cond_1
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 14879
     :try_start_0
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -53652,11 +50723,9 @@
 
     check-cast v2, Landroid/content/pm/PackageParser$Package;
 
-    .line 14880
     .local v2, "pkg":Landroid/content/pm/PackageParser$Package;
     if-nez v2, :cond_2
 
-    .line 14881
     const-string v3, "PackageManager"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -53679,7 +50748,6 @@
 
     invoke-static {v3, v5}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14882
     new-instance v3, Ljava/lang/IllegalArgumentException;
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -53704,7 +50772,6 @@
 
     throw v3
 
-    .line 14890
     .end local v2    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v3
@@ -53715,7 +50782,6 @@
 
     throw v3
 
-    .line 14884
     .restart local v2    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_2
     :try_start_1
@@ -53723,18 +50789,15 @@
 
     move-result-object v0
 
-    .line 14885
     .local v0, "ksh":Landroid/os/IBinder;
     instance-of v5, v0, Lcom/android/server/pm/KeySetHandle;
 
     if-eqz v5, :cond_3
 
-    .line 14886
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v1, v3, Lcom/android/server/pm/Settings;->mKeySetManagerService:Lcom/android/server/pm/KeySetManagerService;
 
-    .line 14887
     .local v1, "ksms":Lcom/android/server/pm/KeySetManagerService;
     check-cast v0, Lcom/android/server/pm/KeySetHandle;
 
@@ -53747,7 +50810,6 @@
 
     goto :goto_0
 
-    .line 14889
     .end local v1    # "ksms":Lcom/android/server/pm/KeySetManagerService;
     .restart local v0    # "ksh":Landroid/os/IBinder;
     :cond_3
@@ -53765,7 +50827,6 @@
     .end annotation
 
     .prologue
-    .line 14650
     const/4 v0, 0x1
 
     return v0
@@ -53776,12 +50837,10 @@
     .param p1, "actionName"    # Ljava/lang/String;
 
     .prologue
-    .line 2917
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 2918
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mProtectedBroadcasts:Landroid/util/ArraySet;
 
@@ -53793,7 +50852,6 @@
 
     return v0
 
-    .line 2919
     :catchall_0
     move-exception v0
 
@@ -53808,7 +50866,6 @@
     .locals 1
 
     .prologue
-    .line 13527
     iget-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mSafeMode:Z
 
     return v0
@@ -53818,12 +50875,10 @@
     .locals 4
 
     .prologue
-    .line 14776
     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
 
     move-result-wide v2
 
-    .line 14779
     .local v2, "token":J
     :try_start_0
     const-class v1, Lcom/android/server/storage/DeviceStorageMonitorInternal;
@@ -53834,28 +50889,23 @@
 
     check-cast v0, Lcom/android/server/storage/DeviceStorageMonitorInternal;
 
-    .line 14780
     .local v0, "dsm":Lcom/android/server/storage/DeviceStorageMonitorInternal;
     if-eqz v0, :cond_0
 
-    .line 14781
     invoke-interface {v0}, Lcom/android/server/storage/DeviceStorageMonitorInternal;->isMemoryLow()Z
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
     move-result v1
 
-    .line 14786
     invoke-static {v2, v3}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     :goto_0
     return v1
 
-    .line 14783
     :cond_0
     const/4 v1, 0x0
 
-    .line 14786
     invoke-static {v2, v3}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     goto :goto_0
@@ -53874,17 +50924,14 @@
     .param p1, "uid"    # I
 
     .prologue
-    .line 3181
     invoke-static {p1}, Landroid/os/UserHandle;->getAppId(I)I
 
     move-result p1
 
-    .line 3183
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v6
 
-    .line 3184
     :try_start_0
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -53892,20 +50939,17 @@
 
     move-result-object v2
 
-    .line 3185
     .local v2, "obj":Ljava/lang/Object;
     instance-of v5, v2, Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v5, :cond_1
 
-    .line 3186
     move-object v0, v2
 
     check-cast v0, Lcom/android/server/pm/SharedUserSetting;
 
     move-object v4, v0
 
-    .line 3187
     .local v4, "sus":Lcom/android/server/pm/SharedUserSetting;
     iget-object v5, v4, Lcom/android/server/pm/SharedUserSetting;->packages:Landroid/util/ArraySet;
 
@@ -53913,7 +50957,6 @@
 
     move-result-object v1
 
-    .line 3188
     .local v1, "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PackageSetting;>;"
     :cond_0
     invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
@@ -53922,7 +50965,6 @@
 
     if-eqz v5, :cond_2
 
-    .line 3189
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v5
@@ -53935,31 +50977,26 @@
 
     if-eqz v5, :cond_0
 
-    .line 3190
     const/4 v5, 0x1
 
     monitor-exit v6
 
-    .line 3198
     .end local v1    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Lcom/android/server/pm/PackageSetting;>;"
     .end local v4    # "sus":Lcom/android/server/pm/SharedUserSetting;
     :goto_0
     return v5
 
-    .line 3193
     :cond_1
     instance-of v5, v2, Lcom/android/server/pm/PackageSetting;
 
     if-eqz v5, :cond_2
 
-    .line 3194
     move-object v0, v2
 
     check-cast v0, Lcom/android/server/pm/PackageSetting;
 
     move-object v3, v0
 
-    .line 3195
     .local v3, "ps":Lcom/android/server/pm/PackageSetting;
     invoke-virtual {v3}, Lcom/android/server/pm/PackageSetting;->isPrivileged()Z
 
@@ -53969,7 +51006,6 @@
 
     goto :goto_0
 
-    .line 3197
     .end local v2    # "obj":Ljava/lang/Object;
     .end local v3    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -53988,7 +51024,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 3198
     const/4 v5, 0x0
 
     goto :goto_0
@@ -53998,7 +51033,6 @@
     .locals 1
 
     .prologue
-    .line 1993
     iget-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mIsUpgrade:Z
 
     return v0
@@ -54012,14 +51046,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 9393
     sget-object v2, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v2, p1}, Lcom/android/server/pm/UserManagerService;->getUserRestrictions(I)Landroid/os/Bundle;
 
     move-result-object v0
 
-    .line 9394
     .local v0, "restrictions":Landroid/os/Bundle;
     invoke-virtual {v0, p2, v1}, Landroid/os/Bundle;->getBoolean(Ljava/lang/String;Z)Z
 
@@ -54027,7 +51059,6 @@
 
     if-eqz v2, :cond_0
 
-    .line 9395
     const-string v1, "PackageManager"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -54050,10 +51081,8 @@
 
     invoke-static {v1, v2}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 9396
     const/4 v1, 0x1
 
-    .line 9398
     :cond_0
     return v1
 .end method
@@ -54065,7 +51094,6 @@
     .param p3, "flags"    # I
 
     .prologue
-    .line 14389
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
@@ -54076,7 +51104,6 @@
 
     invoke-virtual {v3, v4, v9}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 14390
     new-instance v10, Landroid/os/UserHandle;
 
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
@@ -54085,31 +51112,24 @@
 
     invoke-direct {v10, v3}, Landroid/os/UserHandle;-><init>(I)V
 
-    .line 14391
     .local v10, "user":Landroid/os/UserHandle;
     const/16 v18, 0x1
 
-    .line 14392
     .local v18, "returnCode":I
     const/4 v14, 0x0
 
-    .line 14393
     .local v14, "currInstallFlags":I
     const/4 v7, 0x0
 
-    .line 14395
     .local v7, "newInstallFlags":I
     const/4 v12, 0x0
 
-    .line 14396
     .local v12, "codeFile":Ljava/io/File;
     const/4 v8, 0x0
 
-    .line 14397
     .local v8, "installerPackageName":Ljava/lang/String;
     const/4 v11, 0x0
 
-    .line 14400
     .local v11, "packageAbiOverride":Ljava/lang/String;
     move-object/from16 v0, p0
 
@@ -54117,7 +51137,6 @@
 
     monitor-enter v4
 
-    .line 14401
     :try_start_0
     move-object/from16 v0, p0
 
@@ -54131,7 +51150,6 @@
 
     check-cast v16, Landroid/content/pm/PackageParser$Package;
 
-    .line 14402
     .local v16, "pkg":Landroid/content/pm/PackageParser$Package;
     move-object/from16 v0, p0
 
@@ -54147,30 +51165,25 @@
 
     check-cast v17, Lcom/android/server/pm/PackageSetting;
 
-    .line 14403
     .local v17, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v16, :cond_0
 
     if-nez v17, :cond_1
 
-    .line 14404
     :cond_0
     const/16 v18, -0x2
 
-    .line 14444
     :goto_0
     monitor-exit v4
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 14446
     const/4 v3, 0x1
 
     move/from16 v0, v18
 
     if-eq v0, v3, :cond_a
 
-    .line 14448
     :try_start_1
     move-object/from16 v0, p2
 
@@ -54182,11 +51195,9 @@
     :try_end_1
     .catch Landroid/os/RemoteException; {:try_start_1 .. :try_end_1} :catch_0
 
-    .line 14500
     :goto_1
     return-void
 
-    .line 14407
     :cond_1
     :try_start_2
     move-object/from16 v0, v16
@@ -54201,17 +51212,14 @@
 
     if-eqz v3, :cond_3
 
-    .line 14408
     const-string v3, "PackageManager"
 
     const-string v9, "Cannot move system application"
 
     invoke-static {v3, v9}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14409
     const/16 v18, -0x3
 
-    .line 14440
     :cond_2
     :goto_2
     new-instance v13, Ljava/io/File;
@@ -54224,7 +51232,6 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 14441
     .end local v12    # "codeFile":Ljava/io/File;
     .local v13, "codeFile":Ljava/io/File;
     :try_start_3
@@ -54232,7 +51239,6 @@
 
     iget-object v8, v0, Lcom/android/server/pm/PackageSetting;->installerPackageName:Ljava/lang/String;
 
-    .line 14442
     move-object/from16 v0, v17
 
     iget-object v11, v0, Lcom/android/server/pm/PackageSetting;->cpuAbiOverrideString:Ljava/lang/String;
@@ -54245,7 +51251,6 @@
     .restart local v12    # "codeFile":Ljava/io/File;
     goto :goto_0
 
-    .line 14410
     :cond_3
     :try_start_4
     move-object/from16 v0, v16
@@ -54254,19 +51259,16 @@
 
     if-eqz v3, :cond_4
 
-    .line 14411
     const-string v3, "PackageManager"
 
     const-string v9, "Attempt to move package which has pending operations"
 
     invoke-static {v3, v9}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14412
     const/16 v18, -0x7
 
     goto :goto_2
 
-    .line 14415
     :cond_4
     and-int/lit8 v3, p3, 0x2
 
@@ -54276,17 +51278,14 @@
 
     if-eqz v3, :cond_6
 
-    .line 14417
     const-string v3, "PackageManager"
 
     const-string v9, "Ambigous flags specified for move location."
 
     invoke-static {v3, v9}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14418
     const/16 v18, -0x5
 
-    .line 14435
     :cond_5
     :goto_3
     const/4 v3, 0x1
@@ -54295,7 +51294,6 @@
 
     if-ne v0, v3, :cond_2
 
-    .line 14436
     const/4 v3, 0x1
 
     move-object/from16 v0, v16
@@ -54304,7 +51302,6 @@
 
     goto :goto_2
 
-    .line 14444
     .end local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     .end local v17    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -54317,7 +51314,6 @@
 
     throw v3
 
-    .line 14420
     .restart local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     .restart local v17    # "ps":Lcom/android/server/pm/PackageSetting;
     :cond_6
@@ -54327,7 +51323,6 @@
 
     const/16 v7, 0x8
 
-    .line 14422
     :goto_5
     :try_start_5
     invoke-static/range {v16 .. v16}, Lcom/android/server/pm/PackageManagerService;->isExternal(Landroid/content/pm/PackageParser$Package;)Z
@@ -54338,35 +51333,29 @@
 
     const/16 v14, 0x8
 
-    .line 14425
     :goto_6
     if-ne v7, v14, :cond_9
 
-    .line 14426
     const-string v3, "PackageManager"
 
     const-string v9, "No move required. Trying to move to same location"
 
     invoke-static {v3, v9}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14427
     const/16 v18, -0x5
 
     goto :goto_3
 
-    .line 14420
     :cond_7
     const/16 v7, 0x10
 
     goto :goto_5
 
-    .line 14422
     :cond_8
     const/16 v14, 0x10
 
     goto :goto_6
 
-    .line 14429
     :cond_9
     invoke-static/range {v16 .. v16}, Lcom/android/server/pm/PackageManagerService;->isForwardLocked(Landroid/content/pm/PackageParser$Package;)Z
     :try_end_5
@@ -54376,15 +51365,12 @@
 
     if-eqz v3, :cond_5
 
-    .line 14430
     or-int/lit8 v14, v14, 0x1
 
-    .line 14431
     or-int/lit8 v7, v7, 0x1
 
     goto :goto_3
 
-    .line 14454
     :cond_a
     new-instance v6, Lcom/android/server/pm/PackageManagerService$12;
 
@@ -54396,11 +51382,9 @@
 
     invoke-direct {v6, v0, v1, v2}, Lcom/android/server/pm/PackageManagerService$12;-><init>(Lcom/android/server/pm/PackageManagerService;Ljava/lang/String;Landroid/content/pm/IPackageMoveObserver;)V
 
-    .line 14493
     .local v6, "installObserver":Landroid/content/pm/IPackageInstallObserver2;
     or-int/lit8 v7, v7, 0x2
 
-    .line 14495
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
@@ -54411,13 +51395,11 @@
 
     move-result-object v15
 
-    .line 14496
     .local v15, "msg":Landroid/os/Message;
     invoke-static {v12}, Lcom/android/server/pm/PackageManagerService$OriginInfo;->fromExistingFile(Ljava/io/File;)Lcom/android/server/pm/PackageManagerService$OriginInfo;
 
     move-result-object v5
 
-    .line 14497
     .local v5, "origin":Lcom/android/server/pm/PackageManagerService$OriginInfo;
     new-instance v3, Lcom/android/server/pm/PackageManagerService$InstallParams;
 
@@ -54429,7 +51411,6 @@
 
     iput-object v3, v15, Landroid/os/Message;->obj:Ljava/lang/Object;
 
-    .line 14499
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
@@ -54438,7 +51419,6 @@
 
     goto/16 :goto_1
 
-    .line 14449
     .end local v5    # "origin":Lcom/android/server/pm/PackageManagerService$OriginInfo;
     .end local v6    # "installObserver":Landroid/content/pm/IPackageInstallObserver2;
     .end local v15    # "msg":Landroid/os/Message;
@@ -54447,7 +51427,6 @@
 
     goto/16 :goto_1
 
-    .line 14444
     .end local v12    # "codeFile":Ljava/io/File;
     .restart local v13    # "codeFile":Ljava/io/File;
     :catchall_1
@@ -54467,12 +51446,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 9102
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 9103
     :try_start_0
     invoke-direct {p0}, Lcom/android/server/pm/PackageManagerService;->isExternalMediaAvailable()Z
 
@@ -54480,27 +51457,21 @@
 
     if-nez v3, :cond_0
 
-    .line 9107
     monitor-exit v2
 
-    .line 9117
     :goto_0
     return-object v1
 
-    .line 9109
     :cond_0
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v0, v3, Lcom/android/server/pm/Settings;->mPackagesToBeCleaned:Ljava/util/ArrayList;
 
-    .line 9110
     .local v0, "pkgs":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageCleanItem;>;"
     if-eqz p1, :cond_1
 
-    .line 9111
     invoke-virtual {v0, p1}, Ljava/util/ArrayList;->remove(Ljava/lang/Object;)Z
 
-    .line 9113
     :cond_1
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
 
@@ -54508,7 +51479,6 @@
 
     if-lez v3, :cond_2
 
-    .line 9114
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -54521,7 +51491,6 @@
 
     goto :goto_0
 
-    .line 9116
     .end local v0    # "pkgs":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageCleanItem;>;"
     :catchall_0
     move-exception v1
@@ -54555,7 +51524,7 @@
     .end annotation
 
     .prologue
-    .line 2038
+    .line 5060
     :try_start_0
     invoke-super {p0, p1, p2, p3, p4}, Landroid/content/pm/IPackageManager$Stub;->onTransact(ILandroid/os/Parcel;Landroid/os/Parcel;I)Z
     :try_end_0
@@ -54565,11 +51534,9 @@
 
     return v1
 
-    .line 2039
     :catch_0
     move-exception v0
 
-    .line 2040
     .local v0, "e":Ljava/lang/RuntimeException;
     instance-of v1, v0, Ljava/lang/SecurityException;
 
@@ -54579,14 +51546,12 @@
 
     if-nez v1, :cond_0
 
-    .line 2041
     const-string v1, "PackageManager"
 
     const-string v2, "Package Manager Crash"
 
     invoke-static {v1, v2, v0}, Landroid/util/Slog;->wtf(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 2043
     :cond_0
     throw v0
 .end method
@@ -54595,35 +51560,28 @@
     .locals 30
 
     .prologue
-    .line 4868
     const-string v23, "Only the system can request dexopt be performed"
 
     invoke-static/range {v23 .. v23}, Lcom/android/server/pm/PackageManagerService;->enforceSystemOrRoot(Ljava/lang/String;)V
 
-    .line 4872
     :try_start_0
     invoke-static {}, Lcom/android/internal/content/PackageHelper;->getMountService()Landroid/os/storage/IMountService;
 
     move-result-object v13
 
-    .line 4873
     .local v13, "ms":Landroid/os/storage/IMountService;
     if-eqz v13, :cond_5
 
-    .line 4874
     invoke-virtual/range {p0 .. p0}, Lcom/android/server/pm/PackageManagerService;->isUpgrade()Z
 
     move-result v9
 
-    .line 4875
     .local v9, "isUpgrade":Z
     move v5, v9
 
-    .line 4876
     .local v5, "doTrim":Z
     if-eqz v5, :cond_4
 
-    .line 4877
     const-string v23, "PackageManager"
 
     const-string v26, "Running disk maintenance immediately due to system update"
@@ -54634,12 +51592,10 @@
 
     invoke-static {v0, v1}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 4892
     :cond_0
     :goto_0
     if-eqz v5, :cond_2
 
-    .line 4893
     invoke-virtual/range {p0 .. p0}, Lcom/android/server/pm/PackageManagerService;->isFirstBoot()Z
     :try_end_0
     .catch Landroid/os/RemoteException; {:try_start_0 .. :try_end_0} :catch_0
@@ -54648,7 +51604,6 @@
 
     if-nez v23, :cond_1
 
-    .line 4895
     :try_start_1
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
@@ -54664,7 +51619,7 @@
 
     move-result-object v26
 
-    const v27, 0x1040572
+    const v27, #android:string@android_upgrading_fstrim#t
 
     invoke-virtual/range {v26 .. v27}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
 
@@ -54682,7 +51637,6 @@
     :try_end_1
     .catch Landroid/os/RemoteException; {:try_start_1 .. :try_end_1} :catch_1
 
-    .line 4901
     :cond_1
     :goto_1
     :try_start_2
@@ -54690,7 +51644,6 @@
     :try_end_2
     .catch Landroid/os/RemoteException; {:try_start_2 .. :try_end_2} :catch_0
 
-    .line 4911
     .end local v5    # "doTrim":Z
     .end local v9    # "isUpgrade":Z
     .end local v13    # "ms":Landroid/os/storage/IMountService;
@@ -54704,7 +51657,6 @@
 
     monitor-enter v26
 
-    .line 4912
     :try_start_3
     move-object/from16 v0, p0
 
@@ -54712,7 +51664,6 @@
 
     move-object/from16 v18, v0
 
-    .line 4913
     .local v18, "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Landroid/content/pm/PackageParser$Package;>;"
     const/16 v23, 0x0
 
@@ -54722,20 +51673,16 @@
 
     iput-object v0, v1, Lcom/android/server/pm/PackageManagerService;->mDeferredDexOpt:Landroid/util/ArraySet;
 
-    .line 4914
     monitor-exit v26
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_0
 
-    .line 4916
     if-eqz v18, :cond_12
 
-    .line 4919
     new-instance v19, Ljava/util/ArrayList;
 
     invoke-direct/range {v19 .. v19}, Ljava/util/ArrayList;-><init>()V
 
-    .line 4921
     .local v19, "sortedPkgs":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageParser$Package;>;"
     invoke-virtual/range {v18 .. v18}, Landroid/util/ArraySet;->iterator()Ljava/util/Iterator;
 
@@ -54750,14 +51697,12 @@
 
     if-eqz v23, :cond_6
 
-    .line 4922
     invoke-interface {v12}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v16
 
     check-cast v16, Landroid/content/pm/PackageParser$Package;
 
-    .line 4923
     .local v16, "pkg":Landroid/content/pm/PackageParser$Package;
     move-object/from16 v0, v16
 
@@ -54767,19 +51712,16 @@
 
     if-eqz v23, :cond_3
 
-    .line 4927
     move-object/from16 v0, v19
 
     move-object/from16 v1, v16
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 4928
     invoke-interface {v12}, Ljava/util/Iterator;->remove()V
 
     goto :goto_3
 
-    .line 4879
     .end local v12    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageParser$Package;>;"
     .end local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     .end local v18    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Landroid/content/pm/PackageParser$Package;>;"
@@ -54813,7 +51755,6 @@
 
     move-result-wide v10
 
-    .line 4883
     .local v10, "interval":J
     const-wide/16 v26, 0x0
 
@@ -54821,7 +51762,6 @@
 
     if-lez v23, :cond_0
 
-    .line 4884
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v26
@@ -54832,16 +51772,13 @@
 
     sub-long v20, v26, v28
 
-    .line 4885
     .local v20, "timeSinceLast":J
     cmp-long v23, v20, v10
 
     if-lez v23, :cond_0
 
-    .line 4886
     const/4 v5, 0x1
 
-    .line 4887
     const-string v23, "PackageManager"
 
     new-instance v26, Ljava/lang/StringBuilder;
@@ -54880,7 +51817,6 @@
 
     goto/16 :goto_0
 
-    .line 4906
     .end local v5    # "doTrim":Z
     .end local v9    # "isUpgrade":Z
     .end local v10    # "interval":J
@@ -54891,7 +51827,6 @@
 
     goto/16 :goto_2
 
-    .line 4904
     .restart local v13    # "ms":Landroid/os/storage/IMountService;
     :cond_5
     const-string v23, "PackageManager"
@@ -54908,7 +51843,6 @@
 
     goto/16 :goto_2
 
-    .line 4914
     .end local v13    # "ms":Landroid/os/storage/IMountService;
     :catchall_0
     move-exception v23
@@ -54920,7 +51854,6 @@
 
     throw v23
 
-    .line 4932
     .restart local v12    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageParser$Package;>;"
     .restart local v18    # "pkgs":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Landroid/content/pm/PackageParser$Package;>;"
     .restart local v19    # "sortedPkgs":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PackageParser$Package;>;"
@@ -54933,7 +51866,6 @@
 
     invoke-direct {v8, v0}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 4933
     .local v8, "intent":Landroid/content/Intent;
     move-object/from16 v0, p0
 
@@ -54941,7 +51873,6 @@
 
     move-result-object v17
 
-    .line 4934
     .local v17, "pkgNames":Landroid/util/ArraySet;, "Landroid/util/ArraySet<Ljava/lang/String;>;"
     invoke-virtual/range {v18 .. v18}, Landroid/util/ArraySet;->iterator()Ljava/util/Iterator;
 
@@ -54955,14 +51886,12 @@
 
     if-eqz v23, :cond_8
 
-    .line 4935
     invoke-interface {v12}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v16
 
     check-cast v16, Landroid/content/pm/PackageParser$Package;
 
-    .line 4936
     .restart local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     move-object/from16 v0, v16
 
@@ -54980,19 +51909,16 @@
 
     if-eqz v23, :cond_7
 
-    .line 4940
     move-object/from16 v0, v19
 
     move-object/from16 v1, v16
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 4941
     invoke-interface {v12}, Ljava/util/Iterator;->remove()V
 
     goto :goto_4
 
-    .line 4945
     .end local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_8
     invoke-virtual/range {v18 .. v18}, Landroid/util/ArraySet;->iterator()Ljava/util/Iterator;
@@ -55007,14 +51933,12 @@
 
     if-eqz v23, :cond_a
 
-    .line 4946
     invoke-interface {v12}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v16
 
     check-cast v16, Landroid/content/pm/PackageParser$Package;
 
-    .line 4947
     .restart local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     invoke-static/range {v16 .. v16}, Lcom/android/server/pm/PackageManagerService;->isSystemApp(Landroid/content/pm/PackageParser$Package;)Z
 
@@ -55028,19 +51952,16 @@
 
     if-nez v23, :cond_9
 
-    .line 4951
     move-object/from16 v0, v19
 
     move-object/from16 v1, v16
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 4952
     invoke-interface {v12}, Ljava/util/Iterator;->remove()V
 
     goto :goto_5
 
-    .line 4956
     .end local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_a
     invoke-virtual/range {v18 .. v18}, Landroid/util/ArraySet;->iterator()Ljava/util/Iterator;
@@ -55055,14 +51976,12 @@
 
     if-eqz v23, :cond_c
 
-    .line 4957
     invoke-interface {v12}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v16
 
     check-cast v16, Landroid/content/pm/PackageParser$Package;
 
-    .line 4958
     .restart local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     invoke-static/range {v16 .. v16}, Lcom/android/server/pm/PackageManagerService;->isUpdatedSystemApp(Landroid/content/pm/PackageParser$Package;)Z
 
@@ -55070,19 +51989,16 @@
 
     if-eqz v23, :cond_b
 
-    .line 4962
     move-object/from16 v0, v19
 
     move-object/from16 v1, v16
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 4963
     invoke-interface {v12}, Ljava/util/Iterator;->remove()V
 
     goto :goto_6
 
-    .line 4967
     .end local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_c
     new-instance v8, Landroid/content/Intent;
@@ -55094,7 +52010,6 @@
 
     invoke-direct {v8, v0}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 4968
     .restart local v8    # "intent":Landroid/content/Intent;
     move-object/from16 v0, p0
 
@@ -55102,7 +52017,6 @@
 
     move-result-object v17
 
-    .line 4969
     invoke-virtual/range {v18 .. v18}, Landroid/util/ArraySet;->iterator()Ljava/util/Iterator;
 
     move-result-object v12
@@ -55115,14 +52029,12 @@
 
     if-eqz v23, :cond_e
 
-    .line 4970
     invoke-interface {v12}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v16
 
     check-cast v16, Landroid/content/pm/PackageParser$Package;
 
-    .line 4971
     .restart local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     move-object/from16 v0, v16
 
@@ -55140,19 +52052,16 @@
 
     if-eqz v23, :cond_d
 
-    .line 4975
     move-object/from16 v0, v19
 
     move-object/from16 v1, v16
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 4976
     invoke-interface {v12}, Ljava/util/Iterator;->remove()V
 
     goto :goto_7
 
-    .line 4980
     .end local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_e
     move-object/from16 v0, p0
@@ -55161,7 +52070,6 @@
 
     invoke-direct {v0, v1}, Lcom/android/server/pm/PackageManagerService;->filterRecentlyUsedApps(Ljava/util/Collection;)V
 
-    .line 4982
     invoke-virtual/range {v18 .. v18}, Landroid/util/ArraySet;->iterator()Ljava/util/Iterator;
 
     move-result-object v7
@@ -55180,7 +52088,6 @@
 
     check-cast v16, Landroid/content/pm/PackageParser$Package;
 
-    .line 4986
     .restart local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     move-object/from16 v0, v19
 
@@ -55190,7 +52097,6 @@
 
     goto :goto_8
 
-    .line 4990
     .end local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_f
     move-object/from16 v0, p0
@@ -55201,30 +52107,25 @@
 
     if-eqz v23, :cond_10
 
-    .line 4991
     move-object/from16 v0, p0
 
     move-object/from16 v1, v19
 
     invoke-direct {v0, v1}, Lcom/android/server/pm/PackageManagerService;->filterRecentlyUsedApps(Ljava/util/Collection;)V
 
-    .line 4994
     :cond_10
     const/4 v6, 0x0
 
-    .line 4995
     .local v6, "i":I
     invoke-virtual/range {v19 .. v19}, Ljava/util/ArrayList;->size()I
 
     move-result v22
 
-    .line 4996
     .local v22, "total":I
     invoke-static {}, Landroid/os/Environment;->getDataDirectory()Ljava/io/File;
 
     move-result-object v4
 
-    .line 4997
     .local v4, "dataDir":Ljava/io/File;
     move-object/from16 v0, p0
 
@@ -55242,7 +52143,6 @@
 
     move-result-wide v14
 
-    .line 4998
     .local v14, "lowThreshold":J
     const-wide/16 v26, 0x0
 
@@ -55250,7 +52150,6 @@
 
     if-nez v23, :cond_11
 
-    .line 4999
     new-instance v23, Ljava/lang/IllegalStateException;
 
     const-string v26, "Invalid low memory threshold"
@@ -55263,7 +52162,6 @@
 
     throw v23
 
-    .line 5001
     :cond_11
     invoke-virtual/range {v19 .. v19}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
@@ -55282,19 +52180,16 @@
 
     check-cast v16, Landroid/content/pm/PackageParser$Package;
 
-    .line 5002
     .restart local v16    # "pkg":Landroid/content/pm/PackageParser$Package;
     invoke-virtual {v4}, Ljava/io/File;->getUsableSpace()J
 
     move-result-wide v24
 
-    .line 5003
     .local v24, "usableSpace":J
     cmp-long v23, v24, v14
 
     if-gez v23, :cond_13
 
-    .line 5004
     const-string v23, "PackageManager"
 
     new-instance v26, Ljava/lang/StringBuilder;
@@ -55325,7 +52220,6 @@
 
     invoke-static {v0, v1}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 5010
     .end local v4    # "dataDir":Ljava/io/File;
     .end local v6    # "i":I
     .end local v7    # "i$":Ljava/util/Iterator;
@@ -55338,9 +52232,11 @@
     .end local v22    # "total":I
     .end local v24    # "usableSpace":J
     :cond_12
+
+    invoke-static/range {p0 .. p0}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->setComponentEnabledSetting(Lcom/android/server/pm/PackageManagerService;)V
+
     return-void
 
-    .line 5007
     .restart local v4    # "dataDir":Ljava/io/File;
     .restart local v6    # "i":I
     .restart local v7    # "i$":Ljava/util/Iterator;
@@ -55365,7 +52261,6 @@
 
     goto :goto_9
 
-    .line 4898
     .end local v4    # "dataDir":Ljava/io/File;
     .end local v6    # "i":I
     .end local v7    # "i$":Ljava/util/Iterator;
@@ -55398,7 +52293,6 @@
 
     const/4 v9, 0x0
 
-    .line 5086
     iget-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mLazyDexOpt:Z
 
     if-nez v0, :cond_0
@@ -55408,14 +52302,12 @@
     :cond_0
     move v6, v10
 
-    .line 5087
     .local v6, "dexopt":Z
     :goto_0
     if-nez p3, :cond_2
 
     move v8, v10
 
-    .line 5088
     .local v8, "updateUsage":Z
     :goto_1
     if-nez v6, :cond_3
@@ -55424,7 +52316,6 @@
 
     move v0, v9
 
-    .line 5117
     :goto_2
     return v0
 
@@ -55433,24 +52324,20 @@
     :cond_1
     move v6, v9
 
-    .line 5086
     goto :goto_0
 
     .restart local v6    # "dexopt":Z
     :cond_2
     move v8, v9
 
-    .line 5087
     goto :goto_1
 
-    .line 5094
     .restart local v8    # "updateUsage":Z
     :cond_3
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 5095
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -55460,29 +52347,24 @@
 
     check-cast v1, Landroid/content/pm/PackageParser$Package;
 
-    .line 5096
     .local v1, "p":Landroid/content/pm/PackageParser$Package;
     if-nez v1, :cond_4
 
-    .line 5097
     monitor-exit v3
 
     move v0, v9
 
     goto :goto_2
 
-    .line 5099
     :cond_4
     if-eqz v8, :cond_5
 
-    .line 5100
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
 
     iput-wide v4, v1, Landroid/content/pm/PackageParser$Package;->mLastPackageUsageTimeInMills:J
 
-    .line 5102
     :cond_5
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackageUsage:Lcom/android/server/pm/PackageManagerService$PackageUsage;
 
@@ -55490,23 +52372,19 @@
 
     invoke-virtual {v0, v4}, Lcom/android/server/pm/PackageManagerService$PackageUsage;->write(Z)V
 
-    .line 5103
     if-nez v6, :cond_6
 
-    .line 5105
     monitor-exit v3
 
     move v0, v9
 
     goto :goto_2
 
-    .line 5108
     :cond_6
     if-eqz p2, :cond_7
 
     move-object v7, p2
 
-    .line 5110
     .local v7, "targetInstructionSet":Ljava/lang/String;
     :goto_3
     iget-object v0, v1, Landroid/content/pm/PackageParser$Package;->mDexOptPerformed:Landroid/util/ArraySet;
@@ -55517,14 +52395,12 @@
 
     if-eqz v0, :cond_8
 
-    .line 5111
     monitor-exit v3
 
     move v0, v9
 
     goto :goto_2
 
-    .line 5108
     .end local v7    # "targetInstructionSet":Ljava/lang/String;
     :cond_7
     iget-object v0, v1, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
@@ -55535,19 +52411,16 @@
 
     goto :goto_3
 
-    .line 5113
     .restart local v7    # "targetInstructionSet":Ljava/lang/String;
     :cond_8
     monitor-exit v3
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_1
 
-    .line 5115
     iget-object v11, p0, Lcom/android/server/pm/PackageManagerService;->mInstallLock:Ljava/lang/Object;
 
     monitor-enter v11
 
-    .line 5116
     const/4 v0, 0x1
 
     :try_start_1
@@ -55557,7 +52430,6 @@
 
     aput-object v7, v2, v0
 
-    .line 5117
     .local v2, "instructionSets":[Ljava/lang/String;
     const/4 v3, 0x0
 
@@ -55580,7 +52452,6 @@
 
     goto :goto_2
 
-    .line 5119
     .end local v2    # "instructionSets":[Ljava/lang/String;
     :catchall_0
     move-exception v0
@@ -55591,7 +52462,7 @@
 
     throw v0
 
-    .line 5113
+    .line 5063
     .end local v1    # "p":Landroid/content/pm/PackageParser$Package;
     .end local v7    # "targetInstructionSet":Ljava/lang/String;
     :catchall_1
@@ -55610,7 +52481,6 @@
     :cond_9
     move v0, v9
 
-    .line 5117
     goto :goto_4
 .end method
 
@@ -55620,7 +52490,6 @@
     .param p2, "instructionSet"    # Ljava/lang/String;
 
     .prologue
-    .line 5074
     const/4 v0, 0x0
 
     invoke-virtual {p0, p1, p2, v0}, Lcom/android/server/pm/PackageManagerService;->performDexOpt(Ljava/lang/String;Ljava/lang/String;Z)Z
@@ -55635,14 +52504,12 @@
     .param p1, "info"    # Landroid/content/pm/PermissionInfo;
 
     .prologue
-    .line 2686
     iget-object v1, p1, Landroid/content/pm/PermissionInfo;->name:Ljava/lang/String;
 
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    .line 2687
     .local v0, "size":I
     iget-object v1, p1, Landroid/content/pm/PermissionInfo;->nonLocalizedLabel:Ljava/lang/CharSequence;
 
@@ -55656,7 +52523,7 @@
 
     add-int/2addr v0, v1
 
-    .line 2688
+    .line 5180
     :cond_0
     iget-object v1, p1, Landroid/content/pm/PermissionInfo;->nonLocalizedDescription:Ljava/lang/CharSequence;
 
@@ -55670,7 +52537,6 @@
 
     add-int/2addr v0, v1
 
-    .line 2689
     :cond_1
     return v0
 .end method
@@ -55682,7 +52548,6 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 14999
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v7, "android.permission.ACCESS_THEME_MANAGER"
@@ -55691,7 +52556,6 @@
 
     invoke-virtual {v5, v7, v8}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 15001
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     invoke-virtual {v5, p1}, Landroid/util/ArrayMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -55700,11 +52564,9 @@
 
     check-cast v3, Landroid/content/pm/PackageParser$Package;
 
-    .line 15002
     .local v3, "pkg":Landroid/content/pm/PackageParser$Package;
     if-nez v3, :cond_0
 
-    .line 15003
     const-string v5, "PackageManager"
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -55729,11 +52591,9 @@
 
     move v5, v6
 
-    .line 15043
     :goto_0
     return v5
 
-    .line 15008
     :cond_0
     invoke-direct {p0, v3}, Lcom/android/server/pm/PackageManagerService;->isIconCompileNeeded(Landroid/content/pm/PackageParser$Package;)Z
 
@@ -55741,21 +52601,17 @@
 
     if-eqz v5, :cond_1
 
-    .line 15010
     :try_start_0
     invoke-static {}, Landroid/content/pm/ThemeUtils;->createCacheDirIfNotExists()V
 
-    .line 15011
     iget-object v5, v3, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
 
     invoke-static {v5}, Landroid/content/pm/ThemeUtils;->createIconDirIfNotExists(Ljava/lang/String;)V
 
-    .line 15012
     invoke-direct {p0, v3}, Lcom/android/server/pm/PackageManagerService;->compileIconPack(Landroid/content/pm/PackageParser$Package;)V
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 15021
     :cond_1
     iget-object v5, v3, Landroid/content/pm/PackageParser$Package;->mOverlayTargets:Ljava/util/ArrayList;
 
@@ -55763,7 +52619,6 @@
 
     move-result-object v2
 
-    .line 15022
     .local v2, "iterator":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     :cond_2
     :goto_1
@@ -55773,18 +52628,15 @@
 
     if-eqz v5, :cond_3
 
-    .line 15023
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v4
 
     check-cast v4, Ljava/lang/String;
 
-    .line 15024
     .local v4, "target":Ljava/lang/String;
     const/4 v1, 0x0
 
-    .line 15026
     .local v1, "failedException":Ljava/lang/Exception;
     :try_start_1
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
@@ -55801,11 +52653,9 @@
     .catch Lcom/android/server/pm/PackageManagerService$AaptException; {:try_start_1 .. :try_end_1} :catch_2
     .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_3
 
-    .line 15035
     :goto_2
     if-eqz v1, :cond_2
 
-    .line 15036
     const-string v5, "PackageManager"
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -55840,23 +52690,19 @@
 
     invoke-static {v5, v7, v1}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 15039
     invoke-interface {v2}, Ljava/util/Iterator;->remove()V
 
     goto :goto_1
 
-    .line 15013
     .end local v1    # "failedException":Ljava/lang/Exception;
     .end local v2    # "iterator":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     .end local v4    # "target":Ljava/lang/String;
     :catch_0
     move-exception v0
 
-    .line 15014
     .local v0, "e":Ljava/lang/Exception;
     invoke-direct {p0, v3}, Lcom/android/server/pm/PackageManagerService;->uninstallThemeForAllApps(Landroid/content/pm/PackageParser$Package;)V
 
-    .line 15015
     invoke-static {}, Lcom/android/server/pm/PackageManagerService;->getCallingUid()I
 
     move-result v5
@@ -55865,12 +52711,10 @@
 
     invoke-direct {p0, p1, v5, v6}, Lcom/android/server/pm/PackageManagerService;->deletePackageX(Ljava/lang/String;II)I
 
-    .line 15016
     const/16 v5, -0x190
 
     goto :goto_0
 
-    .line 15027
     .end local v0    # "e":Ljava/lang/Exception;
     .restart local v1    # "failedException":Ljava/lang/Exception;
     .restart local v2    # "iterator":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
@@ -55878,31 +52722,24 @@
     :catch_1
     move-exception v0
 
-    .line 15028
     .local v0, "e":Lcom/android/server/pm/PackageManagerService$IdmapException;
     move-object v1, v0
 
-    .line 15033
     goto :goto_2
 
-    .line 15029
     .end local v0    # "e":Lcom/android/server/pm/PackageManagerService$IdmapException;
     :catch_2
     move-exception v0
 
-    .line 15030
     .local v0, "e":Lcom/android/server/pm/PackageManagerService$AaptException;
     move-object v1, v0
 
-    .line 15033
     goto :goto_2
 
-    .line 15031
     .end local v0    # "e":Lcom/android/server/pm/PackageManagerService$AaptException;
     :catch_3
     move-exception v0
 
-    .line 15032
     .local v0, "e":Ljava/lang/Exception;
     move-object v1, v0
 
@@ -55914,7 +52751,6 @@
     :cond_3
     move v5, v6
 
-    .line 15043
     goto :goto_0
 .end method
 
@@ -55936,16 +52772,13 @@
     .end annotation
 
     .prologue
-    .line 4290
     const/4 v0, 0x0
 
-    .line 4292
     .local v0, "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v8
 
-    .line 4293
     :try_start_0
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mProviders:Lcom/android/server/pm/PackageManagerService$ProviderIntentResolver;
 
@@ -55962,7 +52795,6 @@
 
     move-result-object v2
 
-    .line 4294
     .local v2, "i":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageParser$Provider;>;"
     if-eqz p1, :cond_3
 
@@ -55976,7 +52808,6 @@
     :goto_0
     move-object v1, v0
 
-    .line 4296
     .end local v0    # "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     .local v1, "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     :goto_1
@@ -55987,14 +52818,12 @@
 
     if-eqz v7, :cond_4
 
-    .line 4297
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v4
 
     check-cast v4, Landroid/content/pm/PackageParser$Provider;
 
-    .line 4298
     .local v4, "p":Landroid/content/pm/PackageParser$Provider;
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -56010,7 +52839,6 @@
 
     check-cast v5, Lcom/android/server/pm/PackageSetting;
 
-    .line 4299
     .local v5, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v5, :cond_7
 
@@ -56069,11 +52897,9 @@
 
     if-eqz v7, :cond_7
 
-    .line 4306
     :cond_1
     if-nez v1, :cond_6
 
-    .line 4307
     new-instance v0, Ljava/util/ArrayList;
 
     const/4 v7, 0x3
@@ -56082,7 +52908,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 4309
     .end local v1    # "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     .restart local v0    # "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     :goto_2
@@ -56095,11 +52920,9 @@
 
     move-result-object v3
 
-    .line 4311
     .local v3, "info":Landroid/content/pm/ProviderInfo;
     if-eqz v3, :cond_2
 
-    .line 4312
     invoke-virtual {v0, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     .end local v3    # "info":Landroid/content/pm/ProviderInfo;
@@ -56107,12 +52930,10 @@
     :goto_3
     move-object v1, v0
 
-    .line 4315
     .end local v0    # "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     .restart local v1    # "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     goto :goto_1
 
-    .line 4294
     .end local v1    # "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     .end local v4    # "p":Landroid/content/pm/PackageParser$Provider;
     .end local v5    # "ps":Lcom/android/server/pm/PackageSetting;
@@ -56127,7 +52948,6 @@
 
     goto :goto_0
 
-    .line 4316
     .end local v0    # "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     .restart local v1    # "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     .restart local v6    # "userId":I
@@ -56137,19 +52957,15 @@
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 4318
     if-eqz v1, :cond_5
 
-    .line 4319
     sget-object v7, Lcom/android/server/pm/PackageManagerService;->mProviderInitOrderSorter:Ljava/util/Comparator;
 
     invoke-static {v1, v7}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
 
-    .line 4322
     :cond_5
     return-object v1
 
-    .line 4316
     .end local v1    # "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/ProviderInfo;>;"
     .end local v2    # "i":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageParser$Provider;>;"
     .end local v6    # "userId":I
@@ -56216,18 +53032,15 @@
     .end annotation
 
     .prologue
-    .line 4338
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 4342
     .local v0, "finalList":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/InstrumentationInfo;>;"
     iget-object v5, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v5
 
-    .line 4343
     :try_start_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mInstrumentation:Landroid/util/ArrayMap;
 
@@ -56239,7 +53052,6 @@
 
     move-result-object v1
 
-    .line 4344
     .local v1, "i":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageParser$Instrumentation;>;"
     :cond_0
     :goto_0
@@ -56249,14 +53061,12 @@
 
     if-eqz v4, :cond_2
 
-    .line 4345
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v3
 
     check-cast v3, Landroid/content/pm/PackageParser$Instrumentation;
 
-    .line 4346
     .local v3, "p":Landroid/content/pm/PackageParser$Instrumentation;
     if-eqz p1, :cond_1
 
@@ -56270,22 +53080,18 @@
 
     if-eqz v4, :cond_0
 
-    .line 4348
     :cond_1
     invoke-static {v3, p2}, Landroid/content/pm/PackageParser;->generateInstrumentationInfo(Landroid/content/pm/PackageParser$Instrumentation;I)Landroid/content/pm/InstrumentationInfo;
 
     move-result-object v2
 
-    .line 4350
     .local v2, "ii":Landroid/content/pm/InstrumentationInfo;
     if-eqz v2, :cond_0
 
-    .line 4351
     invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_0
 
-    .line 4355
     .end local v1    # "i":Ljava/util/Iterator;, "Ljava/util/Iterator<Landroid/content/pm/PackageParser$Instrumentation;>;"
     .end local v2    # "ii":Landroid/content/pm/InstrumentationInfo;
     .end local v3    # "p":Landroid/content/pm/PackageParser$Instrumentation;
@@ -56305,7 +53111,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 4357
     return-object v0
 .end method
 
@@ -56329,7 +53134,6 @@
     .end annotation
 
     .prologue
-    .line 3627
     sget-object v4, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     move/from16 v0, p4
@@ -56344,11 +53148,9 @@
 
     move-result-object v18
 
-    .line 3680
     :goto_0
     return-object v18
 
-    .line 3628
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -56366,44 +53168,36 @@
 
     invoke-virtual/range {v4 .. v9}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 3629
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
 
     move-result-object v13
 
-    .line 3630
     .local v13, "comp":Landroid/content/ComponentName;
     if-nez v13, :cond_1
 
-    .line 3631
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
     move-result-object v4
 
     if-eqz v4, :cond_1
 
-    .line 3632
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
     move-result-object p1
 
-    .line 3633
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
 
     move-result-object v13
 
-    .line 3637
     :cond_1
     if-eqz v13, :cond_3
 
-    .line 3638
     new-instance v14, Ljava/util/ArrayList;
 
     const/4 v4, 0x1
 
     invoke-direct {v14, v4}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 3639
     .local v14, "list":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     move-object/from16 v0, p0
 
@@ -56415,22 +53209,18 @@
 
     move-result-object v12
 
-    .line 3640
     .local v12, "ai":Landroid/content/pm/ActivityInfo;
     if-eqz v12, :cond_2
 
-    .line 3641
     new-instance v19, Landroid/content/pm/ResolveInfo;
 
     invoke-direct/range {v19 .. v19}, Landroid/content/pm/ResolveInfo;-><init>()V
 
-    .line 3642
     .local v19, "ri":Landroid/content/pm/ResolveInfo;
     move-object/from16 v0, v19
 
     iput-object v12, v0, Landroid/content/pm/ResolveInfo;->activityInfo:Landroid/content/pm/ActivityInfo;
 
-    .line 3643
     move-object/from16 v0, v19
 
     invoke-interface {v14, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
@@ -56439,10 +53229,8 @@
     :cond_2
     move-object/from16 v18, v14
 
-    .line 3645
     goto :goto_0
 
-    .line 3649
     .end local v12    # "ai":Landroid/content/pm/ActivityInfo;
     .end local v14    # "list":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     :cond_3
@@ -56454,17 +53242,14 @@
 
     monitor-enter v20
 
-    .line 3650
     :try_start_0
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getPackage()Ljava/lang/String;
 
     move-result-object v16
 
-    .line 3651
     .local v16, "pkgName":Ljava/lang/String;
     if-nez v16, :cond_6
 
-    .line 3652
     move-object/from16 v0, p0
 
     move-object/from16 v1, p1
@@ -56488,16 +53273,13 @@
 
     move/from16 v9, p4
 
-    .line 3655
     invoke-direct/range {v4 .. v9}, Lcom/android/server/pm/PackageManagerService;->querySkipCurrentProfileIntents(Ljava/util/List;Landroid/content/Intent;Ljava/lang/String;II)Landroid/content/pm/ResolveInfo;
 
     move-result-object v17
 
-    .line 3657
     .local v17, "resolveInfo":Landroid/content/pm/ResolveInfo;
     if-eqz v17, :cond_4
 
-    .line 3658
     new-instance v18, Ljava/util/ArrayList;
 
     const/4 v4, 0x1
@@ -56506,7 +53288,6 @@
 
     invoke-direct {v0, v4}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 3659
     .local v18, "result":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     move-object/from16 v0, v18
 
@@ -56514,12 +53295,10 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 3660
     monitor-exit v20
 
     goto/16 :goto_0
 
-    .line 3681
     .end local v5    # "matchingFilters":Ljava/util/List;, "Ljava/util/List<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
     .end local v16    # "pkgName":Ljava/lang/String;
     .end local v17    # "resolveInfo":Landroid/content/pm/ResolveInfo;
@@ -56547,17 +53326,16 @@
 
     move/from16 v9, p4
 
-    .line 3663
     :try_start_1
     invoke-direct/range {v4 .. v9}, Lcom/android/server/pm/PackageManagerService;->queryCrossProfileIntents(Ljava/util/List;Landroid/content/Intent;Ljava/lang/String;II)Landroid/content/pm/ResolveInfo;
 
     move-result-object v17
 
-    .line 3667
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mActivities:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
 
+    .line 5181
     move-object/from16 v0, p1
 
     move-object/from16 v1, p2
@@ -56570,31 +53348,26 @@
 
     move-result-object v18
 
-    .line 3669
     .restart local v18    # "result":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     if-eqz v17, :cond_5
 
-    .line 3670
     move-object/from16 v0, v18
 
     move-object/from16 v1, v17
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 3671
     sget-object v4, Lcom/android/server/pm/PackageManagerService;->mResolvePrioritySorter:Ljava/util/Comparator;
 
     move-object/from16 v0, v18
 
     invoke-static {v0, v4}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
 
-    .line 3673
     :cond_5
     monitor-exit v20
 
     goto/16 :goto_0
 
-    .line 3675
     .end local v5    # "matchingFilters":Ljava/util/List;, "Ljava/util/List<Lcom/android/server/pm/CrossProfileIntentFilter;>;"
     .end local v17    # "resolveInfo":Landroid/content/pm/ResolveInfo;
     .end local v18    # "result":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
@@ -56611,11 +53384,9 @@
 
     check-cast v15, Landroid/content/pm/PackageParser$Package;
 
-    .line 3676
     .local v15, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v15, :cond_7
 
-    .line 3677
     move-object/from16 v0, p0
 
     iget-object v6, v0, Lcom/android/server/pm/PackageManagerService;->mActivities:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
@@ -56638,7 +53409,6 @@
 
     goto/16 :goto_0
 
-    .line 3680
     :cond_7
     new-instance v18, Ljava/util/ArrayList;
 
@@ -56679,7 +53449,6 @@
     .end annotation
 
     .prologue
-    .line 3773
     sget-object v4, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     move/from16 v0, p7
@@ -56694,11 +53463,10 @@
 
     move-result-object v18
 
-    .line 3939
     :cond_0
     return-object v18
 
-    .line 3774
+    .line 5185
     :cond_1
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -56716,12 +53484,10 @@
 
     invoke-virtual/range {v4 .. v9}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 3776
     invoke-virtual/range {p4 .. p4}, Landroid/content/Intent;->getAction()Ljava/lang/String;
 
     move-result-object v19
 
-    .line 3778
     .local v19, "resultsAction":Ljava/lang/String;
     or-int/lit8 v4, p6, 0x40
 
@@ -56737,15 +53503,12 @@
 
     move-result-object v18
 
-    .line 3785
     .local v18, "results":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     const/16 v24, 0x0
 
-    .line 3796
     .local v24, "specificsPos":I
     if-eqz p2, :cond_f
 
-    .line 3797
     const/4 v15, 0x0
 
     .local v15, "i":I
@@ -56756,27 +53519,22 @@
 
     if-ge v15, v4, :cond_f
 
-    .line 3798
     aget-object v23, p2, v15
 
-    .line 3799
     .local v23, "sintent":Landroid/content/Intent;
     if-nez v23, :cond_3
 
-    .line 3797
     :cond_2
     :goto_1
     add-int/lit8 v15, v15, 0x1
 
     goto :goto_0
 
-    .line 3807
     :cond_3
     invoke-virtual/range {v23 .. v23}, Landroid/content/Intent;->getAction()Ljava/lang/String;
 
     move-result-object v11
 
-    .line 3808
     .local v11, "action":Ljava/lang/String;
     if-eqz v19, :cond_4
 
@@ -56788,28 +53546,22 @@
 
     if-eqz v4, :cond_4
 
-    .line 3811
     const/4 v11, 0x0
 
-    .line 3814
     :cond_4
     const/16 v20, 0x0
 
-    .line 3815
     .local v20, "ri":Landroid/content/pm/ResolveInfo;
     const/4 v12, 0x0
 
-    .line 3817
     .local v12, "ai":Landroid/content/pm/ActivityInfo;
     invoke-virtual/range {v23 .. v23}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
 
     move-result-object v14
 
-    .line 3818
     .local v14, "comp":Landroid/content/ComponentName;
     if-nez v14, :cond_c
 
-    .line 3819
     if-eqz p3, :cond_b
 
     aget-object v4, p3, v15
@@ -56827,10 +53579,8 @@
 
     move-result-object v20
 
-    .line 3823
     if-eqz v20, :cond_2
 
-    .line 3826
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mResolveInfo:Landroid/content/pm/ResolveInfo;
@@ -56839,13 +53589,11 @@
 
     if-ne v0, v4, :cond_5
 
-    .line 3829
     :cond_5
     move-object/from16 v0, v20
 
     iget-object v12, v0, Landroid/content/pm/ResolveInfo;->activityInfo:Landroid/content/pm/ActivityInfo;
 
-    .line 3830
     new-instance v14, Landroid/content/ComponentName;
 
     .end local v14    # "comp":Landroid/content/ComponentName;
@@ -56857,14 +53605,12 @@
 
     invoke-direct {v14, v4, v5}, Landroid/content/ComponentName;-><init>(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 3842
     .restart local v14    # "comp":Landroid/content/ComponentName;
     :cond_6
     invoke-interface/range {v18 .. v18}, Ljava/util/List;->size()I
 
     move-result v10
 
-    .line 3844
     .local v10, "N":I
     move/from16 v17, v24
 
@@ -56874,7 +53620,6 @@
 
     if-ge v0, v10, :cond_d
 
-    .line 3845
     move-object/from16 v0, v18
 
     move/from16 v1, v17
@@ -56885,7 +53630,6 @@
 
     check-cast v25, Landroid/content/pm/ResolveInfo;
 
-    .line 3846
     .local v25, "sri":Landroid/content/pm/ResolveInfo;
     move-object/from16 v0, v25
 
@@ -56921,6 +53665,7 @@
 
     if-nez v4, :cond_8
 
+    .line 5213
     :cond_7
     if-eqz v11, :cond_a
 
@@ -56934,7 +53679,6 @@
 
     if-eqz v4, :cond_a
 
-    .line 3850
     :cond_8
     move-object/from16 v0, v18
 
@@ -56942,26 +53686,20 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 3854
     if-nez v20, :cond_9
 
-    .line 3855
     move-object/from16 v20, v25
 
-    .line 3857
     :cond_9
     add-int/lit8 v17, v17, -0x1
 
-    .line 3858
     add-int/lit8 v10, v10, -0x1
 
-    .line 3844
     :cond_a
     add-int/lit8 v17, v17, 0x1
 
     goto :goto_3
 
-    .line 3819
     .end local v10    # "N":I
     .end local v17    # "j":I
     .end local v25    # "sri":Landroid/content/pm/ResolveInfo;
@@ -56970,7 +53708,6 @@
 
     goto :goto_2
 
-    .line 3833
     :cond_c
     move-object/from16 v0, p0
 
@@ -56982,30 +53719,25 @@
 
     move-result-object v12
 
-    .line 3834
     if-nez v12, :cond_6
 
     goto/16 :goto_1
 
-    .line 3863
     .restart local v10    # "N":I
     .restart local v17    # "j":I
     :cond_d
     if-nez v20, :cond_e
 
-    .line 3864
     new-instance v20, Landroid/content/pm/ResolveInfo;
 
     .end local v20    # "ri":Landroid/content/pm/ResolveInfo;
     invoke-direct/range {v20 .. v20}, Landroid/content/pm/ResolveInfo;-><init>()V
 
-    .line 3865
     .restart local v20    # "ri":Landroid/content/pm/ResolveInfo;
     move-object/from16 v0, v20
 
     iput-object v12, v0, Landroid/content/pm/ResolveInfo;->activityInfo:Landroid/content/pm/ActivityInfo;
 
-    .line 3867
     :cond_e
     move-object/from16 v0, v18
 
@@ -57015,17 +53747,14 @@
 
     invoke-interface {v0, v1, v2}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 3868
     move-object/from16 v0, v20
 
     iput v15, v0, Landroid/content/pm/ResolveInfo;->specificIndex:I
 
-    .line 3869
     add-int/lit8 v24, v24, 0x1
 
     goto/16 :goto_1
 
-    .line 3875
     .end local v10    # "N":I
     .end local v11    # "action":Ljava/lang/String;
     .end local v12    # "ai":Landroid/content/pm/ActivityInfo;
@@ -57039,7 +53768,6 @@
 
     move-result v10
 
-    .line 3876
     .restart local v10    # "N":I
     move/from16 v15, v24
 
@@ -57049,7 +53777,6 @@
 
     if-ge v15, v4, :cond_16
 
-    .line 3877
     move-object/from16 v0, v18
 
     invoke-interface {v0, v15}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -57058,7 +53785,6 @@
 
     check-cast v21, Landroid/content/pm/ResolveInfo;
 
-    .line 3878
     .local v21, "rii":Landroid/content/pm/ResolveInfo;
     move-object/from16 v0, v21
 
@@ -57066,14 +53792,12 @@
 
     if-nez v4, :cond_11
 
-    .line 3876
     :cond_10
     :goto_5
     add-int/lit8 v15, v15, 0x1
 
     goto :goto_4
 
-    .line 3884
     :cond_11
     move-object/from16 v0, v21
 
@@ -57083,11 +53807,9 @@
 
     move-result-object v16
 
-    .line 3885
     .local v16, "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     if-eqz v16, :cond_10
 
-    .line 3888
     :cond_12
     invoke-interface/range {v16 .. v16}, Ljava/util/Iterator;->hasNext()Z
 
@@ -57095,14 +53817,12 @@
 
     if-eqz v4, :cond_15
 
-    .line 3889
     invoke-interface/range {v16 .. v16}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v11
 
     check-cast v11, Ljava/lang/String;
 
-    .line 3890
     .restart local v11    # "action":Ljava/lang/String;
     if-eqz v19, :cond_13
 
@@ -57114,7 +53834,6 @@
 
     if-nez v4, :cond_12
 
-    .line 3895
     :cond_13
     add-int/lit8 v17, v15, 0x1
 
@@ -57124,7 +53843,6 @@
 
     if-ge v0, v10, :cond_12
 
-    .line 3896
     move-object/from16 v0, v18
 
     move/from16 v1, v17
@@ -57135,7 +53853,6 @@
 
     check-cast v22, Landroid/content/pm/ResolveInfo;
 
-    .line 3897
     .local v22, "rij":Landroid/content/pm/ResolveInfo;
     move-object/from16 v0, v22
 
@@ -57153,26 +53870,21 @@
 
     if-eqz v4, :cond_14
 
-    .line 3898
     move-object/from16 v0, v18
 
     move/from16 v1, v17
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 3902
     add-int/lit8 v17, v17, -0x1
 
-    .line 3903
     add-int/lit8 v10, v10, -0x1
 
-    .line 3895
     :cond_14
     add-int/lit8 v17, v17, 0x1
 
     goto :goto_6
 
-    .line 3910
     .end local v11    # "action":Ljava/lang/String;
     .end local v17    # "j":I
     .end local v22    # "rij":Landroid/content/pm/ResolveInfo;
@@ -57181,7 +53893,6 @@
 
     if-nez v4, :cond_10
 
-    .line 3911
     const/4 v4, 0x0
 
     move-object/from16 v0, v21
@@ -57190,24 +53901,20 @@
 
     goto :goto_5
 
-    .line 3916
     .end local v16    # "it":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/lang/String;>;"
     .end local v21    # "rii":Landroid/content/pm/ResolveInfo;
     :cond_16
     if-eqz p1, :cond_17
 
-    .line 3917
     invoke-interface/range {v18 .. v18}, Ljava/util/List;->size()I
 
     move-result v10
 
-    .line 3918
     const/4 v15, 0x0
 
     :goto_7
     if-ge v15, v10, :cond_17
 
-    .line 3919
     move-object/from16 v0, v18
 
     invoke-interface {v0, v15}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -57218,7 +53925,6 @@
 
     iget-object v13, v4, Landroid/content/pm/ResolveInfo;->activityInfo:Landroid/content/pm/ActivityInfo;
 
-    .line 3920
     .local v13, "ainfo":Landroid/content/pm/ActivityInfo;
     invoke-virtual/range {p1 .. p1}, Landroid/content/ComponentName;->getPackageName()Ljava/lang/String;
 
@@ -57246,30 +53952,25 @@
 
     if-eqz v4, :cond_18
 
-    .line 3922
     move-object/from16 v0, v18
 
     invoke-interface {v0, v15}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 3931
     .end local v13    # "ainfo":Landroid/content/pm/ActivityInfo;
     :cond_17
     and-int/lit8 v4, p6, 0x40
 
     if-nez v4, :cond_0
 
-    .line 3932
     invoke-interface/range {v18 .. v18}, Ljava/util/List;->size()I
 
     move-result v10
 
-    .line 3933
     const/4 v15, 0x0
 
     :goto_8
     if-ge v15, v10, :cond_0
 
-    .line 3934
     move-object/from16 v0, v18
 
     invoke-interface {v0, v15}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -57282,12 +53983,10 @@
 
     iput-object v5, v4, Landroid/content/pm/ResolveInfo;->filter:Landroid/content/IntentFilter;
 
-    .line 3933
     add-int/lit8 v15, v15, 0x1
 
     goto :goto_8
 
-    .line 3918
     .restart local v13    # "ainfo":Landroid/content/pm/ActivityInfo;
     :cond_18
     add-int/lit8 v15, v15, 0x1
@@ -57315,7 +54014,6 @@
     .end annotation
 
     .prologue
-    .line 4033
     sget-object v4, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     move/from16 v0, p4
@@ -57330,50 +54028,41 @@
 
     move-result-object v11
 
-    .line 4063
     :cond_0
     :goto_0
     return-object v11
 
-    .line 4034
     :cond_1
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
 
     move-result-object v10
 
-    .line 4035
     .local v10, "comp":Landroid/content/ComponentName;
     if-nez v10, :cond_2
 
-    .line 4036
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
     move-result-object v4
 
     if-eqz v4, :cond_2
 
-    .line 4037
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
     move-result-object p1
 
-    .line 4038
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
 
     move-result-object v10
 
-    .line 4041
     :cond_2
     if-eqz v10, :cond_3
 
-    .line 4042
     new-instance v11, Ljava/util/ArrayList;
 
     const/4 v4, 0x1
 
     invoke-direct {v11, v4}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 4043
     .local v11, "list":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     move-object/from16 v0, p0
 
@@ -57385,25 +54074,20 @@
 
     move-result-object v12
 
-    .line 4044
     .local v12, "pi":Landroid/content/pm/ProviderInfo;
     if-eqz v12, :cond_0
 
-    .line 4045
     new-instance v15, Landroid/content/pm/ResolveInfo;
 
     invoke-direct {v15}, Landroid/content/pm/ResolveInfo;-><init>()V
 
-    .line 4046
     .local v15, "ri":Landroid/content/pm/ResolveInfo;
     iput-object v12, v15, Landroid/content/pm/ResolveInfo;->providerInfo:Landroid/content/pm/ProviderInfo;
 
-    .line 4047
     invoke-interface {v11, v15}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_0
 
-    .line 4053
     .end local v11    # "list":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     .end local v12    # "pi":Landroid/content/pm/ProviderInfo;
     .end local v15    # "ri":Landroid/content/pm/ResolveInfo;
@@ -57416,21 +54100,19 @@
 
     monitor-enter v16
 
-    .line 4054
     :try_start_0
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getPackage()Ljava/lang/String;
 
     move-result-object v14
 
-    .line 4055
     .local v14, "pkgName":Ljava/lang/String;
     if-nez v14, :cond_4
 
-    .line 4056
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mProviders:Lcom/android/server/pm/PackageManagerService$ProviderIntentResolver;
 
+    .line 5216
     move-object/from16 v0, p1
 
     move-object/from16 v1, p2
@@ -57447,7 +54129,6 @@
 
     goto :goto_0
 
-    .line 4064
     .end local v14    # "pkgName":Ljava/lang/String;
     :catchall_0
     move-exception v4
@@ -57458,7 +54139,6 @@
 
     throw v4
 
-    .line 4058
     .restart local v14    # "pkgName":Ljava/lang/String;
     :cond_4
     :try_start_1
@@ -57472,11 +54152,9 @@
 
     check-cast v13, Landroid/content/pm/PackageParser$Package;
 
-    .line 4059
     .local v13, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v13, :cond_5
 
-    .line 4060
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mProviders:Lcom/android/server/pm/PackageManagerService$ProviderIntentResolver;
@@ -57499,7 +54177,6 @@
 
     goto :goto_0
 
-    .line 4063
     :cond_5
     const/4 v11, 0x0
 
@@ -57530,7 +54207,6 @@
     .end annotation
 
     .prologue
-    .line 3945
     sget-object v4, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     move/from16 v0, p4
@@ -57545,50 +54221,41 @@
 
     move-result-object v12
 
-    .line 3975
     :cond_0
     :goto_0
     return-object v12
 
-    .line 3946
     :cond_1
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
 
     move-result-object v11
 
-    .line 3947
     .local v11, "comp":Landroid/content/ComponentName;
     if-nez v11, :cond_2
 
-    .line 3948
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
     move-result-object v4
 
     if-eqz v4, :cond_2
 
-    .line 3949
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
     move-result-object p1
 
-    .line 3950
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
 
     move-result-object v11
 
-    .line 3953
     :cond_2
     if-eqz v11, :cond_3
 
-    .line 3954
     new-instance v12, Ljava/util/ArrayList;
 
     const/4 v4, 0x1
 
     invoke-direct {v12, v4}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 3955
     .local v12, "list":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     move-object/from16 v0, p0
 
@@ -57600,25 +54267,20 @@
 
     move-result-object v10
 
-    .line 3956
     .local v10, "ai":Landroid/content/pm/ActivityInfo;
     if-eqz v10, :cond_0
 
-    .line 3957
     new-instance v15, Landroid/content/pm/ResolveInfo;
 
     invoke-direct {v15}, Landroid/content/pm/ResolveInfo;-><init>()V
 
-    .line 3958
     .local v15, "ri":Landroid/content/pm/ResolveInfo;
     iput-object v10, v15, Landroid/content/pm/ResolveInfo;->activityInfo:Landroid/content/pm/ActivityInfo;
 
-    .line 3959
     invoke-interface {v12, v15}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_0
 
-    .line 3965
     .end local v10    # "ai":Landroid/content/pm/ActivityInfo;
     .end local v12    # "list":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     .end local v15    # "ri":Landroid/content/pm/ResolveInfo;
@@ -57631,17 +54293,14 @@
 
     monitor-enter v16
 
-    .line 3966
     :try_start_0
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getPackage()Ljava/lang/String;
 
     move-result-object v14
 
-    .line 3967
     .local v14, "pkgName":Ljava/lang/String;
     if-nez v14, :cond_4
 
-    .line 3968
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mReceivers:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
@@ -57662,7 +54321,6 @@
 
     goto :goto_0
 
-    .line 3976
     .end local v14    # "pkgName":Ljava/lang/String;
     :catchall_0
     move-exception v4
@@ -57673,7 +54331,6 @@
 
     throw v4
 
-    .line 3970
     .restart local v14    # "pkgName":Ljava/lang/String;
     :cond_4
     :try_start_1
@@ -57687,11 +54344,9 @@
 
     check-cast v13, Landroid/content/pm/PackageParser$Package;
 
-    .line 3971
     .local v13, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v13, :cond_5
 
-    .line 3972
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mReceivers:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
@@ -57714,7 +54369,6 @@
 
     goto :goto_0
 
-    .line 3975
     :cond_5
     const/4 v12, 0x0
 
@@ -57745,7 +54399,6 @@
     .end annotation
 
     .prologue
-    .line 3996
     sget-object v4, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     move/from16 v0, p4
@@ -57760,50 +54413,41 @@
 
     move-result-object v11
 
-    .line 4026
     :cond_0
     :goto_0
     return-object v11
 
-    .line 3997
     :cond_1
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
 
     move-result-object v10
 
-    .line 3998
     .local v10, "comp":Landroid/content/ComponentName;
     if-nez v10, :cond_2
 
-    .line 3999
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
     move-result-object v4
 
     if-eqz v4, :cond_2
 
-    .line 4000
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getSelector()Landroid/content/Intent;
 
     move-result-object p1
 
-    .line 4001
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getComponent()Landroid/content/ComponentName;
 
     move-result-object v10
 
-    .line 4004
     :cond_2
     if-eqz v10, :cond_3
 
-    .line 4005
     new-instance v11, Ljava/util/ArrayList;
 
     const/4 v4, 0x1
 
     invoke-direct {v11, v4}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 4006
     .local v11, "list":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     move-object/from16 v0, p0
 
@@ -57815,25 +54459,20 @@
 
     move-result-object v15
 
-    .line 4007
     .local v15, "si":Landroid/content/pm/ServiceInfo;
     if-eqz v15, :cond_0
 
-    .line 4008
     new-instance v14, Landroid/content/pm/ResolveInfo;
 
     invoke-direct {v14}, Landroid/content/pm/ResolveInfo;-><init>()V
 
-    .line 4009
     .local v14, "ri":Landroid/content/pm/ResolveInfo;
     iput-object v15, v14, Landroid/content/pm/ResolveInfo;->serviceInfo:Landroid/content/pm/ServiceInfo;
 
-    .line 4010
     invoke-interface {v11, v14}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_0
 
-    .line 4016
     .end local v11    # "list":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     .end local v14    # "ri":Landroid/content/pm/ResolveInfo;
     .end local v15    # "si":Landroid/content/pm/ServiceInfo;
@@ -57846,17 +54485,14 @@
 
     monitor-enter v16
 
-    .line 4017
     :try_start_0
     invoke-virtual/range {p1 .. p1}, Landroid/content/Intent;->getPackage()Ljava/lang/String;
 
     move-result-object v13
 
-    .line 4018
     .local v13, "pkgName":Ljava/lang/String;
     if-nez v13, :cond_4
 
-    .line 4019
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mServices:Lcom/android/server/pm/PackageManagerService$ServiceIntentResolver;
@@ -57877,7 +54513,6 @@
 
     goto :goto_0
 
-    .line 4027
     .end local v13    # "pkgName":Ljava/lang/String;
     :catchall_0
     move-exception v4
@@ -57888,7 +54523,6 @@
 
     throw v4
 
-    .line 4021
     .restart local v13    # "pkgName":Ljava/lang/String;
     :cond_4
     :try_start_1
@@ -57902,11 +54536,9 @@
 
     check-cast v12, Landroid/content/pm/PackageParser$Package;
 
-    .line 4022
     .local v12, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v12, :cond_5
 
-    .line 4023
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/pm/PackageManagerService;->mServices:Lcom/android/server/pm/PackageManagerService$ServiceIntentResolver;
@@ -57929,7 +54561,6 @@
 
     goto :goto_0
 
-    .line 4026
     :cond_5
     const/4 v11, 0x0
 
@@ -57957,12 +54588,10 @@
     .end annotation
 
     .prologue
-    .line 2226
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 2227
     :try_start_0
     new-instance v1, Ljava/util/ArrayList;
 
@@ -57970,7 +54599,6 @@
 
     invoke-direct {v1, v3}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 2228
     .local v1, "out":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PermissionInfo;>;"
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -57999,11 +54627,9 @@
 
     check-cast v2, Lcom/android/server/pm/BasePermission;
 
-    .line 2229
     .local v2, "p":Lcom/android/server/pm/BasePermission;
     if-nez p1, :cond_2
 
-    .line 2230
     iget-object v3, v2, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
     if-eqz v3, :cond_1
@@ -58016,7 +54642,6 @@
 
     if-nez v3, :cond_0
 
-    .line 2231
     :cond_1
     invoke-static {v2, p2}, Lcom/android/server/pm/PackageManagerService;->generatePermissionInfo(Lcom/android/server/pm/BasePermission;I)Landroid/content/pm/PermissionInfo;
 
@@ -58026,7 +54651,6 @@
 
     goto :goto_0
 
-    .line 2244
     .end local v0    # "i$":Ljava/util/Iterator;
     .end local v1    # "out":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PermissionInfo;>;"
     .end local v2    # "p":Lcom/android/server/pm/BasePermission;
@@ -58039,7 +54663,6 @@
 
     throw v3
 
-    .line 2234
     .restart local v0    # "i$":Ljava/util/Iterator;
     .restart local v1    # "out":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PermissionInfo;>;"
     .restart local v2    # "p":Lcom/android/server/pm/BasePermission;
@@ -58061,7 +54684,6 @@
 
     if-eqz v3, :cond_0
 
-    .line 2235
     iget-object v3, v2, Lcom/android/server/pm/BasePermission;->perm:Landroid/content/pm/PackageParser$Permission;
 
     invoke-static {v3, p2}, Landroid/content/pm/PackageParser;->generatePermissionInfo(Landroid/content/pm/PackageParser$Permission;I)Landroid/content/pm/PermissionInfo;
@@ -58072,7 +54694,6 @@
 
     goto :goto_0
 
-    .line 2240
     .end local v2    # "p":Lcom/android/server/pm/BasePermission;
     :cond_3
     invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
@@ -58081,10 +54702,8 @@
 
     if-lez v3, :cond_4
 
-    .line 2241
     monitor-exit v4
 
-    .line 2243
     .end local v1    # "out":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Landroid/content/pm/PermissionInfo;>;"
     :goto_1
     return-object v1
@@ -58134,14 +54753,12 @@
     .end annotation
 
     .prologue
-    .line 4264
     .local p1, "outNames":Ljava/util/List;, "Ljava/util/List<Ljava/lang/String;>;"
     .local p2, "outInfo":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ProviderInfo;>;"
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v7
 
-    .line 4265
     :try_start_0
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mProvidersByAuthority:Landroid/util/ArrayMap;
 
@@ -58153,13 +54770,11 @@
 
     move-result-object v1
 
-    .line 4267
     .local v1, "i":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/util/Map$Entry<Ljava/lang/String;Landroid/content/pm/PackageParser$Provider;>;>;"
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v5
 
-    .line 4268
     .local v5, "userId":I
     :cond_0
     :goto_0
@@ -58169,14 +54784,12 @@
 
     if-eqz v6, :cond_2
 
-    .line 4269
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 4270
     .local v0, "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/content/pm/PackageParser$Provider;>;"
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
@@ -58184,7 +54797,6 @@
 
     check-cast v3, Landroid/content/pm/PackageParser$Provider;
 
-    .line 4271
     .local v3, "p":Landroid/content/pm/PackageParser$Provider;
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -58200,7 +54812,6 @@
 
     check-cast v4, Lcom/android/server/pm/PackageSetting;
 
-    .line 4273
     .local v4, "ps":Lcom/android/server/pm/PackageSetting;
     if-eqz v4, :cond_0
 
@@ -58222,7 +54833,6 @@
 
     if-eqz v6, :cond_0
 
-    .line 4276
     :cond_1
     const/4 v6, 0x0
 
@@ -58234,23 +54844,19 @@
 
     move-result-object v2
 
-    .line 4278
     .local v2, "info":Landroid/content/pm/ProviderInfo;
     if-eqz v2, :cond_0
 
-    .line 4279
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v6
 
     invoke-interface {p1, v6}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 4280
     invoke-interface {p2, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_0
 
-    .line 4284
     .end local v0    # "entry":Ljava/util/Map$Entry;, "Ljava/util/Map$Entry<Ljava/lang/String;Landroid/content/pm/PackageParser$Provider;>;"
     .end local v1    # "i":Ljava/util/Iterator;, "Ljava/util/Iterator<Ljava/util/Map$Entry<Ljava/lang/String;Landroid/content/pm/PackageParser$Provider;>;>;"
     .end local v2    # "info":Landroid/content/pm/ProviderInfo;
@@ -58274,7 +54880,6 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 4285
     return-void
 .end method
 
@@ -58284,12 +54889,10 @@
     .param p2, "chatty"    # Z
 
     .prologue
-    .line 7577
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v1
 
-    .line 7578
     :try_start_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -58299,16 +54902,12 @@
 
     invoke-virtual {v0, v2}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 7579
     invoke-virtual {p0, p1, p2}, Lcom/android/server/pm/PackageManagerService;->cleanPackageDataStructuresLILPw(Landroid/content/pm/PackageParser$Package;Z)V
 
-    .line 7580
     monitor-exit v1
 
-    .line 7581
     return-void
 
-    .line 7580
     :catchall_0
     move-exception v0
 
@@ -58324,14 +54923,12 @@
     .param p1, "packageName"    # Ljava/lang/String;
 
     .prologue
-    .line 12815
     const-string v0, "PackageManager"
 
     const-string v1, "removePackageFromPreferred: this is now a no-op"
 
     invoke-static {v0, v1}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 12816
     return-void
 .end method
 
@@ -58341,12 +54938,10 @@
     .param p2, "chatty"    # Z
 
     .prologue
-    .line 7561
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 7562
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -58354,24 +54949,18 @@
 
     invoke-virtual {v1, v3}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 7563
     iget-object v0, p1, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
-    .line 7564
     .local v0, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v0, :cond_0
 
-    .line 7565
     invoke-virtual {p0, v0, p2}, Lcom/android/server/pm/PackageManagerService;->cleanPackageDataStructuresLILPw(Landroid/content/pm/PackageParser$Package;Z)V
 
-    .line 7567
     :cond_0
     monitor-exit v2
 
-    .line 7568
     return-void
 
-    .line 7567
     .end local v0    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v1
@@ -58388,16 +54977,13 @@
     .param p1, "name"    # Ljava/lang/String;
 
     .prologue
-    .line 2773
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 2774
     :try_start_0
     invoke-direct {p0, p1}, Lcom/android/server/pm/PackageManagerService;->checkPermissionTreeLP(Ljava/lang/String;)Lcom/android/server/pm/BasePermission;
 
-    .line 2775
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v1, v1, Lcom/android/server/pm/Settings;->mPermissions:Landroid/util/ArrayMap;
@@ -58408,18 +54994,15 @@
 
     check-cast v0, Lcom/android/server/pm/BasePermission;
 
-    .line 2776
     .local v0, "bp":Lcom/android/server/pm/BasePermission;
     if-eqz v0, :cond_1
 
-    .line 2777
     iget v1, v0, Lcom/android/server/pm/BasePermission;->type:I
 
     const/4 v3, 0x2
 
     if-eq v1, v3, :cond_0
 
-    .line 2778
     new-instance v1, Ljava/lang/SecurityException;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -58444,7 +55027,6 @@
 
     throw v1
 
-    .line 2785
     .end local v0    # "bp":Lcom/android/server/pm/BasePermission;
     :catchall_0
     move-exception v1
@@ -58455,7 +55037,6 @@
 
     throw v1
 
-    .line 2782
     .restart local v0    # "bp":Lcom/android/server/pm/BasePermission;
     :cond_0
     :try_start_1
@@ -58465,18 +55046,15 @@
 
     invoke-virtual {v1, p1}, Landroid/util/ArrayMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 2783
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v1}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 2785
     :cond_1
     monitor-exit v2
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 2786
     return-void
 .end method
 
@@ -58485,7 +55063,6 @@
     .param p1, "packageName"    # Ljava/lang/String;
 
     .prologue
-    .line 14698
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v1, "android.permission.INTERCEPT_PACKAGE_LAUNCH"
@@ -58494,12 +55071,10 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 14700
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPreLaunchCheckPackages:Ljava/util/Set;
 
     invoke-interface {v0, p1}, Ljava/util/Set;->remove(Ljava/lang/Object;)Z
 
-    .line 14701
     return-void
 .end method
 
@@ -58512,7 +55087,6 @@
     .param p5, "userId"    # I
 
     .prologue
-    .line 12889
     invoke-virtual/range {p1 .. p1}, Landroid/content/IntentFilter;->countActions()I
 
     move-result v1
@@ -58521,7 +55095,6 @@
 
     if-eq v1, v3, :cond_0
 
-    .line 12890
     new-instance v1, Ljava/lang/IllegalArgumentException;
 
     const-string v3, "replacePreferredActivity expects filter to have only 1 action."
@@ -58530,7 +55103,6 @@
 
     throw v1
 
-    .line 12893
     :cond_0
     invoke-virtual/range {p1 .. p1}, Landroid/content/IntentFilter;->countDataAuthorities()I
 
@@ -58558,7 +55130,6 @@
 
     if-eqz v1, :cond_2
 
-    .line 12897
     :cond_1
     new-instance v1, Ljava/lang/IllegalArgumentException;
 
@@ -58568,13 +55139,11 @@
 
     throw v1
 
-    .line 12902
     :cond_2
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v2
 
-    .line 12903
     .local v2, "callingUid":I
     const/4 v4, 0x1
 
@@ -58588,7 +55157,6 @@
 
     invoke-virtual/range {v1 .. v6}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 12904
     move-object/from16 v0, p0
 
     iget-object v0, v0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
@@ -58597,7 +55165,6 @@
 
     monitor-enter v16
 
-    .line 12905
     :try_start_0
     move-object/from16 v0, p0
 
@@ -58611,7 +55178,6 @@
 
     if-eqz v1, :cond_4
 
-    .line 12908
     move-object/from16 v0, p0
 
     invoke-direct {v0, v2}, Lcom/android/server/pm/PackageManagerService;->getUidTargetSdkVersionLockedLPr(I)I
@@ -58622,7 +55188,7 @@
 
     if-ge v1, v3, :cond_3
 
-    .line 12910
+    .line 5229
     const-string v1, "PackageManager"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -58649,14 +55215,11 @@
 
     invoke-static {v1, v3}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 12912
     monitor-exit v16
 
-    .line 12973
     :goto_0
     return-void
 
-    .line 12914
     :cond_3
     move-object/from16 v0, p0
 
@@ -58668,7 +55231,6 @@
 
     invoke-virtual {v1, v3, v4}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 12918
     :cond_4
     move-object/from16 v0, p0
 
@@ -58684,18 +55246,16 @@
 
     check-cast v15, Lcom/android/server/pm/PreferredIntentResolver;
 
-    .line 12919
     .local v15, "pir":Lcom/android/server/pm/PreferredIntentResolver;
     if-eqz v15, :cond_6
 
-    .line 12921
+    .line 5230
     move-object/from16 v0, p1
 
     invoke-virtual {v15, v0}, Lcom/android/server/pm/PreferredIntentResolver;->findFilters(Landroid/content/IntentFilter;)Ljava/util/ArrayList;
 
     move-result-object v12
 
-    .line 12922
     .local v12, "existing":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PreferredActivity;>;"
     if-eqz v12, :cond_5
 
@@ -58707,7 +55267,6 @@
 
     if-ne v1, v3, :cond_5
 
-    .line 12923
     const/4 v1, 0x0
 
     invoke-virtual {v12, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -58716,7 +55275,6 @@
 
     check-cast v11, Lcom/android/server/pm/PreferredActivity;
 
-    .line 12940
     .local v11, "cur":Lcom/android/server/pm/PreferredActivity;
     iget-object v1, v11, Lcom/android/server/pm/PreferredActivity;->mPref:Lcom/android/server/pm/PreferredComponent;
 
@@ -58756,12 +55314,10 @@
 
     if-eqz v1, :cond_5
 
-    .line 12950
     monitor-exit v16
 
     goto :goto_0
 
-    .line 12972
     .end local v11    # "cur":Lcom/android/server/pm/PreferredActivity;
     .end local v12    # "existing":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PreferredActivity;>;"
     .end local v15    # "pir":Lcom/android/server/pm/PreferredIntentResolver;
@@ -58774,13 +55330,11 @@
 
     throw v1
 
-    .line 12954
     .restart local v12    # "existing":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PreferredActivity;>;"
     .restart local v15    # "pir":Lcom/android/server/pm/PreferredIntentResolver;
     :cond_5
     if-eqz v12, :cond_6
 
-    .line 12959
     const/4 v13, 0x0
 
     .local v13, "i":I
@@ -58792,23 +55346,19 @@
 
     if-ge v13, v1, :cond_6
 
-    .line 12960
     invoke-virtual {v12, v13}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v14
 
     check-cast v14, Lcom/android/server/pm/PreferredActivity;
 
-    .line 12966
     .local v14, "pa":Lcom/android/server/pm/PreferredActivity;
     invoke-virtual {v15, v14}, Lcom/android/server/pm/PreferredIntentResolver;->removeFilter(Landroid/content/IntentFilter;)V
 
-    .line 12959
     add-int/lit8 v13, v13, 0x1
 
     goto :goto_1
 
-    .line 12970
     .end local v12    # "existing":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PreferredActivity;>;"
     .end local v13    # "i":I
     .end local v14    # "pa":Lcom/android/server/pm/PreferredActivity;
@@ -58831,7 +55381,6 @@
 
     invoke-direct/range {v3 .. v10}, Lcom/android/server/pm/PackageManagerService;->addPreferredActivityInternal(Landroid/content/IntentFilter;I[Landroid/content/ComponentName;Landroid/content/ComponentName;ZILjava/lang/String;)V
 
-    .line 12972
     monitor-exit v16
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
@@ -58846,45 +55395,38 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 13041
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v2, "android.permission.SET_PREFERRED_APPLICATIONS"
 
     invoke-virtual {v1, v2, v3}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 13044
+    .line 5150
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 13045
+    .line 5151
     :try_start_0
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v0
 
-    .line 13046
     .local v0, "user":I
     const/4 v1, 0x0
 
     invoke-virtual {p0, v1, v0}, Lcom/android/server/pm/PackageManagerService;->clearPackagePreferredActivitiesLPw(Ljava/lang/String;I)Z
 
-    .line 13047
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v1, p0, v0}, Lcom/android/server/pm/Settings;->readDefaultPreferredAppsLPw(Lcom/android/server/pm/PackageManagerService;I)V
 
-    .line 13048
     invoke-virtual {p0, v0}, Lcom/android/server/pm/PackageManagerService;->scheduleWritePackageRestrictionsLocked(I)V
 
-    .line 13049
     monitor-exit v2
 
-    .line 13050
     return-void
 
-    .line 13049
     .end local v0    # "user":I
     :catchall_0
     move-exception v1
@@ -58905,7 +55447,6 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 4241
     sget-object v2, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v2, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -58916,17 +55457,14 @@
 
     move-object v2, v3
 
-    .line 4248
     :goto_0
     return-object v2
 
-    .line 4243
     :cond_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 4244
     :try_start_0
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mProvidersByAuthority:Landroid/util/ArrayMap;
 
@@ -58936,7 +55474,6 @@
 
     check-cast v0, Landroid/content/pm/PackageParser$Provider;
 
-    .line 4245
     .local v0, "provider":Landroid/content/pm/PackageParser$Provider;
     if-eqz v0, :cond_2
 
@@ -58956,7 +55493,6 @@
 
     move-object v1, v2
 
-    .line 4248
     .local v1, "ps":Lcom/android/server/pm/PackageSetting;
     :goto_1
     if-eqz v1, :cond_3
@@ -58999,7 +55535,6 @@
 
     goto :goto_0
 
-    .line 4255
     .end local v0    # "provider":Landroid/content/pm/PackageParser$Provider;
     .end local v1    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
@@ -59015,14 +55550,12 @@
     :cond_2
     move-object v1, v3
 
-    .line 4245
     goto :goto_1
 
     .restart local v1    # "ps":Lcom/android/server/pm/PackageSetting;
     :cond_3
     move-object v2, v3
 
-    .line 4248
     goto :goto_2
 .end method
 
@@ -59036,7 +55569,6 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 3215
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p4}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -59047,11 +55579,9 @@
 
     const/4 v0, 0x0
 
-    .line 3218
     :goto_0
     return-object v0
 
-    .line 3216
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
@@ -59067,7 +55597,6 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 3217
     invoke-virtual {p0, p1, p2, p3, p4}, Lcom/android/server/pm/PackageManagerService;->queryIntentActivities(Landroid/content/Intent;Ljava/lang/String;II)Ljava/util/List;
 
     move-result-object v4
@@ -59083,7 +55612,6 @@
 
     move v5, p4
 
-    .line 3218
     invoke-direct/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->chooseBestActivity(Landroid/content/Intent;Ljava/lang/String;ILjava/util/List;I)Landroid/content/pm/ResolveInfo;
 
     move-result-object v0
@@ -59101,12 +55629,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 3981
     invoke-virtual {p0, p1, p2, p3, p4}, Lcom/android/server/pm/PackageManagerService;->queryIntentServices(Landroid/content/Intent;Ljava/lang/String;II)Ljava/util/List;
 
     move-result-object v0
 
-    .line 3982
     .local v0, "query":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     sget-object v2, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
@@ -59116,16 +55642,13 @@
 
     if-nez v2, :cond_1
 
-    .line 3990
     :cond_0
     :goto_0
     return-object v1
 
-    .line 3983
     :cond_1
     if-eqz v0, :cond_0
 
-    .line 3984
     invoke-interface {v0}, Ljava/util/List;->size()I
 
     move-result v2
@@ -59134,7 +55657,6 @@
 
     if-lt v2, v3, :cond_0
 
-    .line 3987
     const/4 v1, 0x0
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -59152,10 +55674,8 @@
     .param p2, "permissionName"    # Ljava/lang/String;
 
     .prologue
-    .line 2858
     const/4 v8, -0x1
 
-    .line 2860
     .local v8, "changedAppId":I
     move-object/from16 v0, p0
 
@@ -59165,7 +55685,6 @@
 
     monitor-enter v19
 
-    .line 2861
     :try_start_0
     move-object/from16 v0, p0
 
@@ -59183,11 +55702,9 @@
 
     check-cast v14, Landroid/content/pm/PackageParser$Package;
 
-    .line 2862
     .local v14, "pkg":Landroid/content/pm/PackageParser$Package;
     if-nez v14, :cond_0
 
-    .line 2863
     new-instance v18, Ljava/lang/IllegalArgumentException;
 
     new-instance v20, Ljava/lang/StringBuilder;
@@ -59220,7 +55737,6 @@
 
     throw v18
 
-    .line 2889
     .end local v14    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v18
@@ -59231,7 +55747,6 @@
 
     throw v18
 
-    .line 2865
     .restart local v14    # "pkg":Landroid/content/pm/PackageParser$Package;
     :cond_0
     :try_start_1
@@ -59255,7 +55770,6 @@
 
     if-eq v0, v1, :cond_1
 
-    .line 2866
     move-object/from16 v0, p0
 
     iget-object v0, v0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
@@ -59274,7 +55788,6 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 2869
     :cond_1
     move-object/from16 v0, p0
 
@@ -59298,11 +55811,9 @@
 
     check-cast v6, Lcom/android/server/pm/BasePermission;
 
-    .line 2870
     .local v6, "bp":Lcom/android/server/pm/BasePermission;
     if-nez v6, :cond_2
 
-    .line 2871
     new-instance v18, Ljava/lang/IllegalArgumentException;
 
     new-instance v20, Ljava/lang/StringBuilder;
@@ -59335,28 +55846,23 @@
 
     throw v18
 
-    .line 2874
+    .line 5163
     :cond_2
     invoke-static {v14, v6}, Lcom/android/server/pm/PackageManagerService;->checkGrantRevokePermissions(Landroid/content/pm/PackageParser$Package;Lcom/android/server/pm/BasePermission;)V
 
-    .line 2876
     iget-object v15, v14, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
 
     check-cast v15, Lcom/android/server/pm/PackageSetting;
 
-    .line 2877
     .local v15, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v15, :cond_4
 
-    .line 2878
     monitor-exit v19
 
-    .line 2913
     :cond_3
     :goto_0
     return-void
 
-    .line 2880
     :cond_4
     iget-object v0, v15, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
@@ -59366,7 +55872,6 @@
 
     iget-object v9, v15, Lcom/android/server/pm/PackageSetting;->sharedUser:Lcom/android/server/pm/SharedUserSetting;
 
-    .line 2881
     .local v9, "gp":Lcom/android/server/pm/GrantedPermissions;
     :goto_1
     iget-object v0, v9, Lcom/android/server/pm/GrantedPermissions;->grantedPermissions:Landroid/util/ArraySet;
@@ -59383,7 +55888,6 @@
 
     if-eqz v18, :cond_6
 
-    .line 2882
     iget-object v0, v9, Lcom/android/server/pm/GrantedPermissions;->grantedPermissions:Landroid/util/ArraySet;
 
     move-object/from16 v18, v0
@@ -59394,14 +55898,12 @@
 
     invoke-virtual {v0, v1}, Landroid/util/ArraySet;->remove(Ljava/lang/Object;)Z
 
-    .line 2883
     iget-boolean v0, v15, Lcom/android/server/pm/PackageSetting;->haveGids:Z
 
     move/from16 v18, v0
 
     if-eqz v18, :cond_5
 
-    .line 2884
     iget-object v0, v9, Lcom/android/server/pm/GrantedPermissions;->gids:[I
 
     move-object/from16 v18, v0
@@ -59422,7 +55924,6 @@
 
     iput-object v0, v9, Lcom/android/server/pm/GrantedPermissions;->gids:[I
 
-    .line 2886
     :cond_5
     move-object/from16 v0, p0
 
@@ -59432,39 +55933,31 @@
 
     invoke-virtual/range {v18 .. v18}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 2887
     iget v8, v15, Lcom/android/server/pm/PackageSetting;->appId:I
 
-    .line 2889
     :cond_6
     monitor-exit v19
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 2891
     if-ltz v8, :cond_3
 
-    .line 2893
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v4
 
-    .line 2894
     .local v4, "am":Landroid/app/IActivityManager;
     if-eqz v4, :cond_3
 
-    .line 2895
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v7
 
-    .line 2896
     .local v7, "callingUserId":I
     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
 
     move-result-wide v12
 
-    .line 2902
     .local v12, "ident":J
     :try_start_2
     sget-object v18, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
@@ -59473,7 +55966,6 @@
 
     move-result-object v17
 
-    .line 2903
     .local v17, "users":[I
     move-object/from16 v5, v17
 
@@ -59489,7 +55981,6 @@
 
     aget v16, v5, v10
 
-    .line 2904
     .local v16, "user":I
     move/from16 v0, v16
 
@@ -59528,7 +56019,6 @@
     .catch Landroid/os/RemoteException; {:try_start_2 .. :try_end_2} :catch_0
     .catchall {:try_start_2 .. :try_end_2} :catchall_1
 
-    .line 2903
     add-int/lit8 v10, v10, 0x1
 
     goto :goto_2
@@ -59545,10 +56035,8 @@
     :cond_7
     move-object v9, v15
 
-    .line 2880
     goto/16 :goto_1
 
-    .line 2909
     .restart local v4    # "am":Landroid/app/IActivityManager;
     .restart local v5    # "arr$":[I
     .restart local v7    # "callingUserId":I
@@ -59562,7 +56050,6 @@
 
     goto/16 :goto_0
 
-    .line 2907
     .end local v5    # "arr$":[I
     .end local v10    # "i$":I
     .end local v11    # "len$":I
@@ -59570,7 +56057,6 @@
     :catch_0
     move-exception v18
 
-    .line 2909
     invoke-static {v12, v13}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     goto/16 :goto_0
@@ -59589,23 +56075,18 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 14073
     const/4 v0, 0x1
 
     invoke-direct {p0, v0, v1, v1}, Lcom/android/server/pm/PackageManagerService;->updateExternalMediaStatusInner(ZZZ)V
 
-    .line 14074
     iget-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mShouldRestoreconData:Z
 
     if-eqz v0, :cond_0
 
-    .line 14075
     invoke-static {}, Lcom/android/server/pm/SELinuxMMAC;->setRestoreconDone()V
 
-    .line 14076
     iput-boolean v1, p0, Lcom/android/server/pm/PackageManagerService;->mShouldRestoreconData:Z
 
-    .line 14078
     :cond_0
     return-void
 .end method
@@ -59617,7 +56098,6 @@
     .param p3, "andCode"    # Z
 
     .prologue
-    .line 9121
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     const/4 v3, 0x7
@@ -59631,41 +56111,34 @@
 
     move-result-object v0
 
-    .line 9123
     .local v0, "msg":Landroid/os/Message;
     iget-boolean v1, p0, Lcom/android/server/pm/PackageManagerService;->mSystemReady:Z
 
     if-eqz v1, :cond_1
 
-    .line 9124
     invoke-virtual {v0}, Landroid/os/Message;->sendToTarget()V
 
-    .line 9131
     :goto_1
     return-void
 
-    .line 9121
     .end local v0    # "msg":Landroid/os/Message;
     :cond_0
     const/4 v1, 0x0
 
     goto :goto_0
 
-    .line 9126
     .restart local v0    # "msg":Landroid/os/Message;
     :cond_1
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPostSystemReadyMessages:Ljava/util/ArrayList;
 
     if-nez v1, :cond_2
 
-    .line 9127
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPostSystemReadyMessages:Ljava/util/ArrayList;
 
-    .line 9129
     :cond_2
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPostSystemReadyMessages:Ljava/util/ArrayList;
 
@@ -59681,7 +56154,6 @@
     .prologue
     const/16 v4, 0xe
 
-    .line 1341
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p1}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -59690,12 +56162,10 @@
 
     if-nez v0, :cond_1
 
-    .line 1346
     :cond_0
     :goto_0
     return-void
 
-    .line 1342
     :cond_1
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mDirtyUsers:Landroid/util/ArraySet;
 
@@ -59705,7 +56175,6 @@
 
     invoke-virtual {v0, v1}, Landroid/util/ArraySet;->add(Ljava/lang/Object;)Z
 
-    .line 1343
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     invoke-virtual {v0, v4}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->hasMessages(I)Z
@@ -59714,7 +56183,6 @@
 
     if-nez v0, :cond_0
 
-    .line 1344
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     const-wide/16 v2, 0x2710
@@ -59730,7 +56198,6 @@
     .prologue
     const/16 v1, 0xd
 
-    .line 1335
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     invoke-virtual {v0, v1}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->hasMessages(I)Z
@@ -59739,14 +56206,12 @@
 
     if-nez v0, :cond_0
 
-    .line 1336
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     const-wide/16 v2, 0x2710
 
     invoke-virtual {v0, v1, v2, v3}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->sendEmptyMessageDelayed(IJ)Z
 
-    .line 1338
     :cond_0
     return-void
 .end method
@@ -59760,7 +56225,6 @@
     .param p5, "callingPackage"    # Ljava/lang/String;
 
     .prologue
-    .line 13252
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p4}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -59769,15 +56233,12 @@
 
     if-nez v0, :cond_0
 
-    .line 13257
     :goto_0
     return-void
 
-    .line 13253
     :cond_0
     if-nez p5, :cond_1
 
-    .line 13254
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v0
@@ -59786,7 +56247,6 @@
 
     move-result-object p5
 
-    .line 13256
     :cond_1
     const/4 v2, 0x0
 
@@ -59818,7 +56278,6 @@
 
     const/4 v11, 0x0
 
-    .line 9268
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v2, "android.permission.MANAGE_USERS"
@@ -59827,12 +56286,10 @@
 
     invoke-virtual {v0, v2, v4}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 9270
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v1
 
-    .line 9271
     .local v1, "uid":I
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -59860,7 +56317,6 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 9274
     if-eqz p2, :cond_0
 
     invoke-direct {p0, p1, p3}, Lcom/android/server/pm/PackageManagerService;->isPackageDeviceAdmin(Ljava/lang/String;I)Z
@@ -59869,7 +56325,6 @@
 
     if-eqz v0, :cond_0
 
-    .line 9275
     const-string v0, "PackageManager"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -59900,25 +56355,20 @@
 
     move v3, v11
 
-    .line 9311
     :goto_0
     return v3
 
-    .line 9279
     :cond_0
     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
 
     move-result-wide v6
 
-    .line 9281
     .local v6, "callingId":J
     const/4 v9, 0x0
 
-    .line 9282
     .local v9, "sendAdded":Z
     const/4 v10, 0x0
 
-    .line 9284
     .local v10, "sendRemoved":Z
     :try_start_0
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
@@ -59927,7 +56377,6 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_1
 
-    .line 9285
     :try_start_1
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -59939,23 +56388,19 @@
 
     check-cast v8, Lcom/android/server/pm/PackageSetting;
 
-    .line 9286
     .local v8, "pkgSetting":Lcom/android/server/pm/PackageSetting;
     if-nez v8, :cond_1
 
-    .line 9287
     monitor-exit v2
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 9309
     invoke-static {v6, v7}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     move v3, v11
 
     goto :goto_0
 
-    .line 9289
     :cond_1
     :try_start_2
     invoke-virtual {v8, p3}, Lcom/android/server/pm/PackageSetting;->getHidden(I)Z
@@ -59964,48 +56409,38 @@
 
     if-eq v0, p2, :cond_2
 
-    .line 9290
     invoke-virtual {v8, p2, p3}, Lcom/android/server/pm/PackageSetting;->setHidden(ZI)V
 
-    .line 9291
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v0, p3}, Lcom/android/server/pm/Settings;->writePackageRestrictionsLPr(I)V
 
-    .line 9292
     if-eqz p2, :cond_3
 
-    .line 9293
     const/4 v10, 0x1
 
-    .line 9298
     :cond_2
     :goto_1
     monitor-exit v2
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 9299
     if-eqz v9, :cond_4
 
-    .line 9300
     :try_start_3
     invoke-direct {p0, p1, v8, p3}, Lcom/android/server/pm/PackageManagerService;->sendPackageAddedForUser(Ljava/lang/String;Lcom/android/server/pm/PackageSetting;I)V
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 9309
     invoke-static {v6, v7}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     goto :goto_0
 
-    .line 9295
     :cond_3
     const/4 v9, 0x1
 
     goto :goto_1
 
-    .line 9298
     .end local v8    # "pkgSetting":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v0
@@ -60020,7 +56455,6 @@
     :try_end_5
     .catchall {:try_start_5 .. :try_end_5} :catchall_1
 
-    .line 9309
     :catchall_1
     move-exception v0
 
@@ -60028,12 +56462,10 @@
 
     throw v0
 
-    .line 9303
     .restart local v8    # "pkgSetting":Lcom/android/server/pm/PackageSetting;
     :cond_4
     if-eqz v10, :cond_5
 
-    .line 9304
     :try_start_6
     iget v0, v8, Lcom/android/server/pm/PackageSetting;->appId:I
 
@@ -60045,18 +56477,15 @@
 
     invoke-direct {p0, p1, v0, v2}, Lcom/android/server/pm/PackageManagerService;->killApplication(Ljava/lang/String;ILjava/lang/String;)V
 
-    .line 9306
     invoke-direct {p0, p1, v8, p3}, Lcom/android/server/pm/PackageManagerService;->sendApplicationHiddenForUser(Ljava/lang/String;Lcom/android/server/pm/PackageSetting;I)V
     :try_end_6
     .catchall {:try_start_6 .. :try_end_6} :catchall_1
 
-    .line 9309
     :cond_5
     invoke-static {v6, v7}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     move v3, v11
 
-    .line 9311
     goto :goto_0
 .end method
 
@@ -60069,7 +56498,6 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 12337
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v3, "android.permission.DELETE_PACKAGES"
@@ -60078,12 +56506,10 @@
 
     invoke-virtual {v2, v3, v4}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 12339
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v2
 
-    .line 12340
     :try_start_0
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -60095,11 +56521,9 @@
 
     check-cast v0, Lcom/android/server/pm/PackageSetting;
 
-    .line 12341
     .local v0, "ps":Lcom/android/server/pm/PackageSetting;
     if-nez v0, :cond_0
 
-    .line 12342
     const-string v3, "PackageManager"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -60122,14 +56546,11 @@
 
     invoke-static {v3, v4}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 12343
     monitor-exit v2
 
-    .line 12353
     :goto_0
     return v1
 
-    .line 12345
     :cond_0
     invoke-virtual {v0, p3}, Lcom/android/server/pm/PackageSetting;->getInstalled(I)Z
 
@@ -60137,7 +56558,6 @@
 
     if-nez v3, :cond_1
 
-    .line 12347
     const-string v3, "PackageManager"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -60160,12 +56580,10 @@
 
     invoke-static {v3, v4}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 12348
     monitor-exit v2
 
     goto :goto_0
 
-    .line 12352
     .end local v0    # "ps":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v1
@@ -60176,23 +56594,19 @@
 
     throw v1
 
-    .line 12350
     .restart local v0    # "ps":Lcom/android/server/pm/PackageSetting;
     :cond_1
     :try_start_1
     invoke-virtual {v0, p2, p3}, Lcom/android/server/pm/PackageSetting;->setBlockUninstall(ZI)V
 
-    .line 12351
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v1, p3}, Lcom/android/server/pm/Settings;->writePackageRestrictionsLPr(I)V
 
-    .line 12352
     monitor-exit v2
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 12353
     const/4 v1, 0x1
 
     goto :goto_0
@@ -60206,7 +56620,6 @@
     .param p4, "userId"    # I
 
     .prologue
-    .line 13262
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p4}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -60215,11 +56628,9 @@
 
     if-nez v0, :cond_0
 
-    .line 13271
     :goto_0
     return-void
 
-    .line 13264
     :cond_0
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mDisabledComponentsList:Ljava/util/ArrayList;
 
@@ -60229,7 +56640,6 @@
 
     if-eqz v0, :cond_1
 
-    .line 13265
     const-string v0, "PackageManager"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -60258,7 +56668,6 @@
 
     goto :goto_0
 
-    .line 13269
     :cond_1
     invoke-virtual {p1}, Landroid/content/ComponentName;->getPackageName()Ljava/lang/String;
 
@@ -60290,7 +56699,6 @@
     .param p3, "userId"    # I
 
     .prologue
-    .line 14714
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v3
@@ -60307,18 +56715,15 @@
 
     invoke-virtual/range {v2 .. v7}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 14716
     invoke-virtual/range {p1 .. p1}, Landroid/content/ComponentName;->getPackageName()Ljava/lang/String;
 
     move-result-object v13
 
-    .line 14717
     .local v13, "packageName":Ljava/lang/String;
     invoke-virtual/range {p1 .. p1}, Landroid/content/ComponentName;->getClassName()Ljava/lang/String;
 
     move-result-object v10
 
-    .line 14722
     .local v10, "className":Ljava/lang/String;
     move-object/from16 v0, p0
 
@@ -60326,7 +56731,6 @@
 
     monitor-enter v3
 
-    .line 14723
     :try_start_0
     move-object/from16 v0, p0
 
@@ -60340,14 +56744,11 @@
 
     check-cast v15, Lcom/android/server/pm/PackageSetting;
 
-    .line 14725
     .local v15, "pkgSetting":Lcom/android/server/pm/PackageSetting;
     if-nez v15, :cond_1
 
-    .line 14726
     if-nez v10, :cond_0
 
-    .line 14727
     new-instance v2, Ljava/lang/IllegalArgumentException;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -60372,7 +56773,6 @@
 
     throw v2
 
-    .line 14764
     .end local v15    # "pkgSetting":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v2
@@ -60383,7 +56783,6 @@
 
     throw v2
 
-    .line 14730
     .restart local v15    # "pkgSetting":Lcom/android/server/pm/PackageSetting;
     :cond_0
     :try_start_1
@@ -60421,11 +56820,9 @@
 
     throw v2
 
-    .line 14736
     :cond_1
     if-nez v10, :cond_2
 
-    .line 14737
     new-instance v2, Ljava/lang/IllegalArgumentException;
 
     const-string v4, "Must specify Component Class name."
@@ -60434,11 +56831,9 @@
 
     throw v2
 
-    .line 14741
     :cond_2
     iget-object v14, v15, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
 
-    .line 14742
     .local v14, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v14, :cond_3
 
@@ -60448,7 +56843,6 @@
 
     if-nez v2, :cond_5
 
-    .line 14743
     :cond_3
     iget-object v2, v14, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
@@ -60458,7 +56852,6 @@
 
     if-lt v2, v4, :cond_4
 
-    .line 14744
     new-instance v2, Ljava/lang/IllegalArgumentException;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -60493,7 +56886,6 @@
 
     throw v2
 
-    .line 14747
     :cond_4
     const-string v2, "PackageManager"
 
@@ -60527,7 +56919,6 @@
 
     invoke-static {v2, v4}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14752
     :cond_5
     move/from16 v0, p2
 
@@ -60535,7 +56926,6 @@
 
     invoke-virtual {v15, v10, v0, v1}, Lcom/android/server/pm/PackageSetting;->protectComponentLPw(Ljava/lang/String;ZI)Z
 
-    .line 14753
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -60544,7 +56934,6 @@
 
     invoke-virtual {v2, v0}, Lcom/android/server/pm/Settings;->writePackageRestrictionsLPr(I)V
 
-    .line 14755
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/android/server/pm/PackageManagerService;->mPendingBroadcasts:Lcom/android/server/pm/PackageManagerService$PendingPackageBroadcasts;
@@ -60555,24 +56944,20 @@
 
     move-result-object v11
 
-    .line 14756
     .local v11, "components":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     if-nez v11, :cond_8
 
     const/4 v12, 0x1
 
-    .line 14757
     .local v12, "newPackage":Z
     :goto_0
     if-eqz v12, :cond_6
 
-    .line 14758
     new-instance v11, Ljava/util/ArrayList;
 
     .end local v11    # "components":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     invoke-direct {v11}, Ljava/util/ArrayList;-><init>()V
 
-    .line 14760
     .restart local v11    # "components":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Ljava/lang/String;>;"
     :cond_6
     invoke-virtual {v11, v10}, Ljava/util/ArrayList;->contains(Ljava/lang/Object;)Z
@@ -60581,21 +56966,17 @@
 
     if-nez v2, :cond_7
 
-    .line 14761
     invoke-virtual {v11, v10}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 14764
     :cond_7
     monitor-exit v3
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 14766
     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
 
     move-result-wide v8
 
-    .line 14768
     .local v8, "callingId":J
     :try_start_2
     iget v2, v15, Lcom/android/server/pm/PackageSetting;->appId:I
@@ -60606,13 +56987,11 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_1
 
-    .line 14770
     invoke-static {v8, v9}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
-    .line 14772
+    .line 9781
     return-void
 
-    .line 14756
     .end local v8    # "callingId":J
     .end local v12    # "newPackage":Z
     :cond_8
@@ -60620,7 +56999,6 @@
 
     goto :goto_0
 
-    .line 14770
     .restart local v8    # "callingId":J
     .restart local v12    # "newPackage":Z
     :catchall_1
@@ -60638,7 +57016,6 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 14504
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v2, "android.permission.WRITE_SECURE_SETTINGS"
@@ -60647,18 +57024,15 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 14506
     invoke-virtual {p0}, Lcom/android/server/pm/PackageManagerService;->getInstallLocation()I
 
     move-result v1
 
     if-ne v1, p1, :cond_0
 
-    .line 14515
     :goto_0
     return v0
 
-    .line 14509
     :cond_0
     if-eqz p1, :cond_1
 
@@ -60668,7 +57042,6 @@
 
     if-ne p1, v1, :cond_2
 
-    .line 14511
     :cond_1
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
@@ -60682,7 +57055,6 @@
 
     goto :goto_0
 
-    .line 14515
     :cond_2
     const/4 v0, 0x0
 
@@ -60695,18 +57067,15 @@
     .param p2, "installerPackageName"    # Ljava/lang/String;
 
     .prologue
-    .line 9637
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v5
 
-    .line 9639
     .local v5, "uid":I
     iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v7
 
-    .line 9640
     :try_start_0
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -60718,11 +57087,9 @@
 
     check-cast v4, Lcom/android/server/pm/PackageSetting;
 
-    .line 9641
     .local v4, "targetPackageSetting":Lcom/android/server/pm/PackageSetting;
     if-nez v4, :cond_0
 
-    .line 9642
     new-instance v6, Ljava/lang/IllegalArgumentException;
 
     new-instance v8, Ljava/lang/StringBuilder;
@@ -60747,7 +57114,6 @@
 
     throw v6
 
-    .line 9703
     .end local v4    # "targetPackageSetting":Lcom/android/server/pm/PackageSetting;
     :catchall_0
     move-exception v6
@@ -60758,12 +57124,10 @@
 
     throw v6
 
-    .line 9646
     .restart local v4    # "targetPackageSetting":Lcom/android/server/pm/PackageSetting;
     :cond_0
     if-eqz p2, :cond_1
 
-    .line 9647
     :try_start_1
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -60775,11 +57139,9 @@
 
     check-cast v1, Lcom/android/server/pm/PackageSetting;
 
-    .line 9648
     .local v1, "installerPackageSetting":Lcom/android/server/pm/PackageSetting;
     if-nez v1, :cond_2
 
-    .line 9649
     new-instance v6, Ljava/lang/IllegalArgumentException;
 
     new-instance v8, Ljava/lang/StringBuilder;
@@ -60804,12 +57166,10 @@
 
     throw v6
 
-    .line 9653
     .end local v1    # "installerPackageSetting":Lcom/android/server/pm/PackageSetting;
     :cond_1
     const/4 v1, 0x0
 
-    .line 9657
     .restart local v1    # "installerPackageSetting":Lcom/android/server/pm/PackageSetting;
     :cond_2
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -60818,16 +57178,13 @@
 
     move-result-object v2
 
-    .line 9658
     .local v2, "obj":Ljava/lang/Object;
     if-eqz v2, :cond_5
 
-    .line 9659
     instance-of v6, v2, Lcom/android/server/pm/SharedUserSetting;
 
     if-eqz v6, :cond_3
 
-    .line 9660
     check-cast v2, Lcom/android/server/pm/SharedUserSetting;
 
     .end local v2    # "obj":Ljava/lang/Object;
@@ -60835,12 +57192,10 @@
 
     iget-object v0, v6, Lcom/android/server/pm/PackageSignatures;->mSignatures:[Landroid/content/pm/Signature;
 
-    .line 9672
     .local v0, "callerSignature":[Landroid/content/pm/Signature;
     :goto_0
     if-eqz v1, :cond_6
 
-    .line 9673
     iget-object v6, v1, Lcom/android/server/pm/PackageSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
 
     iget-object v6, v6, Lcom/android/server/pm/PackageSignatures;->mSignatures:[Landroid/content/pm/Signature;
@@ -60851,7 +57206,6 @@
 
     if-eqz v6, :cond_6
 
-    .line 9676
     new-instance v6, Ljava/lang/SecurityException;
 
     new-instance v8, Ljava/lang/StringBuilder;
@@ -60876,7 +57230,6 @@
 
     throw v6
 
-    .line 9661
     .end local v0    # "callerSignature":[Landroid/content/pm/Signature;
     .restart local v2    # "obj":Ljava/lang/Object;
     :cond_3
@@ -60884,7 +57237,6 @@
 
     if-eqz v6, :cond_4
 
-    .line 9662
     check-cast v2, Lcom/android/server/pm/PackageSetting;
 
     .end local v2    # "obj":Ljava/lang/Object;
@@ -60895,7 +57247,6 @@
     .restart local v0    # "callerSignature":[Landroid/content/pm/Signature;
     goto :goto_0
 
-    .line 9664
     .end local v0    # "callerSignature":[Landroid/content/pm/Signature;
     .restart local v2    # "obj":Ljava/lang/Object;
     :cond_4
@@ -60933,7 +57284,6 @@
 
     throw v6
 
-    .line 9667
     :cond_5
     new-instance v6, Ljava/lang/SecurityException;
 
@@ -60959,7 +57309,6 @@
 
     throw v6
 
-    .line 9684
     .end local v2    # "obj":Ljava/lang/Object;
     .restart local v0    # "callerSignature":[Landroid/content/pm/Signature;
     :cond_6
@@ -60967,7 +57316,6 @@
 
     if-eqz v6, :cond_7
 
-    .line 9685
     iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v6, v6, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
@@ -60980,11 +57328,9 @@
 
     check-cast v3, Lcom/android/server/pm/PackageSetting;
 
-    .line 9689
     .local v3, "setting":Lcom/android/server/pm/PackageSetting;
     if-eqz v3, :cond_7
 
-    .line 9690
     iget-object v6, v3, Lcom/android/server/pm/PackageSetting;->signatures:Lcom/android/server/pm/PackageSignatures;
 
     iget-object v6, v6, Lcom/android/server/pm/PackageSignatures;->mSignatures:[Landroid/content/pm/Signature;
@@ -60995,7 +57341,6 @@
 
     if-eqz v6, :cond_7
 
-    .line 9693
     new-instance v6, Ljava/lang/SecurityException;
 
     new-instance v8, Ljava/lang/StringBuilder;
@@ -61022,20 +57367,16 @@
 
     throw v6
 
-    .line 9701
     .end local v3    # "setting":Lcom/android/server/pm/PackageSetting;
     :cond_7
     iput-object p2, v4, Lcom/android/server/pm/PackageSetting;->installerPackageName:Ljava/lang/String;
 
-    .line 9702
     invoke-virtual {p0}, Lcom/android/server/pm/PackageManagerService;->scheduleWriteSettingsLocked()V
 
-    .line 9703
     monitor-exit v7
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 9704
     return-void
 .end method
 
@@ -61049,12 +57390,10 @@
     .param p6, "activity"    # Landroid/content/ComponentName;
 
     .prologue
-    .line 3224
     invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
 
     move-result v13
 
-    .line 3234
     .local v13, "userId":I
     const/4 v4, 0x0
 
@@ -61062,7 +57401,6 @@
 
     invoke-virtual {v0, v4}, Landroid/content/Intent;->setComponent(Landroid/content/ComponentName;)Landroid/content/Intent;
 
-    .line 3235
     move-object/from16 v0, p0
 
     move-object/from16 v1, p1
@@ -61075,7 +57413,6 @@
 
     move-result-object v8
 
-    .line 3237
     .local v8, "query":Ljava/util/List;, "Ljava/util/List<Landroid/content/pm/ResolveInfo;>;"
     const/4 v9, 0x0
 
@@ -61095,7 +57432,6 @@
 
     invoke-virtual/range {v4 .. v13}, Lcom/android/server/pm/PackageManagerService;->findPreferredActivity(Landroid/content/Intent;Ljava/lang/String;ILjava/util/List;IZZZI)Landroid/content/pm/ResolveInfo;
 
-    .line 3240
     const/16 v17, 0x0
 
     const/16 v19, 0x0
@@ -61114,7 +57450,6 @@
 
     invoke-direct/range {v14 .. v21}, Lcom/android/server/pm/PackageManagerService;->addPreferredActivityInternal(Landroid/content/IntentFilter;I[Landroid/content/ComponentName;Landroid/content/ComponentName;ZILjava/lang/String;)V
 
-    .line 3242
     return-void
 .end method
 
@@ -61127,7 +57462,6 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 13417
     sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v0, p3}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
@@ -61136,17 +57470,14 @@
 
     if-nez v0, :cond_0
 
-    .line 13430
     :goto_0
     return-void
 
-    .line 13418
     :cond_0
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v1
 
-    .line 13419
     .local v1, "uid":I
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
@@ -61156,13 +57487,11 @@
 
     move-result v9
 
-    .line 13421
     .local v9, "permission":I
     if-nez v9, :cond_2
 
     move v8, v3
 
-    .line 13422
     .local v8, "allowedByPermission":Z
     :goto_1
     const-string v5, "stop package"
@@ -61175,12 +57504,10 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
 
-    .line 13424
     iget-object v10, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v10
 
-    .line 13425
     :try_start_0
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -61200,10 +57527,8 @@
 
     if-eqz v0, :cond_1
 
-    .line 13427
     invoke-virtual {p0, p3}, Lcom/android/server/pm/PackageManagerService;->scheduleWritePackageRestrictionsLocked(I)V
 
-    .line 13429
     :cond_1
     monitor-exit v10
 
@@ -61218,7 +57543,6 @@
 
     throw v0
 
-    .line 13421
     .end local v8    # "allowedByPermission":Z
     :cond_2
     const/4 v8, 0x0
@@ -61232,7 +57556,7 @@
     .param p2, "enforced"    # Z
 
     .prologue
-    .line 14621
+    .line 15047
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v4, "android.permission.GRANT_REVOKE_PERMISSIONS"
@@ -61241,7 +57565,6 @@
 
     invoke-virtual {v1, v4, v5}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 14622
     const-string v1, "android.permission.READ_EXTERNAL_STORAGE"
 
     invoke-virtual {v1, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -61250,12 +57573,10 @@
 
     if-eqz v1, :cond_3
 
-    .line 14623
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v4
 
-    .line 14624
     :try_start_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -61273,7 +57594,6 @@
 
     if-eq v1, p2, :cond_1
 
-    .line 14626
     :cond_0
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -61283,32 +57603,26 @@
 
     iput-object v5, v1, Lcom/android/server/pm/Settings;->mReadExternalStorageEnforced:Ljava/lang/Boolean;
 
-    .line 14627
     iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     invoke-virtual {v1}, Lcom/android/server/pm/Settings;->writeLPr()V
 
-    .line 14629
     :cond_1
     monitor-exit v4
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 14632
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
 
-    .line 14633
     .local v0, "am":Landroid/app/IActivityManager;
     if-eqz v0, :cond_2
 
-    .line 14634
     invoke-static {}, Landroid/os/Binder;->clearCallingIdentity()J
 
     move-result-wide v2
 
-    .line 14636
     .local v2, "token":J
     :try_start_1
     const-string v1, "setPermissionEnforcement"
@@ -61318,16 +57632,13 @@
     .catch Landroid/os/RemoteException; {:try_start_1 .. :try_end_1} :catch_0
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 14639
     invoke-static {v2, v3}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
-    .line 14645
     .end local v2    # "token":J
     :cond_2
     :goto_0
     return-void
 
-    .line 14629
     .end local v0    # "am":Landroid/app/IActivityManager;
     :catchall_0
     move-exception v1
@@ -61339,13 +57650,11 @@
 
     throw v1
 
-    .line 14637
     .restart local v0    # "am":Landroid/app/IActivityManager;
     .restart local v2    # "token":J
     :catch_0
     move-exception v1
 
-    .line 14639
     invoke-static {v2, v3}, Landroid/os/Binder;->restoreCallingIdentity(J)V
 
     goto :goto_0
@@ -61357,7 +57666,6 @@
 
     throw v1
 
-    .line 14643
     .end local v0    # "am":Landroid/app/IActivityManager;
     .end local v2    # "token":J
     :cond_3
@@ -61391,7 +57699,6 @@
     .param p1, "componentName"    # Landroid/content/ComponentName;
 
     .prologue
-    .line 14661
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v3, "android.permission.INTERCEPT_PACKAGE_LAUNCH"
@@ -61400,44 +57707,35 @@
 
     invoke-virtual {v2, v3, v4}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 14664
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 14665
     :try_start_0
     iput-object p1, p0, Lcom/android/server/pm/PackageManagerService;->mCustomPreLaunchComponentName:Landroid/content/ComponentName;
 
-    .line 14667
     if-nez p1, :cond_0
 
-    .line 14669
     const-string v2, "PackageManager"
 
     const-string v4, "Pre Launch Check: Removed"
 
     invoke-static {v2, v4}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14674
     const/4 v2, 0x0
 
     iput-boolean v2, p0, Lcom/android/server/pm/PackageManagerService;->mPreLaunchCheckPackagesReplaced:Z
 
-    .line 14686
     :goto_0
     monitor-exit v3
 
-    .line 14687
     return-void
 
-    .line 14678
     :cond_0
     invoke-virtual {p1}, Landroid/content/ComponentName;->getPackageName()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 14679
     .local v1, "pkgName":Ljava/lang/String;
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -61447,16 +57745,13 @@
 
     check-cast v0, Landroid/content/pm/PackageParser$Package;
 
-    .line 14680
     .local v0, "pkg":Landroid/content/pm/PackageParser$Package;
     if-eqz v0, :cond_1
 
-    .line 14681
     invoke-direct {p0, v0}, Lcom/android/server/pm/PackageManagerService;->setUpCustomPreLaunchCheckActivity(Landroid/content/pm/PackageParser$Package;)V
 
     goto :goto_0
 
-    .line 14686
     .end local v0    # "pkg":Landroid/content/pm/PackageParser$Package;
     .end local v1    # "pkgName":Ljava/lang/String;
     :catchall_0
@@ -61468,7 +57763,6 @@
 
     throw v2
 
-    .line 14683
     .restart local v0    # "pkg":Landroid/content/pm/PackageParser$Package;
     .restart local v1    # "pkgName":Ljava/lang/String;
     :cond_1
@@ -61504,14 +57798,13 @@
     .locals 2
 
     .prologue
-    .line 5142
     iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackageUsage:Lcom/android/server/pm/PackageManagerService$PackageUsage;
 
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Lcom/android/server/pm/PackageManagerService$PackageUsage;->write(Z)V
 
-    .line 5143
+    .line 7169
     return-void
 .end method
 
@@ -61519,12 +57812,10 @@
     .locals 5
 
     .prologue
-    .line 9135
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 9136
     :try_start_0
     invoke-direct {p0}, Lcom/android/server/pm/PackageManagerService;->isExternalMediaAvailable()Z
 
@@ -61532,15 +57823,12 @@
 
     if-nez v2, :cond_1
 
-    .line 9137
     monitor-exit v3
 
-    .line 9152
     :cond_0
     :goto_0
     return-void
 
-    .line 9139
     :cond_1
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
@@ -61552,12 +57840,10 @@
 
     if-eqz v2, :cond_2
 
-    .line 9140
     monitor-exit v3
 
     goto :goto_0
 
-    .line 9142
     :catchall_0
     move-exception v2
 
@@ -61573,29 +57859,24 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 9143
     new-instance v1, Landroid/content/Intent;
 
     const-string v2, "android.content.pm.CLEAN_EXTERNAL_STORAGE"
 
     invoke-direct {v1, v2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 9144
     .local v1, "intent":Landroid/content/Intent;
     sget-object v2, Lcom/android/server/pm/PackageManagerService;->DEFAULT_CONTAINER_COMPONENT:Landroid/content/ComponentName;
 
     invoke-virtual {v1, v2}, Landroid/content/Intent;->setComponent(Landroid/content/ComponentName;)Landroid/content/Intent;
 
-    .line 9145
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
 
-    .line 9146
     .local v0, "am":Landroid/app/IActivityManager;
     if-eqz v0, :cond_0
 
-    .line 9148
     const/4 v2, 0x0
 
     const/4 v3, 0x0
@@ -61609,7 +57890,6 @@
 
     goto :goto_0
 
-    .line 9149
     :catch_0
     move-exception v2
 
@@ -61622,10 +57902,8 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 13473
     iput-boolean v0, p0, Lcom/android/server/pm/PackageManagerService;->mSystemReady:Z
 
-    .line 13476
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     invoke-virtual {v8}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
@@ -61640,23 +57918,19 @@
 
     if-ne v8, v0, :cond_1
 
-    .line 13479
     .local v0, "compatibilityModeEnabled":Z
     :goto_0
     invoke-static {v0}, Landroid/content/pm/PackageParser;->setCompatibilityModeEnabled(Z)V
 
-    .line 13484
     iget-object v9, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v9
 
-    .line 13493
     :try_start_0
     new-instance v7, Ljava/util/ArrayList;
 
     invoke-direct {v7}, Ljava/util/ArrayList;-><init>()V
 
-    .line 13494
     .local v7, "removed":Ljava/util/ArrayList;, "Ljava/util/ArrayList<Lcom/android/server/pm/PreferredActivity;>;"
     const/4 v1, 0x0
 
@@ -61672,7 +57946,6 @@
 
     if-ge v1, v8, :cond_5
 
-    .line 13495
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
 
     iget-object v8, v8, Lcom/android/server/pm/Settings;->mPreferredActivities:Landroid/util/SparseArray;
@@ -61683,11 +57956,9 @@
 
     check-cast v5, Lcom/android/server/pm/PreferredIntentResolver;
 
-    .line 13496
     .local v5, "pir":Lcom/android/server/pm/PreferredIntentResolver;
     invoke-virtual {v7}, Ljava/util/ArrayList;->clear()V
 
-    .line 13497
     invoke-virtual {v5}, Lcom/android/server/pm/PreferredIntentResolver;->filterSet()Ljava/util/Set;
 
     move-result-object v8
@@ -61711,7 +57982,6 @@
 
     check-cast v4, Lcom/android/server/pm/PreferredActivity;
 
-    .line 13498
     .local v4, "pa":Lcom/android/server/pm/PreferredActivity;
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mActivities:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
 
@@ -61730,12 +58000,10 @@
 
     if-nez v8, :cond_0
 
-    .line 13499
     invoke-virtual {v7, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_2
 
-    .line 13513
     .end local v1    # "i":I
     .end local v2    # "i$":Ljava/util/Iterator;
     .end local v4    # "pa":Lcom/android/server/pm/PreferredActivity;
@@ -61750,14 +58018,12 @@
 
     throw v8
 
-    .line 13476
     .end local v0    # "compatibilityModeEnabled":Z
     :cond_1
     const/4 v0, 0x0
 
     goto :goto_0
 
-    .line 13502
     .restart local v0    # "compatibilityModeEnabled":Z
     .restart local v1    # "i":I
     .restart local v2    # "i$":Ljava/util/Iterator;
@@ -61771,7 +58037,6 @@
 
     if-lez v8, :cond_4
 
-    .line 13503
     const/4 v6, 0x0
 
     .local v6, "r":I
@@ -61782,14 +58047,12 @@
 
     if-ge v6, v8, :cond_3
 
-    .line 13504
     invoke-virtual {v7, v6}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v4
 
     check-cast v4, Lcom/android/server/pm/PreferredActivity;
 
-    .line 13505
     .restart local v4    # "pa":Lcom/android/server/pm/PreferredActivity;
     const-string v8, "PackageManager"
 
@@ -61817,15 +58080,12 @@
 
     invoke-static {v8, v10}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 13507
     invoke-virtual {v5, v4}, Lcom/android/server/pm/PreferredIntentResolver;->removeFilter(Landroid/content/IntentFilter;)V
 
-    .line 13503
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_3
 
-    .line 13509
     .end local v4    # "pa":Lcom/android/server/pm/PreferredActivity;
     :cond_3
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
@@ -61840,14 +58100,12 @@
 
     invoke-virtual {v8, v10}, Lcom/android/server/pm/Settings;->writePackageRestrictionsLPr(I)V
 
-    .line 13494
     .end local v6    # "r":I
     :cond_4
     add-int/lit8 v1, v1, 0x1
 
     goto/16 :goto_1
 
-    .line 13513
     .end local v2    # "i$":Ljava/util/Iterator;
     .end local v5    # "pir":Lcom/android/server/pm/PreferredIntentResolver;
     :cond_5
@@ -61855,17 +58113,14 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 13514
     sget-object v8, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
 
     invoke-virtual {v8}, Lcom/android/server/pm/UserManagerService;->systemReady()V
 
-    .line 13517
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mPostSystemReadyMessages:Ljava/util/ArrayList;
 
     if-eqz v8, :cond_7
 
-    .line 13518
     iget-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mPostSystemReadyMessages:Ljava/util/ArrayList;
 
     invoke-virtual {v8}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
@@ -61886,20 +58141,17 @@
 
     check-cast v3, Landroid/os/Message;
 
-    .line 13519
     .local v3, "msg":Landroid/os/Message;
     invoke-virtual {v3}, Landroid/os/Message;->sendToTarget()V
 
     goto :goto_4
 
-    .line 13521
     .end local v3    # "msg":Landroid/os/Message;
     :cond_6
     const/4 v8, 0x0
 
     iput-object v8, p0, Lcom/android/server/pm/PackageManagerService;->mPostSystemReadyMessages:Ljava/util/ArrayList;
 
-    .line 13523
     .end local v2    # "i$":Ljava/util/Iterator;
     :cond_7
     return-void
@@ -61911,12 +58163,10 @@
     .param p2, "reportStatus"    # Z
 
     .prologue
-    .line 14038
     invoke-static {}, Landroid/os/Binder;->getCallingUid()I
 
     move-result v0
 
-    .line 14039
     .local v0, "callingUid":I
     if-eqz v0, :cond_0
 
@@ -61924,7 +58174,6 @@
 
     if-eq v0, v2, :cond_0
 
-    .line 14040
     new-instance v2, Ljava/lang/SecurityException;
 
     const-string v3, "Media status can only be updated by the system"
@@ -61933,13 +58182,11 @@
 
     throw v2
 
-    .line 14044
     :cond_0
     iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
     monitor-enter v3
 
-    .line 14045
     :try_start_0
     const-string v4, "PackageManager"
 
@@ -61985,12 +58232,10 @@
 
     invoke-static {v4, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14051
     iget-boolean v2, p0, Lcom/android/server/pm/PackageManagerService;->mMediaMounted:Z
 
     if-ne p1, v2, :cond_4
 
-    .line 14052
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     const/16 v5, 0xc
@@ -62006,21 +58251,17 @@
 
     move-result-object v1
 
-    .line 14054
     .local v1, "msg":Landroid/os/Message;
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     invoke-virtual {v2, v1}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->sendMessage(Landroid/os/Message;)Z
 
-    .line 14055
     monitor-exit v3
 
-    .line 14066
     .end local v1    # "msg":Landroid/os/Message;
     :goto_3
     return-void
 
-    .line 14045
     :cond_1
     const-string v2, "unmounted"
 
@@ -62031,22 +58272,19 @@
 
     goto :goto_1
 
-    .line 14052
+    .line 12666
     :cond_3
     const/4 v2, 0x0
 
     goto :goto_2
 
-    .line 14057
     :cond_4
     iput-boolean p1, p0, Lcom/android/server/pm/PackageManagerService;->mMediaMounted:Z
 
-    .line 14058
     monitor-exit v3
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 14061
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     new-instance v3, Lcom/android/server/pm/PackageManagerService$10;
@@ -62057,7 +58295,6 @@
 
     goto :goto_3
 
-    .line 14058
     :catchall_0
     move-exception v2
 
@@ -62074,7 +58311,6 @@
     .param p1, "pkgName"    # Ljava/lang/String;
 
     .prologue
-    .line 14916
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v5, "android.permission.CHANGE_CONFIGURATION"
@@ -62083,17 +58319,13 @@
 
     invoke-virtual {v4, v5, v6}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 14921
     if-nez p1, :cond_0
 
-    .line 14922
     invoke-direct {p0}, Lcom/android/server/pm/PackageManagerService;->clearIconMapping()V
 
-    .line 14945
     :goto_0
     return-void
 
-    .line 14925
     :cond_0
     new-instance v4, Landroid/app/IconPackHelper;
 
@@ -62103,7 +58335,6 @@
 
     iput-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mIconPackHelper:Landroid/app/IconPackHelper;
 
-    .line 14927
     :try_start_0
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mIconPackHelper:Landroid/app/IconPackHelper;
 
@@ -62111,7 +58342,6 @@
     :try_end_0
     .catch Landroid/content/pm/PackageManager$NameNotFoundException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 14934
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mActivities:Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;
 
     # getter for: Lcom/android/server/pm/PackageManagerService$ActivityIntentResolver;->mActivities:Landroid/util/ArrayMap;
@@ -62141,7 +58371,6 @@
 
     check-cast v0, Landroid/content/pm/PackageParser$Activity;
 
-    .line 14935
     .local v0, "activity":Landroid/content/pm/PackageParser$Activity;
     iget-object v4, v0, Landroid/content/pm/PackageParser$Activity;->info:Landroid/content/pm/ActivityInfo;
 
@@ -62157,13 +58386,11 @@
 
     goto :goto_1
 
-    .line 14928
     .end local v0    # "activity":Landroid/content/pm/PackageParser$Activity;
     .end local v2    # "i$":Ljava/util/Iterator;
     :catch_0
     move-exception v1
 
-    .line 14929
     .local v1, "e":Landroid/content/pm/PackageManager$NameNotFoundException;
     const-string v4, "PackageManager"
 
@@ -62187,12 +58414,10 @@
 
     invoke-static {v4, v5}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 14930
     invoke-direct {p0}, Lcom/android/server/pm/PackageManagerService;->clearIconMapping()V
 
     goto :goto_0
 
-    .line 14939
     .end local v1    # "e":Landroid/content/pm/PackageManager$NameNotFoundException;
     .restart local v2    # "i$":Ljava/util/Iterator;
     :cond_1
@@ -62200,7 +58425,6 @@
 
     monitor-enter v5
 
-    .line 14940
     :try_start_1
     iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
 
@@ -62225,7 +58449,6 @@
 
     check-cast v3, Landroid/content/pm/PackageParser$Package;
 
-    .line 14941
     .local v3, "pkg":Landroid/content/pm/PackageParser$Package;
     iget-object v4, v3, Landroid/content/pm/PackageParser$Package;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 
@@ -62241,7 +58464,6 @@
 
     goto :goto_2
 
-    .line 14944
     .end local v3    # "pkg":Landroid/content/pm/PackageParser$Package;
     :catchall_0
     move-exception v4
@@ -62272,7 +58494,6 @@
     .end annotation
 
     .prologue
-    .line 9403
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mContext:Landroid/content/Context;
 
     const-string v3, "android.permission.PACKAGE_VERIFICATION_AGENT"
@@ -62281,7 +58502,6 @@
 
     invoke-virtual {v2, v3, v4}, Landroid/content/Context;->enforceCallingOrSelfPermission(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 9407
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     const/16 v3, 0xf
@@ -62290,7 +58510,6 @@
 
     move-result-object v0
 
-    .line 9408
     .local v0, "msg":Landroid/os/Message;
     new-instance v1, Lcom/android/server/pm/PackageVerificationResponse;
 
@@ -62300,18 +58519,485 @@
 
     invoke-direct {v1, p2, v2}, Lcom/android/server/pm/PackageVerificationResponse;-><init>(II)V
 
-    .line 9410
     .local v1, "response":Lcom/android/server/pm/PackageVerificationResponse;
     iput p1, v0, Landroid/os/Message;->arg1:I
 
-    .line 9411
     iput-object v1, v0, Landroid/os/Message;->obj:Ljava/lang/Object;
 
-    .line 9412
     iget-object v2, p0, Lcom/android/server/pm/PackageManagerService;->mHandler:Lcom/android/server/pm/PackageManagerService$PackageHandler;
 
     invoke-virtual {v2, v0}, Lcom/android/server/pm/PackageManagerService$PackageHandler;->sendMessage(Landroid/os/Message;)Z
 
-    .line 9413
+    return-void
+.end method
+
+.method flymeInvokeMethodPerformDexOptLI(Landroid/content/pm/PackageParser$Package;[Ljava/lang/String;ZZZ)I
+    .locals 1
+    .param p1, "pkg"    # Landroid/content/pm/PackageParser$Package;
+    .param p2, "instructionSets"    # [Ljava/lang/String;
+    .param p3, "forceDex"    # Z
+    .param p4, "defer"    # Z
+    .param p5, "inclDependencies"    # Z
+
+    .prologue
+    invoke-direct/range {p0 .. p5}, Lcom/android/server/pm/PackageManagerService;->performDexOptLI(Landroid/content/pm/PackageParser$Package;[Ljava/lang/String;ZZZ)I
+
+    move-result v0
+
+    return v0
+.end method
+
+.method public getAccessInfo(I)Landroid/content/pm/ResolveInfo;
+    .locals 1
+    .param p1, "userId"    # I
+
+    .prologue
+    iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mAccessInfo:Landroid/content/pm/ResolveInfo;
+
+    return-object v0
+.end method
+
+.method public getInternalAppList()Ljava/util/List;
+    .locals 1
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()",
+            "Ljava/util/List",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+
+    .prologue
+    iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mFlymePackageDOS:Lcom/android/server/pm/PackageDefaultOpService;
+
+    iget-object v0, v0, Lcom/android/server/pm/PackageDefaultOpService;->mPackageList:Ljava/util/ArrayList;
+
+    return-object v0
+.end method
+
+.method public getPackageActivateState(Ljava/lang/String;)Z
+    .locals 2
+    .param p1, "pkgName"    # Ljava/lang/String;
+
+    .prologue
+    iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mFlymePackageDOS:Lcom/android/server/pm/PackageDefaultOpService;
+
+    iget-object v1, v1, Lcom/android/server/pm/PackageDefaultOpService;->mPackages:Ljava/util/HashMap;
+
+    invoke-virtual {v1, p1}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/android/server/pm/PackageDefaultOpService$Op;
+
+    .local v0, "pkg":Lcom/android/server/pm/PackageDefaultOpService$Op;
+    if-eqz v0, :cond_0
+
+    iget-boolean v1, v0, Lcom/android/server/pm/PackageDefaultOpService$Op;->activate:Z
+
+    :goto_0
+    return v1
+
+    :cond_0
+    const/4 v1, 0x1
+
+    goto :goto_0
+.end method
+
+.method public getPackageInfoForVersion(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
+    .locals 12
+    .param p1, "packageName"    # Ljava/lang/String;
+    .param p2, "flags"    # I
+
+    .prologue
+    const/4 v3, 0x0
+
+    invoke-static {}, Landroid/os/UserHandle;->getCallingUserId()I
+
+    move-result v2
+
+    .local v2, "userId":I
+    sget-object v0, Lcom/android/server/pm/PackageManagerService;->sUserManager:Lcom/android/server/pm/UserManagerService;
+
+    invoke-virtual {v0, v2}, Lcom/android/server/pm/UserManagerService;->exists(I)Z
+
+    move-result v0
+
+    if-nez v0, :cond_1
+
+    const/4 v7, 0x0
+
+    :cond_0
+    :goto_0
+    return-object v7
+
+    :cond_1
+    invoke-static {}, Landroid/os/Binder;->getCallingUid()I
+
+    move-result v1
+
+    const-string v5, "get package info"
+
+    move-object v0, p0
+
+    move v4, v3
+
+    invoke-virtual/range {v0 .. v5}, Lcom/android/server/pm/PackageManagerService;->enforceCrossUserPermission(IIZZLjava/lang/String;)V
+
+    const/4 v7, 0x0
+
+    .local v7, "info":Landroid/content/pm/PackageInfo;
+    const/4 v10, 0x0
+
+    .local v10, "pkgLite":Landroid/content/pm/PackageParser$PackageLite;
+    iget-object v1, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
+
+    monitor-enter v1
+
+    :try_start_0
+    iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
+
+    invoke-virtual {v0, p1}, Landroid/util/ArrayMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v8
+
+    check-cast v8, Landroid/content/pm/PackageParser$Package;
+
+    .local v8, "p":Landroid/content/pm/PackageParser$Package;
+    if-eqz v8, :cond_2
+
+    invoke-virtual {p0, v8, p2, v2}, Lcom/android/server/pm/PackageManagerService;->generatePackageInfo(Landroid/content/pm/PackageParser$Package;II)Landroid/content/pm/PackageInfo;
+
+    move-result-object v7
+
+    :cond_2
+    and-int/lit16 v0, p2, 0x2000
+
+    if-eqz v0, :cond_3
+
+    invoke-direct {p0, p1, p2, v2}, Lcom/android/server/pm/PackageManagerService;->generatePackageInfoFromSettingsLPw(Ljava/lang/String;II)Landroid/content/pm/PackageInfo;
+
+    move-result-object v7
+
+    :cond_3
+    monitor-exit v1
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    if-eqz v7, :cond_4
+
+    new-instance v11, Ljava/io/File;
+
+    iget-object v0, v7, Landroid/content/pm/PackageInfo;->applicationInfo:Landroid/content/pm/ApplicationInfo;
+
+    iget-object v0, v0, Landroid/content/pm/ApplicationInfo;->sourceDir:Ljava/lang/String;
+
+    invoke-direct {v11, v0}, Ljava/io/File;-><init>(Ljava/lang/String;)V
+
+    .local v11, "tempFile":Ljava/io/File;
+    const/4 v0, 0x0
+
+    :try_start_1
+    invoke-static {v11, v0}, Landroid/content/pm/PackageParser;->parsePackageLite(Ljava/io/File;I)Landroid/content/pm/PackageParser$PackageLite;
+    :try_end_1
+    .catch Landroid/content/pm/PackageParser$PackageParserException; {:try_start_1 .. :try_end_1} :catch_0
+
+    move-result-object v10
+
+    .end local v11    # "tempFile":Ljava/io/File;
+    :cond_4
+    :goto_1
+    iget-object v0, p0, Lcom/android/server/pm/PackageManagerService;->mFlymePackageDOS:Lcom/android/server/pm/PackageDefaultOpService;
+
+    iget-object v0, v0, Lcom/android/server/pm/PackageDefaultOpService;->mPackages:Ljava/util/HashMap;
+
+    invoke-virtual {v0, p1}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v9
+
+    check-cast v9, Lcom/android/server/pm/PackageDefaultOpService$Op;
+
+    .local v9, "pkg":Lcom/android/server/pm/PackageDefaultOpService$Op;
+    if-eqz v7, :cond_0
+
+    if-eqz v9, :cond_0
+
+    if-eqz v10, :cond_0
+
+    iget v0, v10, Landroid/content/pm/PackageParser$PackageLite;->versionCode:I
+
+    iput v0, v7, Landroid/content/pm/PackageInfo;->versionCode:I
+
+    goto :goto_0
+
+    .end local v8    # "p":Landroid/content/pm/PackageParser$Package;
+    .end local v9    # "pkg":Lcom/android/server/pm/PackageDefaultOpService$Op;
+    :catchall_0
+    move-exception v0
+
+    :try_start_2
+    monitor-exit v1
+    :try_end_2
+    .catchall {:try_start_2 .. :try_end_2} :catchall_0
+
+    throw v0
+
+    .restart local v8    # "p":Landroid/content/pm/PackageParser$Package;
+    .restart local v11    # "tempFile":Ljava/io/File;
+    :catch_0
+    move-exception v6
+
+    .local v6, "e":Landroid/content/pm/PackageParser$PackageParserException;
+    const-string v0, "PackageDefaultOp"
+
+    const-string v1, "should never happened"
+
+    invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+
+    goto :goto_1
+.end method
+
+.method public resetVersion(Ljava/lang/String;)V
+    .locals 9
+    .param p1, "pkgName"    # Ljava/lang/String;
+
+    .prologue
+    iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mFlymePackageDOS:Lcom/android/server/pm/PackageDefaultOpService;
+
+    iget-object v6, v6, Lcom/android/server/pm/PackageDefaultOpService;->mPackages:Ljava/util/HashMap;
+
+    invoke-virtual {v6, p1}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Lcom/android/server/pm/PackageDefaultOpService$Op;
+
+    .local v2, "pkg":Lcom/android/server/pm/PackageDefaultOpService$Op;
+    if-eqz v2, :cond_1
+
+    const/4 v6, 0x1
+
+    iput-boolean v6, v2, Lcom/android/server/pm/PackageDefaultOpService$Op;->activate:Z
+
+    const/4 v6, 0x0
+
+    invoke-virtual {p0, p1, v6}, Lcom/android/server/pm/PackageManagerService;->getPackageInfoForVersion(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
+
+    move-result-object v3
+
+    .local v3, "pkgInfo":Landroid/content/pm/PackageInfo;
+    if-eqz v3, :cond_0
+
+    iget v6, v3, Landroid/content/pm/PackageInfo;->versionCode:I
+
+    iput v6, v2, Lcom/android/server/pm/PackageDefaultOpService$Op;->oldVersion:I
+
+    :cond_0
+    iget-object v7, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
+
+    monitor-enter v7
+
+    :try_start_0
+    iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
+
+    iget-object v8, v2, Lcom/android/server/pm/PackageDefaultOpService$Op;->packageName:Ljava/lang/String;
+
+    invoke-virtual {v6, v8}, Landroid/util/ArrayMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Landroid/content/pm/PackageParser$Package;
+
+    .local v1, "p":Landroid/content/pm/PackageParser$Package;
+    if-nez v1, :cond_2
+
+    monitor-exit v7
+
+    .end local v1    # "p":Landroid/content/pm/PackageParser$Package;
+    .end local v3    # "pkgInfo":Landroid/content/pm/PackageInfo;
+    :cond_1
+    :goto_0
+    return-void
+
+    .restart local v1    # "p":Landroid/content/pm/PackageParser$Package;
+    .restart local v3    # "pkgInfo":Landroid/content/pm/PackageInfo;
+    :cond_2
+    iget v6, v2, Lcom/android/server/pm/PackageDefaultOpService$Op;->oldVersion:I
+
+    iput v6, v1, Landroid/content/pm/PackageParser$Package;->mVersionCode:I
+
+    iget-object v0, v1, Landroid/content/pm/PackageParser$Package;->mExtras:Ljava/lang/Object;
+
+    check-cast v0, Lcom/android/server/pm/PackageSetting;
+
+    .local v0, "extrasPs":Lcom/android/server/pm/PackageSetting;
+    if-eqz v0, :cond_3
+
+    iget v6, v2, Lcom/android/server/pm/PackageDefaultOpService$Op;->oldVersion:I
+
+    iput v6, v0, Lcom/android/server/pm/PackageSetting;->versionCode:I
+
+    :cond_3
+    iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
+
+    iget-object v6, v6, Lcom/android/server/pm/Settings;->mPackages:Landroid/util/ArrayMap;
+
+    iget-object v8, v2, Lcom/android/server/pm/PackageDefaultOpService$Op;->packageName:Ljava/lang/String;
+
+    invoke-virtual {v6, v8}, Landroid/util/ArrayMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v5
+
+    check-cast v5, Lcom/android/server/pm/PackageSetting;
+
+    .local v5, "ps":Lcom/android/server/pm/PackageSetting;
+    if-eqz v5, :cond_4
+
+    iget-object v4, v5, Lcom/android/server/pm/PackageSetting;->pkg:Landroid/content/pm/PackageParser$Package;
+
+    .local v4, "pkgser":Landroid/content/pm/PackageParser$Package;
+    if-eqz v4, :cond_4
+
+    iget v6, v2, Lcom/android/server/pm/PackageDefaultOpService$Op;->oldVersion:I
+
+    iput v6, v1, Landroid/content/pm/PackageParser$Package;->mVersionCode:I
+
+    .end local v4    # "pkgser":Landroid/content/pm/PackageParser$Package;
+    :cond_4
+    monitor-exit v7
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    iget-object v6, p0, Lcom/android/server/pm/PackageManagerService;->mFlymePackageDOS:Lcom/android/server/pm/PackageDefaultOpService;
+
+    invoke-virtual {v6}, Lcom/android/server/pm/PackageDefaultOpService;->writeState()V
+
+    goto :goto_0
+
+    .end local v0    # "extrasPs":Lcom/android/server/pm/PackageSetting;
+    .end local v1    # "p":Landroid/content/pm/PackageParser$Package;
+    .end local v5    # "ps":Lcom/android/server/pm/PackageSetting;
+    :catchall_0
+    move-exception v6
+
+    :try_start_1
+    monitor-exit v7
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    throw v6
+.end method
+
+.method public updatePermissions(Ljava/lang/String;)V
+    .locals 6
+    .param p1, "pkgName"    # Ljava/lang/String;
+
+    .prologue
+    const/4 v2, 0x0
+
+    .local v2, "write":Z
+    iget-object v4, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
+
+    monitor-enter v4
+
+    :try_start_0
+    iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mPackages:Landroid/util/ArrayMap;
+
+    invoke-virtual {v3}, Landroid/util/ArrayMap;->values()Ljava/util/Collection;
+
+    move-result-object v3
+
+    invoke-interface {v3}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    .local v0, "i$":Ljava/util/Iterator;
+    :cond_0
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_1
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Landroid/content/pm/PackageParser$Package;
+
+    .local v1, "pkg":Landroid/content/pm/PackageParser$Package;
+    if-eqz p1, :cond_0
+
+    iget-object v3, v1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
+
+    invoke-virtual {p1, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_0
+
+    const/4 v3, 0x1
+
+    iget-object v5, v1, Landroid/content/pm/PackageParser$Package;->packageName:Ljava/lang/String;
+
+    invoke-direct {p0, v1, v3, v5}, Lcom/android/server/pm/PackageManagerService;->grantPermissionsLPw(Landroid/content/pm/PackageParser$Package;ZLjava/lang/String;)V
+
+    const/4 v2, 0x1
+
+    .end local v1    # "pkg":Landroid/content/pm/PackageParser$Package;
+    :cond_1
+    if-eqz v2, :cond_2
+
+    .line 12167
+    iget-object v3, p0, Lcom/android/server/pm/PackageManagerService;->mSettings:Lcom/android/server/pm/Settings;
+
+    invoke-virtual {v3}, Lcom/android/server/pm/Settings;->writeLPr()V
+
+    :cond_2
+    monitor-exit v4
+
+    return-void
+
+    .end local v0    # "i$":Ljava/util/Iterator;
+    :catchall_0
+    move-exception v3
+
+    .line 11558
+    monitor-exit v4
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    throw v3
+.end method
+
+.method static final sendPackageBroadcast(Ljava/lang/String;Ljava/lang/String;Landroid/os/Bundle;Ljava/lang/String;Landroid/content/IIntentReceiver;[I)V
+    .locals 7
+    .param p0, "action"    # Ljava/lang/String;
+    .param p1, "pkg"    # Ljava/lang/String;
+    .param p2, "extras"    # Landroid/os/Bundle;
+    .param p3, "targetPkg"    # Ljava/lang/String;
+    .param p4, "finishedReceiver"    # Landroid/content/IIntentReceiver;
+    .param p5, "userIds"    # [I
+
+    .prologue
+    move-object v0, p0
+
+    move-object v1, p1
+
+    const/4 v2, 0x0
+
+    move-object v3, p2
+
+    move-object v4, p3
+
+    move-object v5, p4
+
+    move-object v6, p5
+
+    invoke-static/range {v0 .. v6}, Lcom/android/server/pm/PackageManagerService;->sendPackageBroadcast(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroid/os/Bundle;Ljava/lang/String;Landroid/content/IIntentReceiver;[I)V
+
+    .line 13413
     return-void
 .end method
