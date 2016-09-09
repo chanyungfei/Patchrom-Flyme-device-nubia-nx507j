@@ -7,6 +7,8 @@
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
         Lcom/android/server/am/BroadcastQueue$AppNotResponding;,
+        Lcom/android/server/am/BroadcastQueue$PowerSupperInjector;,
+        Lcom/android/server/am/BroadcastQueue$FlymeBroadcastQueueInjector;,
         Lcom/android/server/am/BroadcastQueue$BroadcastHandler;
     }
 .end annotation
@@ -5743,7 +5745,6 @@
 
     invoke-static {v4, v6, v0}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
 
-    .line 996
     .end local v18    # "e":Landroid/os/RemoteException;
     :cond_28
     move-object/from16 v0, v32
@@ -5832,7 +5833,6 @@
 
     if-eqz v4, :cond_30
 
-    .line 1007
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/android/server/am/BroadcastQueue;->mService:Lcom/android/server/am/ActivityManagerService;
@@ -5903,7 +5903,6 @@
 
     iput-object v4, v0, Lcom/android/server/am/BroadcastRecord;->curApp:Lcom/android/server/am/ProcessRecord;
 
-    .line 1021
     :cond_2b
     :goto_13
     if-nez v25, :cond_2c
@@ -5914,7 +5913,6 @@
 
     if-nez v4, :cond_32
 
-    .line 1025
     :cond_2c
     const-string v4, "BroadcastQueue"
 
@@ -5984,6 +5982,7 @@
 
     invoke-static {v4, v6}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
 
+    .line 1007
     .line 1029
     move-object/from16 v0, p0
 

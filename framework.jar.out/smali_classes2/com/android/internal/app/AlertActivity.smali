@@ -138,20 +138,16 @@
 .end method
 
 .method public onContentChanged()V
-    .locals 2
+    .locals 1
 
     .prologue
-    .line 77
     invoke-super {p0}, Landroid/app/Activity;->onContentChanged()V
 
-    .line 78
-    iget-object v0, p0, Lcom/android/internal/app/AlertActivity;->mNubiaDialog:Lnubia/widget/IDialog;
+    iget-object v0, p0, Lcom/android/internal/app/AlertActivity;->mAlert:Lcom/android/internal/app/AlertController;
 
-    invoke-virtual {p0}, Lcom/android/internal/app/AlertActivity;->getWindow()Landroid/view/Window;
+    iget-object v0, v0, Lcom/android/internal/app/AlertController;->mAlertExt:Lcom/android/internal/app/AlertControllerExt;
 
-    move-result-object v1
-
-    invoke-interface {v0, v1}, Lnubia/widget/IDialog;->resetShowWindowAttributes(Landroid/view/Window;)V
+    invoke-virtual {v0}, Lcom/android/internal/app/AlertControllerExt;->onAlertContentChanged()V
 
     .line 79
     return-void
@@ -294,18 +290,30 @@
     .locals 2
 
     .prologue
-    .line 123
     iget-object v0, p0, Lcom/android/internal/app/AlertActivity;->mAlertParams:Lcom/android/internal/app/AlertController$AlertParams;
 
     iget-object v1, p0, Lcom/android/internal/app/AlertActivity;->mAlert:Lcom/android/internal/app/AlertController;
 
     invoke-virtual {v0, v1}, Lcom/android/internal/app/AlertController$AlertParams;->apply(Lcom/android/internal/app/AlertController;)V
 
-    .line 124
     iget-object v0, p0, Lcom/android/internal/app/AlertActivity;->mAlert:Lcom/android/internal/app/AlertController;
 
     invoke-virtual {v0}, Lcom/android/internal/app/AlertController;->installContent()V
 
-    .line 125
+    invoke-direct/range {p0 .. p0}, Lcom/android/internal/app/AlertActivity;->flymeApplyMeizuStyle()V
+
+    return-void
+.end method
+
+.method private flymeApplyMeizuStyle()V
+    .locals 1
+
+    .prologue
+    iget-object v0, p0, Lcom/android/internal/app/AlertActivity;->mAlert:Lcom/android/internal/app/AlertController;
+
+    iget-object v0, v0, Lcom/android/internal/app/AlertController;->mAlertExt:Lcom/android/internal/app/AlertControllerExt;
+
+    invoke-virtual {v0}, Lcom/android/internal/app/AlertControllerExt;->applyMeizuStyle()V
+
     return-void
 .end method

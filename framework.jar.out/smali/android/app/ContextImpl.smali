@@ -8,6 +8,7 @@
     value = {
         Landroid/app/ContextImpl$ApplicationContentResolver;,
         Landroid/app/ContextImpl$StaticServiceFetcher;,
+        Landroid/app/ContextImpl$FlymeAccessControlServiceFetcher;,
         Landroid/app/ContextImpl$ServiceFetcher;
     }
 .end annotation
@@ -759,10 +760,8 @@
 
     invoke-static {v0, v1}, Landroid/app/ContextImpl;->registerService(Ljava/lang/String;Landroid/app/ContextImpl$ServiceFetcher;)V
 
-    .line 831
     invoke-static {}, Landroid/app/ContextImplExtra;->registerNubiaServices()V
 
-    .line 833
     return-void
 .end method
 
@@ -985,6 +984,8 @@
     invoke-virtual/range {v1 .. v10}, Landroid/app/ResourcesManager;->getTopLevelResources(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;ILandroid/content/res/Configuration;Landroid/content/res/CompatibilityInfo;Landroid/os/IBinder;)Landroid/content/res/Resources;
 
     move-result-object v12
+
+    invoke-direct {p0, p3, v11}, Landroid/app/ContextImpl;->setFlymeThemeResource(Landroid/app/LoadedApk;Landroid/content/res/Resources;)V
 
     .line 2388
     :cond_4
@@ -6173,12 +6174,12 @@
 
     move-result-object v3
 
-    .line 1392
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1393
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -6244,12 +6245,12 @@
 
     move-result-object v3
 
-    .line 1406
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1407
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -6316,12 +6317,12 @@
 
     move-result-object v3
 
-    .line 1420
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1421
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -6384,12 +6385,12 @@
 
     move-result-object v3
 
-    .line 1491
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1492
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -6453,12 +6454,12 @@
 
     move-result-object v3
 
-    .line 1504
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1505
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -6524,12 +6525,12 @@
 
     move-result-object v3
 
-    .line 1435
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1436
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -6651,12 +6652,12 @@
 
     move-result-object v3
 
-    .line 1478
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1479
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -6849,12 +6850,12 @@
 
     move-result-object v3
 
-    .line 1545
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1546
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -6995,12 +6996,12 @@
 
     move-result-object v3
 
-    .line 1559
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1560
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -7063,12 +7064,12 @@
 
     move-result-object v3
 
-    .line 1621
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1622
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -7188,12 +7189,12 @@
 
     move-result-object v3
 
-    .line 1593
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1594
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -7348,12 +7349,12 @@
 
     move-result-object v3
 
-    .line 1653
     .local v3, "resolvedType":Ljava/lang/String;
     :try_start_0
+    invoke-direct/range {p0 .. p1}, Landroid/app/ContextImpl;->flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+
     invoke-virtual {p1}, Landroid/content/Intent;->prepareToLeaveProcess()V
 
-    .line 1654
     invoke-static {}, Landroid/app/ActivityManagerNative;->getDefault()Landroid/app/IActivityManager;
 
     move-result-object v0
@@ -8361,4 +8362,63 @@
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
     throw v3
+.end method
+
+.method private flymeEnforceSendBroadcastPermission(Landroid/content/Intent;)V
+    .locals 1
+    .param p1, "intent"    # Landroid/content/Intent;
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Landroid/os/RemoteException;
+        }
+    .end annotation
+
+    .prologue
+    const/16 v0, 0x3b
+
+    invoke-static {v0, p1}, Lmeizu/security/FlymePermissionManager;->isSendBroacastGranted(ILandroid/content/Intent;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_0
+
+    new-instance v0, Landroid/os/RemoteException;
+
+    invoke-direct {v0}, Landroid/os/RemoteException;-><init>()V
+
+    throw v0
+
+    :cond_0
+    return-void
+.end method
+
+.method private static registeFlymeManager()V
+    .locals 2
+
+    .prologue
+    new-instance v0, Landroid/app/ContextImpl$FlymeAccessControlServiceFetcher;
+
+    invoke-direct {v0}, Landroid/app/ContextImpl$FlymeAccessControlServiceFetcher;-><init>()V
+
+    .local v0, "accessControlServiceFetcher":Landroid/app/ContextImpl$FlymeAccessControlServiceFetcher;
+    const-string v1, "access_control"
+
+    invoke-static {v1, v0}, Landroid/app/ContextImpl;->registerService(Ljava/lang/String;Landroid/app/ContextImpl$ServiceFetcher;)V
+
+    return-void
+.end method
+
+.method private setFlymeThemeResource(Landroid/app/LoadedApk;Landroid/content/res/Resources;)V
+    .locals 1
+    .param p1, "packageInfo"    # Landroid/app/LoadedApk;
+    .param p2, "resources"    # Landroid/content/res/Resources;
+
+    .prologue
+    invoke-virtual {p1}, Landroid/app/LoadedApk;->getPackageName()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {p2, v0}, Landroid/content/res/Resources;->setFlymeThemeResource(Ljava/lang/String;)V
+
+    return-void
 .end method
