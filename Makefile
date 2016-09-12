@@ -144,6 +144,9 @@ override_property += \
     ro.flyme.romer=Po_Chan \
     ro.product.model_romer=nx507j_Po_Chan
 
+override_property += \
+    persist.sys.usb.config=mtp,adb
+
 ##############################################################################
 # The value decides which property you will remove from the build.prop.
 # The default value is nothing.
