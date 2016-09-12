@@ -3491,6 +3491,8 @@
     invoke-virtual/range {v26 .. v28}, Landroid/graphics/RectF;->offset(FF)V
 
     :cond_27
+    invoke-static/range {p0 .. p0}, Lcom/android/server/wm/WindowStateAnimator$FlymeInjector;->moveShownFrameIfNeed(Lcom/android/server/wm/WindowStateAnimator;)V
+
     move-object/from16 v0, p0
 
     iget v0, v0, Lcom/android/server/wm/WindowStateAnimator;->mAlpha:F
@@ -7914,6 +7916,8 @@
 
     .line 1362
     :cond_1
+    invoke-static/range {p0 .. p0}, Lcom/android/server/wm/WindowStateAnimator$FlymeInjector;->updateSurfaceWindowCrop(Lcom/android/server/wm/WindowStateAnimator;)V
+
     iget-object v9, v8, Lcom/android/server/wm/WindowState;->mAttrs:Landroid/view/WindowManager$LayoutParams;
 
     iget v9, v9, Landroid/view/WindowManager$LayoutParams;->flags:I

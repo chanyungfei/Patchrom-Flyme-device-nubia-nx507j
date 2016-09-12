@@ -120,6 +120,8 @@
     :goto_0
     iput-object v0, p0, Landroid/app/AlertDialog;->mNubiaDialog:Lnubia/widget/IDialog;
 
+    invoke-static/range {p0 .. p0}, Landroid/app/AlertDialog$FlymeInjector;->setIsThemeDeviceDefaultLight(Landroid/app/AlertDialog;)V
+
     return-void
 
     :cond_0

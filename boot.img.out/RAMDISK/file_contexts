@@ -235,6 +235,10 @@
 
 # Wallpaper file for other users
 /data/system/users/[0-9]+/wallpaper		u:object_r:wallpaper_file:s0
+
+/data/system/users/[0-9]+/lock_wallpaper		u:object_r:wallpaper_file:s0
+/data/system/users/[0-9]+/smart_wallpaper_target		u:object_r:wallpaper_file:s0
+
 # NUBIA ADD for nubia wallpaper begin
 /data/system/users/[0-9]+/lockscreen_wallpaper		u:object_r:wallpaper_file:s0
 /data/system/users/[0-9]+/blur_wallpaper_90		u:object_r:wallpaper_file:s0

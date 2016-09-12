@@ -3487,6 +3487,10 @@
     invoke-direct {v0, v9, v1}, Landroid/view/ContextThemeWrapper;-><init>(Landroid/content/Context;I)V
 
     .local v25, "settingsContext":Landroid/content/Context;
+    invoke-direct/range {p0 .. p0}, Lcom/android/server/InputMethodManagerService;->getFlymeLightContext()Landroid/content/Context;
+
+    move-result-object v25
+
     new-instance v28, Landroid/app/AlertDialog$Builder;
 
     move-object/from16 v0, v28

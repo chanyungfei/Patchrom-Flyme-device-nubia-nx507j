@@ -8917,7 +8917,7 @@
     .line 1770
     :cond_3
     :try_start_1
-    invoke-virtual {p0, v7, p2, v0}, Lcom/android/server/LocationManagerService;->checkLocationAccess(ILjava/lang/String;I)Z
+    invoke-virtual {p0, v7, p2, v0}, Lcom/android/server/LocationManagerService;->hook_reportLocationAccessNoThrow(ILjava/lang/String;I)Z
 
     move-result v9
 
@@ -10346,6 +10346,16 @@
 
     .line 1824
     .local v12, "sanitizedRequest":Landroid/location/LocationRequest;
+    invoke-direct/range {p0 .. p0}, Lcom/android/server/LocationManagerService;->isFlymePermissionGranted()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_flyme_0
+
+    return-void
+
+    :cond_flyme_0
+
     sget-boolean v2, Lcom/android/server/LocationManagerService;->D:Z
 
     if-eqz v2, :cond_1

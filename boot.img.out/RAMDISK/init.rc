@@ -857,3 +857,19 @@ on property:persist.sys.image.colortmp=c
     chmod 0755 /system/bin/bootsound.sh
     chmod 0755 /system/bin/bootsoundend.sh
 #ZTEMT end
+
+service smbd /system/bin/smbd -D
+    user root
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service nmbd /system/bin/nmbd -D
+    user root
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service flymed /system/bin/flymed
+    class main
+    socket flymed stream 0660 root system

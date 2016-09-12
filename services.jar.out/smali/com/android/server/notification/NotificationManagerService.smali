@@ -8823,6 +8823,8 @@
 
     iput-object v1, v0, Lcom/android/server/notification/NotificationManagerService;->mBlackWhiteList:Lcn/nubia/server/notification/NotificationBlackWhiteList;
 
+    invoke-static/range {p0 .. p0}, Lcom/android/server/notification/NotificationManagerService$FlymeInjector;->initFlymeExtraFields(Lcom/android/server/notification/NotificationManagerService;)V
+
     return-void
 
     .end local v4    # "pkgFilter":Landroid/content/IntentFilter;

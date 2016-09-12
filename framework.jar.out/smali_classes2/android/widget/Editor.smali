@@ -260,6 +260,8 @@
 
     iput-object v0, p0, Landroid/widget/Editor;->mContext:Landroid/content/Context;
 
+    invoke-static/range {p0 .. p0}, Landroid/widget/Editor$FlymeInjector;->initFlymeExtraFields(Landroid/widget/Editor;)V
+
     return-void
 .end method
 
@@ -4811,6 +4813,9 @@
     iget-object v1, p0, Landroid/widget/Editor;->mInsertionPointCursorController:Landroid/widget/NubiaCursorController;
 
     if-nez v1, :cond_1
+    new-instance v1, Landroid/widget/Editor$FlymeInsertionPointCursorController;
+
+    invoke-direct {v1, p0}, Landroid/widget/Editor$FlymeInsertionPointCursorController;-><init>(Landroid/widget/Editor;)V
 
     iget-object v1, p0, Landroid/widget/Editor;->mContext:Landroid/content/Context;
 
@@ -7152,6 +7157,8 @@
     iput-object v8, p0, Landroid/widget/Editor;->mMagnifierController:Lnubia/widget/TextMagnifierController;
 
     :cond_4
+    invoke-static/range {p0 .. p0}, Landroid/widget/Editor$FlymeInjector;->updateBackground(Landroid/widget/Editor;)V
+
     return-void
 
     .end local v0    # "enabled":Z
@@ -7889,6 +7896,8 @@
 
     :cond_0
     invoke-virtual {p0}, Landroid/widget/Editor;->stopTextSelectionMode()V
+
+    invoke-static/range {p0 .. p0}, Landroid/widget/Editor$FlymeInjector;->hideSelectionModifierCursorController(Landroid/widget/Editor;)V
 
     return-void
 .end method

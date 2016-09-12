@@ -2174,6 +2174,11 @@
     iput v2, p0, Landroid/view/WindowManager$LayoutParams;->stackBoxId:I
 
     :cond_21
+
+    invoke-static {p0, p1, v0}, Landroid/view/WindowManager$LayoutParams$FlymeInjector;->copyFrom(Landroid/view/WindowManager$LayoutParams;Landroid/view/WindowManager$LayoutParams;I)I
+
+    move-result v0
+
     return v0
 .end method
 

@@ -2333,6 +2333,8 @@
 
     invoke-virtual {v0, v4}, Landroid/util/ArraySet;->add(Ljava/lang/Object;)Z
 
+    invoke-static/range {v22 .. v22}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->addFlymeAlreadyDexOpted(Landroid/util/ArraySet;)V
+
     invoke-virtual/range {v43 .. v43}, Ljava/io/File;->list()[Ljava/lang/String;
 
     move-result-object v44
@@ -6975,6 +6977,20 @@
     .end local v16    # "ri":Landroid/content/pm/ResolveInfo;
     :cond_9
     const/4 v2, 0x0
+
+    move-object/from16 v0, p0
+
+    move-object/from16 v1, p1
+
+    move-object/from16 v2, p2
+
+    move/from16 v3, p3
+
+    move/from16 v4, p5
+
+    invoke-static {v0, v1, v2, v3, v4}, Lcom/android/server/pm/PackageManagerService$FlymePackageManagerServiceInjector;->getResolveInfo(Lcom/android/server/pm/PackageManagerService;Landroid/content/Intent;Ljava/lang/String;II)Landroid/content/pm/ResolveInfo;
+
+    move-result-object v1
 
     goto/16 :goto_1
 .end method
@@ -22854,7 +22870,7 @@
 
     iget-object v6, v0, Lcom/android/server/pm/PackageManagerService;->mResolveActivity:Landroid/content/pm/ActivityInfo;
 
-    const-class v13, Lcom/android/internal/app/ResolverActivity;
+    const-class v13, Lcom/android/internal/app/MzResolverActivity;
 
     invoke-virtual {v13}, Ljava/lang/Class;->getName()Ljava/lang/String;
 

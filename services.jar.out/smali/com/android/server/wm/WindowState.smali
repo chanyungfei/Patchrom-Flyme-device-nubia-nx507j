@@ -1283,6 +1283,8 @@
 
     iput-object v10, p0, Lcom/android/server/wm/WindowState;->mSmartShowData:Ljava/lang/Object;
 
+    invoke-static/range {p0 .. p0}, Lcom/android/server/wm/WindowState$FlymeInjector;->initFlymeExtraFields(Lcom/android/server/wm/WindowState;)V
+
     goto/16 :goto_8
 
     .line 474

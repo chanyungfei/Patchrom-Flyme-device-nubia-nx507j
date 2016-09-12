@@ -12644,6 +12644,18 @@
     .line 1726
     .end local v26    # "e":Landroid/os/RemoteException;
     :cond_1b
+    move-object/from16 v7, p0
+
+    move-object/from16 v8, p2
+
+    move-object/from16 v9, p4
+
+    move/from16 v10, p11
+
+    invoke-static {v7, v8, v9, v10}, Lcom/android/server/am/ActivityStackSupervisor$FlymeInjector;->interceptForAccessControl(Lcom/android/server/am/ActivityStackSupervisor;Landroid/content/Intent;Landroid/content/pm/ActivityInfo;I)Landroid/content/pm/ActivityInfo;
+
+    move-result-object p4
+
     new-instance v7, Lcom/android/server/am/ActivityRecord;
 
     move-object/from16 v0, p0
@@ -13135,6 +13147,24 @@
     move-result-object v32
 
     .local v32, "aInfo":Landroid/content/pm/ActivityInfo;
+    move/from16 v0, p2
+
+    move-object/from16 v1, p3
+
+    move-object/from16 v2, v32
+
+    invoke-static {v0, v1, v2}, Lcom/android/server/am/ActivityStackSupervisor$FlymeInjector;->checkFlymePermission(ILjava/lang/String;Landroid/content/pm/ActivityInfo;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_flyme_0
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_flyme_0
+
     move-object/from16 v28, p17
 
     .line 1021

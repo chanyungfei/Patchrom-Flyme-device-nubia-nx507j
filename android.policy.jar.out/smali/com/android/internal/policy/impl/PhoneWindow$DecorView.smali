@@ -558,6 +558,12 @@
     .param p5, "animate"    # Z
 
     .prologue
+    iget-object v0, p0, Lcom/android/internal/policy/impl/PhoneWindow$DecorView;->this$0:Lcom/android/internal/policy/impl/PhoneWindow;
+
+    invoke-static {p0, p1, v0, p4}, Lcom/android/internal/policy/impl/PhoneWindow$FlymeInjector;->flymeGetDisplayMetricsHeight(Lcom/android/internal/policy/impl/PhoneWindow$DecorView;Lcom/android/internal/policy/impl/PhoneWindow$ColorViewState;Lcom/android/internal/policy/impl/PhoneWindow;I)I
+
+    move-result p4
+
     if-lez p4, :cond_5
 
     iget v7, p1, Lcom/android/internal/policy/impl/PhoneWindow$ColorViewState;->systemUiHideFlag:I
