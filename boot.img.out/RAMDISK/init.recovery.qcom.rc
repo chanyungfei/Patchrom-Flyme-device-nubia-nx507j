@@ -1,0 +1,6 @@
+on init
+    mkdir /boot
+    mkdir /recovery
+    mkdir /misc
+    mkdir /persist
+
