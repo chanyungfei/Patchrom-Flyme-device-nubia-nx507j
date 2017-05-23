@@ -7,7 +7,7 @@
 # The default value is base.
 # Support values: base, base_cm, base_mt6592 and other devices in the future.
 #-----------------------------------------------------------------------------
-BASE := mi4c
+BASE := base_cm
 
 ##############################################################################
 # The value is used for resource adapter with the aapt tool.
@@ -47,14 +47,19 @@ vendor_modify_images := boot
 # The default value is nothing.
 # You can configure the file name which relative to the vendor/system directory.
 #-----------------------------------------------------------------------------
-#vendor_remove_files := bin/zchgd
+vendor_remove_files := etc/permissions/org.cyanogenmod.livedisplay.xml
 
 ##############################################################################
 # The value decides the vendor apk which you want to save in the vendor directory for the ota package.
 # The default value is Bluetooth.
 # You can configure the apk name in the vendor/system/app or vendor/system/priv-app directory.
 #-----------------------------------------------------------------------------
-vendor_saved_apps := Bluetooth BluetoothExt BluetoothMidiService HTMLViewer KeyChain PicoTts PrintSpooler Stk UserDictionaryProvider BackupRestoreConfirmation DefaultContainerService ExternalStorageProvider FMRadio FusedLocation InputDevices ProxyHandler SharedStorageBackup Shell telresources com.qualcomm.location WAPPushManager TimeService qcrilmsgtunnel CaptivePortalLogin CMSettingsProvider telresources ThemesProvider
+vendor_saved_apps := Bluetooth BluetoothExt BluetoothMidiService HTMLViewer KeyChain \
+                     PicoTts PrintSpooler Stk UserDictionaryProvider BackupRestoreConfirmation \
+		     DefaultContainerService ExternalStorageProvider FusedLocation InputDevices \
+		     ProxyHandler SharedStorageBackup Shell \
+		     telresources CMSettingsProvider ThemesProvider \
+		     TimeService qcrilmsgtunnel shutdownlistener
 
 ##############################################################################
 # The value decides which vendor apk you want to modify.
@@ -146,8 +151,8 @@ override_property += \
 # The default value is nothing.
 # You can add the property name in the value from the build.prop.
 #-----------------------------------------------------------------------------
-remove_property += \
-    ro.build.selinux
+# remove_property += \
+#     dev.defaultwallpaper
 
 ##############################################################################
 # Defines whether uses assertions in /META-INF/com/google/android/updater-script of the OTA package.
@@ -182,5 +187,11 @@ remove_property += \
 # Default: false
 #-----------------------------------------------------------------------------
 #PRODUCE_INTERNATIONAL_ROM := true
+
+##############################################################################
+# Defines whether use sepolicy inject.
+# Default: true
+#-----------------------------------------------------------------------------
+#PRODUCE_SEPOLICY_INJECT := false
 
 include $(PORT_BUILD)/main.mk
