@@ -4693,15 +4693,12 @@
 
     move-result-object v1
 
-    .line 1568
-    const v3, 0x1070058
+    const v3, #android:array@wfcOperatorErrorCodes#t
 
-    .line 1567
     invoke-virtual {v1, v3}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v17
 
-    .line 1570
     .local v17, "wfcOperatorErrorCodes":[Ljava/lang/String;
     move-object/from16 v0, p0
 
@@ -4711,15 +4708,12 @@
 
     move-result-object v1
 
-    .line 1571
-    const v3, 0x1070059
+    const v3, #android:array@wfcOperatorErrorAlertMessages#t
 
-    .line 1570
     invoke-virtual {v1, v3}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v16
 
-    .line 1573
     .local v16, "wfcOperatorErrorAlertMessages":[Ljava/lang/String;
     move-object/from16 v0, p0
 
@@ -4729,15 +4723,12 @@
 
     move-result-object v1
 
-    .line 1574
-    const v3, 0x107005a
+    const v3, #android:array@wfcOperatorErrorNotificationMessages#t
 
-    .line 1573
     invoke-virtual {v1, v3}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v18
 
-    .line 1576
     .local v18, "wfcOperatorErrorNotificationMessages":[Ljava/lang/String;
     const/4 v10, 0x0
 
@@ -4824,34 +4815,28 @@
 
     if-nez v1, :cond_0
 
-    .line 1597
     .end local v14    # "nextChar":C
     :cond_2
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/android/internal/telephony/imsphone/ImsPhone;->mContext:Landroid/content/Context;
 
-    .line 1598
-    const v3, 0x1040158
+    const v3, #android:string@wfcRegErrorTitle#t
 
-    .line 1597
     invoke-virtual {v1, v3}, Landroid/content/Context;->getText(I)Ljava/lang/CharSequence;
 
     move-result-object v15
 
-    .line 1600
     .local v15, "title":Ljava/lang/CharSequence;
     move-object/from16 v0, p1
 
     iget-object v12, v0, Lcom/android/ims/ImsReasonInfo;->mExtraMessage:Ljava/lang/String;
 
-    .line 1601
     .local v12, "messageAlert":Ljava/lang/CharSequence;
     move-object/from16 v0, p1
 
     iget-object v13, v0, Lcom/android/ims/ImsReasonInfo;->mExtraMessage:Ljava/lang/String;
 
-    .line 1602
     .local v13, "messageNotification":Ljava/lang/CharSequence;
     aget-object v1, v16, v10
 

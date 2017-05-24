@@ -206,7 +206,7 @@
 
     move-result-object v8
 
-    const v9, 0x1120028
+    const v9, #android:bool@config_wifi_ecbm_mode_change#t
 
     invoke-virtual {v8, v9}, Landroid/content/res/Resources;->getBoolean(I)Z
 

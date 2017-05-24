@@ -137,10 +137,8 @@
 
     invoke-direct {v9, v10}, Landroid/app/Notification$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 1540
-    const v10, 0x108008a
+    const v10, #android:drawable@stat_sys_warning#t
 
-    .line 1539
     invoke-virtual {v9, v10}, Landroid/app/Notification$Builder;->setSmallIcon(I)Landroid/app/Notification$Builder;
 
     move-result-object v9

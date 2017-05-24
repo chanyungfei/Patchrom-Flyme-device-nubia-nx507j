@@ -244,70 +244,54 @@
     :goto_1
     invoke-static {v5, v2}, Lcom/android/server/BatteryService;->-set5(Lcom/android/server/BatteryService;Z)Z
 
-    .line 1295
     iget-object v2, p0, Lcom/android/server/BatteryService$SettingsObserver;->this$0:Lcom/android/server/BatteryService;
 
-    .line 1296
-    const-string/jumbo v5, "battery_light_low_color"
+    const-string v5, "battery_light_low_color"
 
-    .line 1297
-    const v6, 0x10e0056
+    const v6, #android:integer@config_notificationsBatteryLowARGB#t
 
-    .line 1296
     invoke-virtual {v0, v6}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v6
 
-    .line 1295
     invoke-static {v1, v5, v6}, Lcyanogenmod/providers/CMSettings$System;->getInt(Landroid/content/ContentResolver;Ljava/lang/String;I)I
 
     move-result v5
 
     invoke-static {v2, v5}, Lcom/android/server/BatteryService;->-set2(Lcom/android/server/BatteryService;I)I
 
-    .line 1298
     iget-object v2, p0, Lcom/android/server/BatteryService$SettingsObserver;->this$0:Lcom/android/server/BatteryService;
 
-    .line 1299
-    const-string/jumbo v5, "battery_light_medium_color"
+    const-string v5, "battery_light_medium_color"
 
-    .line 1300
-    const v6, 0x10e0057
+    const v6, #android:integer@config_notificationsBatteryMediumARGB#t
 
-    .line 1299
     invoke-virtual {v0, v6}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v6
 
-    .line 1298
     invoke-static {v1, v5, v6}, Lcyanogenmod/providers/CMSettings$System;->getInt(Landroid/content/ContentResolver;Ljava/lang/String;I)I
 
     move-result v5
 
     invoke-static {v2, v5}, Lcom/android/server/BatteryService;->-set3(Lcom/android/server/BatteryService;I)I
 
-    .line 1301
     iget-object v2, p0, Lcom/android/server/BatteryService$SettingsObserver;->this$0:Lcom/android/server/BatteryService;
 
-    .line 1302
-    const-string/jumbo v5, "battery_light_full_color"
+    const-string v5, "battery_light_full_color"
 
-    .line 1303
-    const v6, 0x10e0058
+    const v6, #android:integer@config_notificationsBatteryFullARGB#t
 
-    .line 1302
     invoke-virtual {v0, v6}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v6
 
-    .line 1301
     invoke-static {v1, v5, v6}, Lcyanogenmod/providers/CMSettings$System;->getInt(Landroid/content/ContentResolver;Ljava/lang/String;I)I
 
     move-result v5
 
     invoke-static {v2, v5}, Lcom/android/server/BatteryService;->-set1(Lcom/android/server/BatteryService;I)I
 
-    .line 1306
     iget-object v2, p0, Lcom/android/server/BatteryService$SettingsObserver;->this$0:Lcom/android/server/BatteryService;
 
     invoke-static {v2}, Lcom/android/server/BatteryService;->-get1(Lcom/android/server/BatteryService;)Z

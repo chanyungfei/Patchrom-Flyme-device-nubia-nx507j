@@ -40,6 +40,8 @@
 
 .field static final TRANSACTION_cancelToast:I = 0x3
 
+.field static final TRANSACTION_deviceLightsCan:I = 0x32
+
 .field static final TRANSACTION_enqueueNotificationWithTag:I = 0x4
 
 .field static final TRANSACTION_enqueueToast:I = 0x2
@@ -2512,8 +2514,47 @@
 
     goto :goto_14
 
-    .line 39
-    nop
+    .end local v5    # "_arg0":Ljava/lang/String;
+    .end local v18    # "_arg1":I
+    .end local v36    # "_result":Landroid/content/pm/ParceledListSlice;
+    :sswitch_32
+    const-string v4, "android.app.INotificationManager"
+
+    move-object/from16 v0, p2
+
+    invoke-virtual {v0, v4}, Landroid/os/Parcel;->enforceInterface(Ljava/lang/String;)V
+
+    invoke-virtual/range {p2 .. p2}, Landroid/os/Parcel;->readInt()I
+
+    move-result v12
+
+    .restart local v12    # "_arg0":I
+    move-object/from16 v0, p0
+
+    invoke-virtual {v0, v12}, Landroid/app/INotificationManager$Stub;->deviceLightsCan(I)Z
+
+    move-result v38
+
+    .restart local v38    # "_result":Z
+    invoke-virtual/range {p3 .. p3}, Landroid/os/Parcel;->writeNoException()V
+
+    if-eqz v38, :cond_flyme_14
+
+    const/4 v4, 0x1
+
+    :goto_flyme_14
+    move-object/from16 v0, p3
+
+    invoke-virtual {v0, v4}, Landroid/os/Parcel;->writeInt(I)V
+
+    const/4 v4, 0x1
+
+    return v4
+
+    :cond_flyme_14
+    const/4 v4, 0x0
+
+    goto :goto_flyme_14
 
     :sswitch_data_0
     .sparse-switch

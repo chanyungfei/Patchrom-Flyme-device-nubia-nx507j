@@ -2084,7 +2084,6 @@
         }
     .end annotation
 .end method
-
 .method public abstract showLockTaskEscapeMessage(Landroid/os/IBinder;)V
     .annotation system Ldalvik/annotation/Throws;
         value = {

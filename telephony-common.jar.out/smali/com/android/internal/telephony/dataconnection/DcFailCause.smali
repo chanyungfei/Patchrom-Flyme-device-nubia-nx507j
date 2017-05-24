@@ -740,28 +740,22 @@
     .param p3, "errorCode"    # I
 
     .prologue
-    .line 82
     invoke-direct {p0, p1, p2}, Ljava/lang/Enum;-><init>(Ljava/lang/String;I)V
 
-    .line 71
     invoke-static {}, Landroid/content/res/Resources;->getSystem()Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 72
-    const v1, 0x11200a5
+    const v1, #android:bool@config_restart_radio_on_pdp_fail_regular_deactivation#t
 
-    .line 71
     invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v0
 
     iput-boolean v0, p0, Lcom/android/internal/telephony/dataconnection/DcFailCause;->mRestartRadioOnRegularDeactivation:Z
 
-    .line 83
     iput p3, p0, Lcom/android/internal/telephony/dataconnection/DcFailCause;->mErrorCode:I
 
-    .line 82
     return-void
 .end method
 
@@ -936,48 +930,39 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 96
     sget-object v1, Lcom/android/internal/telephony/dataconnection/DcFailCause;->ACTIVATION_REJECT_GGSN:Lcom/android/internal/telephony/dataconnection/DcFailCause;
 
     if-ne p0, v1, :cond_0
 
-    .line 97
     invoke-static {p1, p2}, Landroid/telephony/SubscriptionManager;->getResourcesForSubId(Landroid/content/Context;I)Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 98
-    const v1, 0x11200b8
+    const v1, #android:bool@config_reject_ggsn_perm_failure#t
 
-    .line 97
     invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v0
 
     return v0
 
-    .line 99
     :cond_0
     sget-object v1, Lcom/android/internal/telephony/dataconnection/DcFailCause;->PROTOCOL_ERRORS:Lcom/android/internal/telephony/dataconnection/DcFailCause;
 
     if-ne p0, v1, :cond_1
 
-    .line 100
     invoke-static {p1, p2}, Landroid/telephony/SubscriptionManager;->getResourcesForSubId(Landroid/content/Context;I)Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 101
-    const v1, 0x11200b9
+    const v1, #android:bool@config_protocol_errors_perm_failure#t
 
-    .line 100
     invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v0
 
     return v0
 
-    .line 103
     :cond_1
     sget-object v1, Lcom/android/internal/telephony/dataconnection/DcFailCause;->OPERATOR_BARRED:Lcom/android/internal/telephony/dataconnection/DcFailCause;
 

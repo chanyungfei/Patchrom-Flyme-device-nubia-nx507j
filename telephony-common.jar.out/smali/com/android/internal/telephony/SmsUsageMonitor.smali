@@ -712,14 +712,11 @@
     .param p1, "country"    # Ljava/lang/String;
 
     .prologue
-    .line 303
-    const v0, 0x1110012
+    const v0, #android:xml@sms_short_codes#t
 
-    .line 304
     .local v0, "id":I
     const/4 v1, 0x0
 
-    .line 306
     .local v1, "parser":Landroid/content/res/XmlResourceParser;
     :try_start_0
     iget-object v2, p0, Lcom/android/internal/telephony/SmsUsageMonitor;->mContext:Landroid/content/Context;

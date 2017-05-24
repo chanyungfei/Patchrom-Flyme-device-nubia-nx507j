@@ -107,69 +107,57 @@
     .param p0, "type"    # I
 
     .prologue
-    .line 6533
     packed-switch p0, :pswitch_data_0
 
-    .line 6543
-    const v0, 0x10402ca
+    const v0, #android:string@imProtocolCustom#t
 
     return v0
 
-    .line 6534
     :pswitch_0
-    const v0, 0x10402cb
+    const v0, #android:string@imProtocolAim#t
 
     return v0
 
-    .line 6535
     :pswitch_1
-    const v0, 0x10402cc
+    const v0, #android:string@imProtocolMsn#t
 
     return v0
 
-    .line 6536
     :pswitch_2
-    const v0, 0x10402cd
+    const v0, #android:string@imProtocolYahoo#t
 
     return v0
 
-    .line 6537
     :pswitch_3
-    const v0, 0x10402ce
+    const v0, #android:string@imProtocolSkype#t
 
     return v0
 
-    .line 6538
     :pswitch_4
-    const v0, 0x10402cf
+    const v0, #android:string@imProtocolQq#t
 
     return v0
 
-    .line 6539
     :pswitch_5
-    const v0, 0x10402d0
+    const v0, #android:string@imProtocolGoogleTalk#t
 
     return v0
 
-    .line 6540
     :pswitch_6
-    const v0, 0x10402d1
+    const v0, #android:string@imProtocolIcq#t
 
     return v0
 
-    .line 6541
     :pswitch_7
-    const v0, 0x10402d2
+    const v0, #android:string@imProtocolJabber#t
 
     return v0
 
-    .line 6542
     :pswitch_8
-    const v0, 0x10402d3
+    const v0, #android:string@imProtocolNetMeeting#t
 
     return v0
 
-    .line 6533
     nop
 
     :pswitch_data_0
@@ -227,33 +215,27 @@
     .param p0, "type"    # I
 
     .prologue
-    .line 6505
     packed-switch p0, :pswitch_data_0
 
-    .line 6509
-    const v0, 0x10402c6
+    const v0, #android:string@imTypeCustom#t
 
     return v0
 
-    .line 6506
     :pswitch_0
-    const v0, 0x10402c7
+    const v0, #android:string@imTypeHome#t
 
     return v0
 
-    .line 6507
     :pswitch_1
-    const v0, 0x10402c8
+    const v0, #android:string@imTypeWork#t
 
     return v0
 
-    .line 6508
     :pswitch_2
-    const v0, 0x10402c9
+    const v0, #android:string@imTypeOther#t
 
     return v0
 
-    .line 6505
     nop
 
     :pswitch_data_0

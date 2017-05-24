@@ -584,84 +584,69 @@
 
     iput-object v1, p0, Lcom/android/server/connectivity/Tethering;->mStateReceiver:Landroid/content/BroadcastReceiver;
 
-    .line 191
     new-instance v0, Landroid/content/IntentFilter;
 
     invoke-direct {v0}, Landroid/content/IntentFilter;-><init>()V
 
-    .line 192
     .local v0, "filter":Landroid/content/IntentFilter;
-    const-string/jumbo v1, "android.hardware.usb.action.USB_STATE"
+    const-string v1, "android.hardware.usb.action.USB_STATE"
 
     invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
 
-    .line 193
-    const-string/jumbo v1, "android.net.conn.CONNECTIVITY_CHANGE"
+    const-string v1, "android.net.conn.CONNECTIVITY_CHANGE"
 
     invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
 
-    .line 194
-    const-string/jumbo v1, "android.intent.action.CONFIGURATION_CHANGED"
+    const-string v1, "android.intent.action.CONFIGURATION_CHANGED"
 
     invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
 
-    .line 195
-    const-string/jumbo v1, "android.net.wifi.WIFI_AP_STATE_CHANGED"
+    const-string v1, "android.net.wifi.WIFI_AP_STATE_CHANGED"
 
     invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
 
-    .line 197
     iget-object v1, p0, Lcom/android/server/connectivity/Tethering;->mContext:Landroid/content/Context;
 
     iget-object v2, p0, Lcom/android/server/connectivity/Tethering;->mStateReceiver:Landroid/content/BroadcastReceiver;
 
     invoke-virtual {v1, v2, v0}, Landroid/content/Context;->registerReceiver(Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;)Landroid/content/Intent;
 
-    .line 199
     new-instance v0, Landroid/content/IntentFilter;
 
     .end local v0    # "filter":Landroid/content/IntentFilter;
     invoke-direct {v0}, Landroid/content/IntentFilter;-><init>()V
 
-    .line 200
     .restart local v0    # "filter":Landroid/content/IntentFilter;
-    const-string/jumbo v1, "android.intent.action.MEDIA_SHARED"
+    const-string v1, "android.intent.action.MEDIA_SHARED"
 
     invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
 
-    .line 201
-    const-string/jumbo v1, "android.intent.action.MEDIA_UNSHARED"
+    const-string v1, "android.intent.action.MEDIA_UNSHARED"
 
     invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
 
-    .line 202
-    const-string/jumbo v1, "file"
+    const-string v1, "file"
 
     invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addDataScheme(Ljava/lang/String;)V
 
-    .line 203
     iget-object v1, p0, Lcom/android/server/connectivity/Tethering;->mContext:Landroid/content/Context;
 
     iget-object v2, p0, Lcom/android/server/connectivity/Tethering;->mStateReceiver:Landroid/content/BroadcastReceiver;
 
     invoke-virtual {v1, v2, v0}, Landroid/content/Context;->registerReceiver(Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;)Landroid/content/Intent;
 
-    .line 205
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
 
-    .line 206
-    const v2, 0x107001d
+    const v2, #android:array@config_tether_dhcp_range#t
 
-    .line 205
     invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v1
 
     iput-object v1, p0, Lcom/android/server/connectivity/Tethering;->mDhcpRange:[Ljava/lang/String;
 
-    .line 207
     iget-object v1, p0, Lcom/android/server/connectivity/Tethering;->mDhcpRange:[Ljava/lang/String;
 
     array-length v1, v1
@@ -1350,7 +1335,7 @@
     .locals 16
 
     .prologue
-    const v15, 0x108068e
+    const v15, #android:drawable@stat_sys_tether_general#t
 
     .line 626
     invoke-direct/range {p0 .. p0}, Lcom/android/server/connectivity/Tethering;->getConnectivityManager()Landroid/net/ConnectivityManager;
@@ -1702,7 +1687,7 @@
 
     .line 676
     :cond_9
-    const v12, 0x108068f
+    const v12, #android:drawable@stat_sys_tether_usb#t
 
     move-object/from16 v0, p0
 
@@ -1710,32 +1695,26 @@
 
     goto :goto_2
 
-    .line 678
     :cond_a
     if-eqz v11, :cond_c
 
-    .line 679
     if-eqz v3, :cond_b
 
-    .line 680
     move-object/from16 v0, p0
 
     invoke-direct {v0, v15}, Lcom/android/server/connectivity/Tethering;->showTetheredNotification(I)V
 
     goto :goto_2
 
-    .line 683
     :cond_b
     invoke-direct/range {p0 .. p0}, Lcom/android/server/connectivity/Tethering;->clearTetheredNotification()V
 
     goto :goto_2
 
-    .line 685
     :cond_c
     if-eqz v3, :cond_d
 
-    .line 686
-    const v12, 0x108068d
+    const v12, #android:drawable@stat_sys_tether_bluetooth#t
 
     move-object/from16 v0, p0
 
@@ -1772,104 +1751,83 @@
 
     check-cast v7, Landroid/app/NotificationManager;
 
-    .line 695
     .local v7, "notificationManager":Landroid/app/NotificationManager;
     if-nez v7, :cond_0
 
-    .line 696
     return-void
 
-    .line 699
     :cond_0
     iget v0, p0, Lcom/android/server/connectivity/Tethering;->mLastNotificationId:I
 
     if-eqz v0, :cond_3
 
-    .line 700
     iget v0, p0, Lcom/android/server/connectivity/Tethering;->mLastNotificationId:I
 
     if-ne v0, p1, :cond_2
 
-    .line 701
     iget-object v0, p0, Lcom/android/server/connectivity/Tethering;->mContext:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 702
-    const v3, 0x112000b
+    const v3, #android:bool@config_softap_extention#t
 
-    .line 701
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v0
 
     if-eqz v0, :cond_1
 
-    .line 703
-    const v0, 0x1080690
+    const v0, #android:drawable@stat_sys_tether_wifi#t
 
     if-eq p1, v0, :cond_2
 
-    .line 705
     :cond_1
     return-void
 
-    .line 708
     :cond_2
     iget v0, p0, Lcom/android/server/connectivity/Tethering;->mLastNotificationId:I
 
-    .line 709
     sget-object v3, Landroid/os/UserHandle;->ALL:Landroid/os/UserHandle;
 
-    .line 708
     invoke-virtual {v7, v4, v0, v3}, Landroid/app/NotificationManager;->cancelAsUser(Ljava/lang/String;ILandroid/os/UserHandle;)V
 
-    .line 710
     iput v1, p0, Lcom/android/server/connectivity/Tethering;->mLastNotificationId:I
 
-    .line 713
     :cond_3
     new-instance v2, Landroid/content/Intent;
 
     invoke-direct {v2}, Landroid/content/Intent;-><init>()V
 
-    .line 714
     .local v2, "intent":Landroid/content/Intent;
-    const-string/jumbo v0, "com.android.settings"
+    const-string v0, "com.android.settings"
 
-    const-string/jumbo v3, "com.android.settings.TetherSettings"
+    const-string v3, "com.android.settings.TetherSettings"
 
     invoke-virtual {v2, v0, v3}, Landroid/content/Intent;->setClassName(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 715
     const/high16 v0, 0x40000000    # 2.0f
 
     invoke-virtual {v2, v0}, Landroid/content/Intent;->setFlags(I)Landroid/content/Intent;
 
-    .line 717
     iget-object v0, p0, Lcom/android/server/connectivity/Tethering;->mContext:Landroid/content/Context;
 
-    .line 718
     sget-object v5, Landroid/os/UserHandle;->CURRENT:Landroid/os/UserHandle;
 
     move v3, v1
 
-    .line 717
     invoke-static/range {v0 .. v5}, Landroid/app/PendingIntent;->getActivityAsUser(Landroid/content/Context;ILandroid/content/Intent;ILandroid/os/Bundle;Landroid/os/UserHandle;)Landroid/app/PendingIntent;
 
     move-result-object v8
 
-    .line 720
     .local v8, "pi":Landroid/app/PendingIntent;
     invoke-static {}, Landroid/content/res/Resources;->getSystem()Landroid/content/res/Resources;
 
     move-result-object v9
 
-    .line 721
     .local v9, "r":Landroid/content/res/Resources;
-    const v0, 0x10404d2
+    const v0, #android:string@tethered_notification_title#t
 
     invoke-virtual {v9, v0}, Landroid/content/res/Resources;->getText(I)Ljava/lang/CharSequence;
 
@@ -1877,7 +1835,7 @@
 
     .line 722
     .local v10, "title":Ljava/lang/CharSequence;
-    const v0, 0x10404d3
+    const v0, #android:string@tethered_notification_message#t
 
     invoke-virtual {v9, v0}, Landroid/content/res/Resources;->getText(I)Ljava/lang/CharSequence;
 
@@ -1911,18 +1869,14 @@
 
     move-result-object v0
 
-    .line 729
     iget-object v1, p0, Lcom/android/server/connectivity/Tethering;->mContext:Landroid/content/Context;
 
-    .line 730
-    const v3, 0x1060070
+    const v3, #android:color@system_notification_accent_color#t
 
-    .line 729
     invoke-virtual {v1, v3}, Landroid/content/Context;->getColor(I)I
 
     move-result v1
 
-    .line 727
     invoke-virtual {v0, v1}, Landroid/app/Notification$Builder;->setColor(I)Landroid/app/Notification$Builder;
 
     move-result-object v0
@@ -2803,7 +2757,7 @@
 
     move-result-object v4
 
-    const v5, 0x112000b
+    const v5, #android:bool@config_softap_extention#t
 
     invoke-virtual {v4, v5}, Landroid/content/res/Resources;->getBoolean(I)Z
 
@@ -3380,7 +3334,7 @@
 
     move-result-object v2
 
-    const v3, 0x112000b
+    const v3, #android:bool@config_softap_extention#t
 
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
 
@@ -4422,22 +4376,18 @@
 
     const/4 v6, 0x0
 
-    .line 227
     iget-object v7, p0, Lcom/android/server/connectivity/Tethering;->mContext:Landroid/content/Context;
 
     invoke-virtual {v7}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v7
 
-    .line 228
-    const v8, 0x1070019
+    const v8, #android:array@config_tether_usb_regexs#t
 
-    .line 227
     invoke-virtual {v7, v8}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v3
 
-    .line 230
     .local v3, "tetherableUsbRegexs":[Ljava/lang/String;
     iget-object v7, p0, Lcom/android/server/connectivity/Tethering;->mContext:Landroid/content/Context;
 
@@ -4445,17 +4395,14 @@
 
     move-result-object v7
 
-    .line 231
-    const v8, 0x107001c
+    const v8, #android:array@config_tether_bluetooth_regexs#t
 
-    .line 230
     invoke-virtual {v7, v8}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v2
 
-    .line 233
     .local v2, "tetherableBluetoothRegexs":[Ljava/lang/String;
-    const-string/jumbo v7, "persist.fst.rate.upgrade.en"
+    const-string v7, "persist.fst.rate.upgrade.en"
 
     invoke-static {v7, v6}, Landroid/os/SystemProperties;->getInt(Ljava/lang/String;I)I
 
@@ -4479,21 +4426,17 @@
 
     move-result-object v7
 
-    .line 241
-    const v8, 0x107001f
+    const v8, #android:array@config_tether_upstream_types#t
 
-    .line 240
     invoke-virtual {v7, v8}, Landroid/content/res/Resources;->getIntArray(I)[I
 
     move-result-object v1
 
-    .line 242
     .local v1, "ifaceTypes":[I
     new-instance v5, Ljava/util/ArrayList;
 
     invoke-direct {v5}, Ljava/util/ArrayList;-><init>()V
 
-    .line 243
     .local v5, "upstreamIfaceTypes":Ljava/util/Collection;, "Ljava/util/Collection<Ljava/lang/Integer;>;"
     array-length v7, v1
 
@@ -4527,10 +4470,8 @@
 
     move-result-object v7
 
-    .line 237
-    const v8, 0x107001a
+    const v8, #android:array@config_tether_wifi_regexs#t
 
-    .line 236
     invoke-virtual {v7, v8}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v4

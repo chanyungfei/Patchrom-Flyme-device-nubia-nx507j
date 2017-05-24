@@ -522,16 +522,13 @@
 
     iput-object v3, v0, Lcom/android/server/display/DisplayPowerController;->mLiveDisplayController:Lcom/android/server/display/LiveDisplayController;
 
-    .line 280
     invoke-virtual/range {p1 .. p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v24
 
-    .line 282
     .local v24, "resources":Landroid/content/res/Resources;
-    const v3, 0x10e0062
+    const v3, #android:integer@config_screenBrightnessSettingMinimum#t
 
-    .line 281
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
@@ -542,11 +539,9 @@
 
     move-result v26
 
-    .line 285
     .local v26, "screenBrightnessSettingMinimum":I
-    const v3, 0x10e0065
+    const v3, #android:integer@config_screenBrightnessDoze#t
 
-    .line 284
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
@@ -561,10 +556,8 @@
 
     iput v3, v0, Lcom/android/server/display/DisplayPowerController;->mScreenBrightnessDozeConfig:I
 
-    .line 288
-    const v3, 0x10e006b
+    const v3, #android:integer@config_screenBrightnessDim#t
 
-    .line 287
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
@@ -579,10 +572,8 @@
 
     iput v3, v0, Lcom/android/server/display/DisplayPowerController;->mScreenBrightnessDimConfig:I
 
-    .line 291
-    const v3, 0x10e006c
+    const v3, #android:integer@config_screenBrightnessDark#t
 
-    .line 290
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
@@ -773,10 +764,8 @@
 
     iput v3, v0, Lcom/android/server/display/DisplayPowerController;->mScreenBrightnessRangeMaximum:I
 
-    .line 311
-    const v3, 0x1120029
+    const v3, #android:bool@config_automatic_brightness_available#t
 
-    .line 310
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
@@ -787,10 +776,8 @@
 
     iput-boolean v3, v0, Lcom/android/server/display/DisplayPowerController;->mUseSoftwareAutoBrightnessConfig:Z
 
-    .line 314
-    const v3, 0x1120055
+    const v3, #android:bool@config_allowAutoBrightnessWhileDozing#t
 
-    .line 313
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
@@ -801,21 +788,17 @@
 
     iput-boolean v3, v0, Lcom/android/server/display/DisplayPowerController;->mAllowAutoBrightnessWhileDozingConfig:Z
 
-    .line 317
-    const v3, 0x10e0069
+    const v3, #android:integer@config_autoBrightnessLightSensorRate#t
 
-    .line 316
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v13
 
-    .line 319
     .local v13, "lightSensorRate":I
-    const v3, 0x10e0067
+    const v3, #android:integer@config_autoBrightnessBrighteningLightDebounce#t
 
-    .line 318
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
@@ -824,11 +807,9 @@
 
     int-to-long v14, v3
 
-    .line 321
     .local v14, "brighteningLightDebounce":J
-    const v3, 0x10e0066
+    const v3, #android:integer@config_autoBrightnessBrighteningLightFastDebounce#t
 
-    .line 320
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
@@ -839,11 +820,9 @@
 
     move-wide/from16 v16, v0
 
-    .line 323
     .local v16, "brighteningLightFastDebounce":J
-    const v3, 0x10e0068
+    const v3, #android:integer@config_autoBrightnessDarkeningLightDebounce#t
 
-    .line 322
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
@@ -854,29 +833,24 @@
 
     move-wide/from16 v18, v0
 
-    .line 325
     .local v18, "darkeningLightDebounce":J
-    const v3, 0x1120056
+    const v3, #android:bool@config_autoBrightnessResetAmbientLuxAfterWarmUp#t
 
-    .line 324
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v20
 
-    .line 327
     .local v20, "autoBrightnessResetAmbientLuxAfterWarmUp":Z
-    const v3, 0x10e006a
+    const v3, #android:integer@config_autoBrightnessAmbientLightHorizon#t
 
-    .line 326
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v21
 
-    .line 329
     .local v21, "ambientLightHorizon":I
     move-object/from16 v0, p0
 
@@ -884,55 +858,45 @@
 
     if-eqz v3, :cond_2
 
-    .line 331
-    const v3, 0x107002e
+    const v3, #android:array@config_autoBrightnessLevels#t
 
-    .line 330
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getIntArray(I)[I
 
     move-result-object v23
 
-    .line 333
     .local v23, "lux":[I
-    const v3, 0x107002f
+    const v3, #android:array@config_autoBrightnessLcdBacklightValues#t
 
-    .line 332
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getIntArray(I)[I
 
     move-result-object v25
 
-    .line 335
     .local v25, "screenBrightness":[I
-    const v3, 0x10e006f
+    const v3, #android:integer@config_lightSensorWarmupTime#t
 
-    .line 334
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v9
 
-    .line 337
     .local v9, "lightSensorWarmUpTimeConfig":I
-    const v3, 0x1130001
+    const v3, #android:fraction@config_screenAutoBrightnessDozeScaleFactor#t
 
-    .line 338
     const/4 v4, 0x1
 
     const/4 v5, 0x1
 
-    .line 336
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3, v4, v5}, Landroid/content/res/Resources;->getFraction(III)F
 
     move-result v12
 
-    .line 340
     .local v12, "dozeScaleFactor":F
     move-object/from16 v0, v23
 
@@ -1052,10 +1016,8 @@
 
     iput v10, v0, Lcom/android/server/display/DisplayPowerController;->mScreenBrightnessRangeMinimum:I
 
-    .line 373
-    const v3, 0x112002e
+    const v3, #android:bool@config_animateScreenLights#t
 
-    .line 372
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getBoolean(I)Z

@@ -3523,25 +3523,21 @@
     .locals 6
 
     .prologue
-    .line 647
     iget-object v0, p0, Lcom/android/server/display/DisplayManagerService;->mContext:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 648
-    const v1, 0x1120084
+    const v1, #android:bool@config_enableWifiDisplay#t
 
-    .line 647
     invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v0
 
     if-nez v0, :cond_0
 
-    .line 649
-    const-string/jumbo v0, "persist.debug.wfd.enable"
+    const-string v0, "persist.debug.wfd.enable"
 
     const/4 v1, -0x1
 

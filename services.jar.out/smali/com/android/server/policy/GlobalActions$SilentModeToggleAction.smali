@@ -24,30 +24,22 @@
     .param p1, "this$0"    # Lcom/android/server/policy/GlobalActions;
 
     .prologue
-    .line 1128
     iput-object p1, p0, Lcom/android/server/policy/GlobalActions$SilentModeToggleAction;->this$0:Lcom/android/server/policy/GlobalActions;
 
-    .line 1129
-    const v1, 0x1080301
+    const v1, #android:drawable@ic_audio_vol_mute#t
 
-    .line 1130
-    const v2, 0x1080300
+    const v2, #android:drawable@ic_audio_vol#t
 
-    .line 1131
-    const v3, 0x10401a1
+    const v3, #android:string@global_action_toggle_silent_mode#t
 
-    .line 1132
-    const v4, 0x10401a2
+    const v4, #android:string@global_action_silent_mode_on_status#t
 
-    .line 1133
-    const v5, 0x10401a3
+    const v5, #android:string@global_action_silent_mode_off_status#t
 
     move-object v0, p0
 
-    .line 1129
     invoke-direct/range {v0 .. v5}, Lcom/android/server/policy/GlobalActions$ToggleAction;-><init>(IIIII)V
 
-    .line 1128
     return-void
 .end method
 

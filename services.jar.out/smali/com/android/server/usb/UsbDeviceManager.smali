@@ -856,26 +856,21 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 1041
     iget-object v4, p0, Lcom/android/server/usb/UsbDeviceManager;->mContext:Landroid/content/Context;
 
     invoke-virtual {v4}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v4
 
-    .line 1042
-    const v6, 0x1070037
+    const v6, #android:array@config_oemUsbModeOverride#t
 
-    .line 1041
     invoke-virtual {v4, v6}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v1
 
-    .line 1044
     .local v1, "configList":[Ljava/lang/String;
     if-eqz v1, :cond_3
 
-    .line 1045
     array-length v6, v1
 
     move v4, v5
@@ -1477,10 +1472,8 @@
 
     move-result-object v4
 
-    .line 254
-    const v6, 0x112002c
+    const v6, #android:bool@config_usbChargingMessage#t
 
-    .line 253
     invoke-virtual {v4, v6}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v4

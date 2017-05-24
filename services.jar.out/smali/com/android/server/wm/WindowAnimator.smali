@@ -92,71 +92,56 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 118
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 83
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/android/server/wm/WindowAnimator;->mWindowDetachedWallpaper:Lcom/android/server/wm/WindowState;
 
-    .line 85
     iput v2, p0, Lcom/android/server/wm/WindowAnimator;->mBulkUpdateParams:I
 
-    .line 89
     new-instance v0, Landroid/util/SparseArray;
 
     const/4 v1, 0x2
 
     invoke-direct {v0, v1}, Landroid/util/SparseArray;-><init>(I)V
 
-    .line 88
     iput-object v0, p0, Lcom/android/server/wm/WindowAnimator;->mDisplayContentsAnimators:Landroid/util/SparseArray;
 
-    .line 91
     iput-boolean v2, p0, Lcom/android/server/wm/WindowAnimator;->mInitialized:Z
 
-    .line 107
     iput v2, p0, Lcom/android/server/wm/WindowAnimator;->mForceHiding:I
 
-    .line 119
     iput-object p1, p0, Lcom/android/server/wm/WindowAnimator;->mService:Lcom/android/server/wm/WindowManagerService;
 
-    .line 120
     iget-object v0, p1, Lcom/android/server/wm/WindowManagerService;->mContext:Landroid/content/Context;
 
     iput-object v0, p0, Lcom/android/server/wm/WindowAnimator;->mContext:Landroid/content/Context;
 
-    .line 121
     iget-object v0, p1, Lcom/android/server/wm/WindowManagerService;->mPolicy:Landroid/view/WindowManagerPolicy;
 
     iput-object v0, p0, Lcom/android/server/wm/WindowAnimator;->mPolicy:Landroid/view/WindowManagerPolicy;
 
-    .line 123
     iget-object v0, p0, Lcom/android/server/wm/WindowAnimator;->mContext:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 124
-    const v1, 0x11200bf
+    const v1, #android:bool@config_ui_blur_enabled#t
 
-    .line 123
     invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v0
 
     iput-boolean v0, p0, Lcom/android/server/wm/WindowAnimator;->mBlurUiEnabled:Z
 
-    .line 126
     new-instance v0, Lcom/android/server/wm/WindowAnimator$1;
 
     invoke-direct {v0, p0}, Lcom/android/server/wm/WindowAnimator$1;-><init>(Lcom/android/server/wm/WindowAnimator;)V
 
     iput-object v0, p0, Lcom/android/server/wm/WindowAnimator;->mAnimationFrameCallback:Landroid/view/Choreographer$FrameCallback;
 
-    .line 118
     return-void
 .end method
 

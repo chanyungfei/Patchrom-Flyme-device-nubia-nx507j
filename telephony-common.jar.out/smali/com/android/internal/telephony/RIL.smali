@@ -7087,7 +7087,7 @@
 
     move-result-object v5
 
-    const v6, 0x10400b6
+    const v6, #android:string@config_datause_iface#t
 
     invoke-virtual {v5, v6}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
 
@@ -9745,15 +9745,12 @@
 
     move-result-object v1
 
-    .line 2932
-    const v3, 0x10400de
+    const v3, #android:string@config_radio_access_family#t
 
-    .line 2931
     invoke-virtual {v1, v3}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
 
     move-result-object v7
 
-    .line 2933
     .local v7, "rafString":Ljava/lang/String;
     invoke-static {v7}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 

@@ -4335,19 +4335,15 @@
 
     move-result-object v2
 
-    .line 1163
-    const v3, 0x1120020
+    const v3, #android:bool@config_wifi_enable_wifi_firmware_debugging#t
 
-    .line 1162
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v10
 
-    .line 1165
     .local v10, "enableFirmwareLogs":Z
     if-eqz v10, :cond_6
 
-    .line 1166
     new-instance v2, Lcom/android/server/wifi/WifiLogger;
 
     move-object/from16 v0, p0
@@ -4547,30 +4543,24 @@
 
     move-result-object v2
 
-    .line 1203
-    const v3, 0x10e002c
+    const v3, #android:integer@config_wifi_framework_scan_interval#t
 
-    .line 1202
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v13
 
-    .line 1204
     .local v13, "period":I
     const/16 v2, 0x2710
 
     if-ge v13, v2, :cond_0
 
-    .line 1205
     const/16 v13, 0x2710
 
-    .line 1207
     :cond_0
     move-object/from16 v0, p0
 
     iput v13, v0, Lcom/android/server/wifi/WifiStateMachine;->mDefaultFrameworkScanIntervalMs:I
 
-    .line 1209
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/android/server/wifi/WifiStateMachine;->mContext:Landroid/content/Context;
@@ -4579,10 +4569,8 @@
 
     move-result-object v2
 
-    .line 1210
-    const v3, 0x10e002d
+    const v3, #android:integer@config_wifi_no_network_periodic_scan_interval#t
 
-    .line 1209
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v2
@@ -4600,10 +4588,8 @@
 
     move-result-object v2
 
-    .line 1213
-    const v3, 0x10e003c
+    const v3, #android:integer@config_wifi_driver_stop_delay#t
 
-    .line 1212
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v2
@@ -4621,10 +4607,8 @@
 
     move-result-object v2
 
-    .line 1216
-    const v3, 0x112001c
+    const v3, #android:bool@config_wifi_background_scan_support#t
 
-    .line 1215
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v2
@@ -4642,10 +4626,8 @@
 
     move-result-object v2
 
-    .line 1219
-    const v3, 0x11200b7
+    const v3, #android:bool@config_wifi_ipreachability_monitor#t
 
-    .line 1218
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v2
@@ -4663,10 +4645,8 @@
 
     move-result-object v2
 
-    .line 1222
-    const v3, 0x10400a5
+    const v3, #android:string@config_wifi_p2p_device_type#t
 
-    .line 1221
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
 
     move-result-object v2
@@ -4684,10 +4664,8 @@
 
     move-result-object v2
 
-    .line 1225
-    const v3, 0x112001f
+    const v3, #android:bool@config_wifi_revert_country_code_on_cellular_loss#t
 
-    .line 1224
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v2
@@ -5171,10 +5149,8 @@
 
     move-result-object v2
 
-    .line 1361
-    const v3, 0x10400cd
+    const v3, #android:string@config_wifi_tcp_buffers#t
 
-    .line 1360
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
 
     move-result-object v2
@@ -11641,7 +11617,7 @@
 
     move-result-object v1
 
-    const v2, 0x112000c
+    const v2, #android:bool@wifi_autocon#t
 
     invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getBoolean(I)Z
 
@@ -12342,7 +12318,7 @@
 
     move-result-object v0
 
-    const v1, 0x112000c
+    const v1, #android:bool@wifi_autocon#t
 
     invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getBoolean(I)Z
 
@@ -15732,33 +15708,28 @@
 
     new-array v4, v7, [Ljava/lang/Object;
 
-    .line 1660
-    const-string/jumbo v5, "DA-A1-19"
+    const-string v5, "DA-A1-19"
 
     aput-object v5, v4, v6
 
-    const v5, 0x10400a6
+    const v5, #android:string@config_wifi_random_mac_oui#t
 
-    .line 1659
     invoke-virtual {v3, v5, v4}, Landroid/content/res/Resources;->getString(I[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 1661
     .local v0, "oui":Ljava/lang/String;
-    const-string/jumbo v3, "-"
+    const-string v3, "-"
 
     invoke-virtual {v0, v3}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v2
 
-    .line 1662
     .local v2, "ouiParts":[Ljava/lang/String;
     const/4 v3, 0x3
 
     new-array v1, v3, [B
 
-    .line 1663
     .local v1, "ouiBytes":[B
     aget-object v3, v2, v6
 
@@ -17237,7 +17208,7 @@
 
     move-result-object v13
 
-    const v15, 0x112000c
+    const v15, #android:bool@wifi_autocon#t
 
     invoke-virtual {v13, v15}, Landroid/content/res/Resources;->getBoolean(I)Z
 
@@ -21178,7 +21149,7 @@
 
     move-result-object v0
 
-    const v1, 0x112000c
+    const v1, #android:bool@wifi_autocon#t
 
     invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getBoolean(I)Z
 
@@ -22268,7 +22239,7 @@
 
     move-result-object v1
 
-    const v2, 0x112000c
+    const v2, #android:bool@wifi_autocon#t
 
     invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getBoolean(I)Z
 

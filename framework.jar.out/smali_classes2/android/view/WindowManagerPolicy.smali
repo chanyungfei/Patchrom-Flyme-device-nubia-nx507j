@@ -322,7 +322,6 @@
 
 .method public abstract showBootMessage(Ljava/lang/CharSequence;Z)V
 .end method
-
 .method public abstract showGlobalActions()V
 .end method
 

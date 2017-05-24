@@ -64,20 +64,16 @@
 
     move-result-object v2
 
-    .line 6974
-    const-string/jumbo v3, "android.hardware.type.watch"
+    const-string v3, "android.hardware.type.watch"
 
-    .line 6973
     invoke-virtual {v2, v3}, Landroid/content/pm/PackageManager;->hasSystemFeature(Ljava/lang/String;)Z
 
     move-result v2
 
     if-eqz v2, :cond_1
 
-    .line 6975
-    const v1, 0x10304bb
+    const v1, #android:style@Theme.Micro.Dialog.Alert#t
 
-    .line 6983
     .local v1, "theme":I
     :goto_0
     iget-object v2, p0, Lcom/android/server/policy/PhoneWindowManager$24;->this$0:Lcom/android/server/policy/PhoneWindowManager;
@@ -112,7 +108,7 @@
 
     iget-object v2, v2, Lcom/android/server/policy/PhoneWindowManager;->mBootMsgDialog:Landroid/app/ProgressDialog;
 
-    const v3, 0x10403fe
+    const v3, #android:string@android_upgrading_title#t
 
     invoke-virtual {v2, v3}, Landroid/app/ProgressDialog;->setTitle(I)V
 
@@ -245,23 +241,19 @@
 
     move-result-object v2
 
-    .line 6977
-    const-string/jumbo v3, "android.hardware.type.television"
+    const-string v3, "android.hardware.type.television"
 
-    .line 6976
     invoke-virtual {v2, v3}, Landroid/content/pm/PackageManager;->hasSystemFeature(Ljava/lang/String;)Z
 
     move-result v2
 
     if-eqz v2, :cond_2
 
-    .line 6978
-    const v1, 0x103049a
+    const v1, #android:style@Theme.Leanback.Dialog.Alert#t
 
     .restart local v1    # "theme":I
     goto/16 :goto_0
 
-    .line 6980
     .end local v1    # "theme":I
     :cond_2
     const/4 v1, 0x0
@@ -275,7 +267,7 @@
 
     iget-object v2, v2, Lcom/android/server/policy/PhoneWindowManager;->mBootMsgDialog:Landroid/app/ProgressDialog;
 
-    const v3, 0x10403ff
+    const v3, #android:string@android_start_title#t
 
     invoke-virtual {v2, v3}, Landroid/app/ProgressDialog;->setTitle(I)V
 

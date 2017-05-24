@@ -1413,7 +1413,7 @@
 
     move-result-object v7
 
-    const v8, 0x1120089
+    const v8, #android:bool@config_dontPreferApn#t
 
     invoke-virtual {v7, v8}, Landroid/content/res/Resources;->getBoolean(I)Z
     :try_end_0
@@ -3680,26 +3680,21 @@
 
     move-result-object v3
 
-    .line 1494
-    const v4, 0x107003a
+    const v4, #android:array@config_onlySingleDcAllowed#t
 
-    .line 1493
     invoke-virtual {v3, v4}, Landroid/content/res/Resources;->getIntArray(I)[I
 
     move-result-object v2
 
-    .line 1495
     .local v2, "singleDcRats":[I
     const/4 v1, 0x0
 
-    .line 1496
     .local v1, "onlySingleDcAllowed":Z
     sget-boolean v3, Landroid/os/Build;->IS_DEBUGGABLE:Z
 
     if-eqz v3, :cond_0
 
-    .line 1497
-    const-string/jumbo v3, "persist.telephony.test.singleDc"
+    const-string v3, "persist.telephony.test.singleDc"
 
     const/4 v4, 0x0
 
@@ -10908,15 +10903,12 @@
 
     move-result-object v4
 
-    .line 457
-    const v5, 0x1070015
+    const v5, #android:array@networkAttributes#t
 
-    .line 456
     invoke-virtual {v4, v5}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v3
 
-    .line 458
     .local v3, "networkConfigStrings":[Ljava/lang/String;
     const/4 v4, 0x0
 
@@ -14345,15 +14337,12 @@
 
     move-result-object v2
 
-    .line 2254
-    const v3, 0x112008a
+    const v3, #android:bool@config_restartRadioAfterProvisioning#t
 
-    .line 2253
     invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v1
 
-    .line 2256
     .local v1, "restartRadioAfterProvisioning":Z
     invoke-virtual {v0}, Lcom/android/internal/telephony/dataconnection/ApnContext;->isProvisioningApn()Z
 
@@ -14687,23 +14676,18 @@
 
     move-result-object v0
 
-    .line 1600
-    const v1, 0x11200a2
+    const v1, #android:bool@config_auto_attach_data_on_creation#t
 
-    .line 1599
     invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v0
 
     iput-boolean v0, p0, Lcom/android/internal/telephony/dataconnection/DcTracker;->mAutoAttachOnCreationConfig:Z
 
-    .line 1602
     invoke-virtual {p0}, Lcom/android/internal/telephony/dataconnection/DcTracker;->createAllApnList()V
 
-    .line 1603
     invoke-virtual {p0}, Lcom/android/internal/telephony/dataconnection/DcTracker;->setInitialAttachApn()V
 
-    .line 1604
     iget-object v0, p0, Lcom/android/internal/telephony/dataconnection/DcTracker;->mPhone:Lcom/android/internal/telephony/PhoneBase;
 
     iget-object v0, v0, Lcom/android/internal/telephony/PhoneBase;->mCi:Lcom/android/internal/telephony/CommandsInterface;

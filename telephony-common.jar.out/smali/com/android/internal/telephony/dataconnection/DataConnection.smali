@@ -1265,27 +1265,22 @@
 
     move-result-object v1
 
-    .line 417
-    const v2, 0x10e0092
+    const v2, #android:integer@config_mobile_mtu#t
 
-    .line 416
     invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getInteger(I)I
 
     move-result v0
 
-    .line 418
     .local v0, "mtu":I
     if-eqz v0, :cond_5
 
-    .line 419
     invoke-virtual {p2, v0}, Landroid/net/LinkProperties;->setMtu(I)V
 
-    .line 420
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string/jumbo v2, "MTU set by config resource to: "
+    const-string v2, "MTU set by config resource to: "
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -4371,15 +4366,12 @@
 
     move-result-object v7
 
-    .line 879
-    const v8, 0x1070038
+    const v8, #android:array@config_mobile_tcp_buffers#t
 
-    .line 878
     invoke-virtual {v7, v8}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v0
 
-    .line 880
     .local v0, "configOverride":[Ljava/lang/String;
     const/4 v1, 0x0
 

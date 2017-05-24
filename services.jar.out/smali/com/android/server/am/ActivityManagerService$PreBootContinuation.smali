@@ -232,7 +232,7 @@
 
     aput-object v20, v3, v4
 
-    const v4, 0x1040402
+    const v4, #android:string@android_preparing_apk#t
 
     invoke-virtual {v2, v4, v3}, Landroid/content/Context;->getString(I[Ljava/lang/Object;)Ljava/lang/String;
 

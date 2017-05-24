@@ -1572,42 +1572,34 @@
 
     const/4 v3, 0x0
 
-    .line 453
     .local v3, "imsUseEnabled":Z
     :goto_0
     if-eqz v2, :cond_7
 
     if-eqz v4, :cond_7
 
-    .line 455
     iget-object v8, p0, Lcom/android/internal/telephony/cdma/CDMAPhone;->mContext:Landroid/content/Context;
 
     invoke-virtual {v8}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v8
 
-    .line 456
-    const v9, 0x1120096
+    const v9, #android:bool@useImsAlwaysForEmergencyCall#t
 
-    .line 455
     invoke-virtual {v8, v9}, Landroid/content/res/Resources;->getBoolean(I)Z
 
     move-result v8
 
-    .line 453
     if-eqz v8, :cond_7
 
-    .line 457
     iget-object v8, p0, Lcom/android/internal/telephony/cdma/CDMAPhone;->mContext:Landroid/content/Context;
 
     invoke-static {v8}, Lcom/android/ims/ImsManager;->isNonTtyOrTtyOnVolteEnabled(Landroid/content/Context;)Z
 
     move-result v8
 
-    .line 453
     if-eqz v8, :cond_7
 
-    .line 458
     invoke-virtual {v2}, Lcom/android/internal/telephony/imsphone/ImsPhone;->getServiceState()Landroid/telephony/ServiceState;
 
     move-result-object v8
@@ -4069,14 +4061,11 @@
 
     if-nez v1, :cond_1
 
-    .line 1050
     :cond_0
     iget-object v1, p0, Lcom/android/internal/telephony/cdma/CDMAPhone;->mContext:Landroid/content/Context;
 
-    .line 1051
-    const v2, 0x1040004
+    const v2, #android:string@defaultVoiceMailAlphaTag#t
 
-    .line 1050
     invoke-virtual {v1, v2}, Landroid/content/Context;->getText(I)Ljava/lang/CharSequence;
 
     move-result-object v1
@@ -4160,15 +4149,12 @@
 
     move-result-object v5
 
-    .line 1006
-    const v6, 0x1070049
+    const v6, #android:array@config_default_vm_number#t
 
-    .line 1005
     invoke-virtual {v5, v6}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v2
 
-    .line 1007
     .local v2, "listArray":[Ljava/lang/String;
     if-eqz v2, :cond_2
 
@@ -4277,7 +4263,7 @@
 
     move-result-object v5
 
-    const v6, 0x112006e
+    const v6, #android:bool@config_telephony_use_own_number_for_voicemail#t
 
     invoke-virtual {v5, v6}, Landroid/content/res/Resources;->getBoolean(I)Z
 

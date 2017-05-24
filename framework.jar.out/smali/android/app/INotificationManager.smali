@@ -70,7 +70,6 @@
         }
     .end annotation
 .end method
-
 .method public abstract enqueueNotificationWithTag(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILandroid/app/Notification;[II)V
     .annotation system Ldalvik/annotation/Throws;
         value = {
@@ -368,6 +367,14 @@
 .end method
 
 .method public abstract unregisterListener(Landroid/service/notification/INotificationListener;I)V
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Landroid/os/RemoteException;
+        }
+    .end annotation
+.end method
+
+.method public abstract deviceLightsCan(I)Z
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Landroid/os/RemoteException;

@@ -105,99 +105,82 @@
     .param p0, "type"    # I
 
     .prologue
-    .line 6827
     packed-switch p0, :pswitch_data_0
 
-    .line 6844
-    const v0, 0x10402d6
+    const v0, #android:string@orgTypeCustom#t
 
     return v0
 
-    .line 6828
     :pswitch_0
-    const v0, 0x10402d8
+    const v0, #android:string@relationTypeAssistant#t
 
     return v0
 
-    .line 6829
     :pswitch_1
-    const v0, 0x10402d9
+    const v0, #android:string@relationTypeBrother#t
 
     return v0
 
-    .line 6830
     :pswitch_2
-    const v0, 0x10402da
+    const v0, #android:string@relationTypeChild#t
 
     return v0
 
-    .line 6832
     :pswitch_3
-    const v0, 0x10402db
+    const v0, #android:string@relationTypeDomesticPartner#t
 
     return v0
 
-    .line 6833
     :pswitch_4
-    const v0, 0x10402dc
+    const v0, #android:string@relationTypeFather#t
 
     return v0
 
-    .line 6834
     :pswitch_5
-    const v0, 0x10402dd
+    const v0, #android:string@relationTypeFriend#t
 
     return v0
 
-    .line 6835
     :pswitch_6
-    const v0, 0x10402de
+    const v0, #android:string@relationTypeManager#t
 
     return v0
 
-    .line 6836
     :pswitch_7
-    const v0, 0x10402df
+    const v0, #android:string@relationTypeMother#t
 
     return v0
 
-    .line 6837
     :pswitch_8
-    const v0, 0x10402e0
+    const v0, #android:string@relationTypeParent#t
 
     return v0
 
-    .line 6838
     :pswitch_9
-    const v0, 0x10402e1
+    const v0, #android:string@relationTypePartner#t
 
     return v0
 
-    .line 6840
     :pswitch_a
-    const v0, 0x10402e2
+    const v0, #android:string@relationTypeReferredBy#t
 
     return v0
 
-    .line 6841
     :pswitch_b
-    const v0, 0x10402e3
+    const v0, #android:string@relationTypeRelative#t
 
     return v0
 
-    .line 6842
     :pswitch_c
-    const v0, 0x10402e4
+    const v0, #android:string@relationTypeSister#t
 
     return v0
 
-    .line 6843
     :pswitch_d
-    const v0, 0x10402e5
+    const v0, #android:string@relationTypeSpouse#t
 
     return v0
 
-    .line 6827
     nop
 
     :pswitch_data_0
