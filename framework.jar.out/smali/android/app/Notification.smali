@@ -489,6 +489,8 @@
     .param p8, "contentIntent"    # Landroid/content/Intent;
 
     .prologue
+    invoke-static/range {p0 .. p0}, Landroid/app/Notification$FlymeInjector;->initFlymeExtFields(Landroid/app/Notification;)V
+
     const/4 v1, 0x0
 
     .line 1387
@@ -548,8 +550,6 @@
     move-result-object v0
 
     invoke-virtual {v0, p0}, Landroid/app/Notification$Builder;->buildInto(Landroid/app/Notification;)Landroid/app/Notification;
-
-    invoke-static/range {p0 .. p0}, Landroid/app/Notification$FlymeInjector;->initFlymeExtFields(Landroid/app/Notification;)V
 
     return-void
 .end method
