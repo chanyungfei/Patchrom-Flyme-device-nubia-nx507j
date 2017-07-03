@@ -194,22 +194,6 @@
     return-object v0
 .end method
 
-.method static synthetic -get8(Lcom/android/internal/app/MzResolverActivity;)Ljava/util/Map;
-    .locals 1
-
-    iget-object v0, p0, Lcom/android/internal/app/MzResolverActivity;->mStats:Ljava/util/Map;
-
-    return-object v0
-.end method
-
-.method static synthetic -get9(Lcom/android/internal/app/MzResolverActivity;)Ljava/lang/CharSequence;
-    .locals 1
-
-    iget-object v0, p0, Lcom/android/internal/app/MzResolverActivity;->mTitle:Ljava/lang/CharSequence;
-
-    return-object v0
-.end method
-
 .method static synthetic -set0(Lcom/android/internal/app/MzResolverActivity;Z)Z
     .locals 0
 
@@ -331,9 +315,9 @@
     move-result-object v1
 
     .local v1, "ft":Landroid/app/FragmentTransaction;
-    const/high16 v2, 0x10b0000
+    const/high16 v2, #android:animator@fade_in#i
 
-    const v3, 0x10b0001
+    const v3, #android:animator@fade_out#t
 
     invoke-virtual {v1, v2, v3}, Landroid/app/FragmentTransaction;->setCustomAnimations(II)Landroid/app/FragmentTransaction;
 
@@ -3190,4 +3174,28 @@
     invoke-direct {p0}, Lcom/android/internal/app/MzResolverActivity;->ChangeFragment()V
 
     return-void
+.end method
+
+.method static synthetic -get10(Lcom/android/internal/app/MzResolverActivity;)Ljava/lang/CharSequence;
+    .locals 1
+
+    iget-object v0, p0, Lcom/android/internal/app/MzResolverActivity;->mTitle:Ljava/lang/CharSequence;
+
+    return-object v0
+.end method
+
+.method static synthetic -get8(Lcom/android/internal/app/MzResolverActivity;)Z
+    .locals 1
+
+    iget-boolean v0, p0, Lcom/android/internal/app/MzResolverActivity;->mRegistered:Z
+
+    return v0
+.end method
+
+.method static synthetic -get9(Lcom/android/internal/app/MzResolverActivity;)Ljava/util/Map;
+    .locals 1
+
+    iget-object v0, p0, Lcom/android/internal/app/MzResolverActivity;->mStats:Ljava/util/Map;
+
+    return-object v0
 .end method
