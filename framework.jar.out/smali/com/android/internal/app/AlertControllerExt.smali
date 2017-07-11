@@ -426,15 +426,11 @@
 
     move-object/from16 v28, v0
 
-    const-string v29, "parentPanel"
+    const-string v29, "id"
 
-    const/16 v30, 0x0
+    const-string v30, "parentPanel"
 
-    move/from16 v0, v30
-
-    move-object/from16 v1, v29
-
-    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    invoke-static/range {v29 .. v30}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v29
 
@@ -459,15 +455,11 @@
 
     move-object/from16 v28, v0
 
-    const-string v29, "contentPanel"
+    const-string v29, "id"
 
-    const/16 v30, 0x0
+    const-string v30, "contentPanel"
 
-    move/from16 v0, v30
-
-    move-object/from16 v1, v29
-
-    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    invoke-static/range {v29 .. v30}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v29
 
@@ -1110,7 +1102,7 @@
     .local v4, "states":[[I
     new-array v5, v8, [I
 
-    const v6, 0x101009e
+    const v6, #android:attr@state_enabled#t
 
     aput v6, v5, v7
 
@@ -1572,11 +1564,11 @@
     .prologue
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v3, "parentPanel"
+    const-string v3, "id"
 
-    const/4 v4, 0x0
+    const-string v4, "parentPanel"
 
-    invoke-static {v4, v3}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    invoke-static {v3, v4}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v3
 
@@ -1694,22 +1686,24 @@
 .end method
 
 .method private setupButtons()V
-    .locals 13
+    .locals 14
 
     .prologue
-    const/16 v12, 0x11
+    const/16 v13, 0x11
 
-    const/16 v11, 0x9
+    const/16 v12, 0x9
 
-    const/4 v10, 0x3
+    const/4 v11, 0x3
 
     const/4 v8, 0x0
 
     iget-object v7, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v9, "buttonPanel"
+    const-string v9, "id"
 
-    invoke-static {v8, v9}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v10, "buttonPanel"
+
+    invoke-static {v9, v10}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v9
 
@@ -1760,7 +1754,7 @@
     move-result v0
 
     :cond_0
-    const v7, 0x1020019
+    const v7, #android:id@button1#t
 
     invoke-virtual {v3, v7}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
 
@@ -1769,7 +1763,7 @@
     check-cast v4, Landroid/widget/Button;
 
     .local v4, "buttonPositive":Landroid/widget/Button;
-    const v7, 0x102001a
+    const v7, #android:id@button2#t
 
     invoke-virtual {v3, v7}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
 
@@ -1778,7 +1772,7 @@
     check-cast v1, Landroid/widget/Button;
 
     .local v1, "buttonNegative":Landroid/widget/Button;
-    const v7, 0x102001b
+    const v7, #android:id@button3#t
 
     invoke-virtual {v3, v7}, Landroid/widget/LinearLayout;->findViewById(I)Landroid/view/View;
 
@@ -1832,7 +1826,7 @@
     .local v6, "params":Landroid/widget/LinearLayout$LayoutParams;
     iput v8, v6, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    iput v12, v6, Landroid/widget/LinearLayout$LayoutParams;->gravity:I
+    iput v13, v6, Landroid/widget/LinearLayout$LayoutParams;->gravity:I
 
     invoke-virtual {v4, v6}, Landroid/widget/Button;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
@@ -1910,7 +1904,7 @@
     .restart local v6    # "params":Landroid/widget/LinearLayout$LayoutParams;
     iput v8, v6, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
 
-    iput v12, v6, Landroid/widget/LinearLayout$LayoutParams;->gravity:I
+    iput v13, v6, Landroid/widget/LinearLayout$LayoutParams;->gravity:I
 
     invoke-virtual {v1, v6}, Landroid/widget/Button;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
@@ -1970,7 +1964,7 @@
 
     move-result v7
 
-    if-le v7, v11, :cond_5
+    if-le v7, v12, :cond_5
 
     const-string v7, "en"
 
@@ -1989,7 +1983,7 @@
 
     move-result v7
 
-    if-le v7, v10, :cond_6
+    if-le v7, v11, :cond_6
 
     const-string v7, "zh"
 
@@ -2008,7 +2002,7 @@
 
     move-result v7
 
-    if-le v7, v11, :cond_7
+    if-le v7, v12, :cond_7
 
     const-string v7, "en"
 
@@ -2027,7 +2021,7 @@
 
     move-result v7
 
-    if-le v7, v10, :cond_9
+    if-le v7, v11, :cond_9
 
     const-string v7, "zh"
 
@@ -2225,7 +2219,7 @@
 
     move-result v7
 
-    if-le v7, v11, :cond_c
+    if-le v7, v12, :cond_c
 
     const-string v7, "en"
 
@@ -2244,7 +2238,7 @@
 
     move-result v7
 
-    if-le v7, v10, :cond_d
+    if-le v7, v11, :cond_d
 
     const-string v7, "zh"
 
@@ -2263,7 +2257,7 @@
 
     move-result v7
 
-    if-le v7, v11, :cond_e
+    if-le v7, v12, :cond_e
 
     const-string v7, "en"
 
@@ -2282,7 +2276,7 @@
 
     move-result v7
 
-    if-le v7, v10, :cond_10
+    if-le v7, v11, :cond_10
 
     const-string v7, "zh"
 
@@ -2381,7 +2375,7 @@
 
     move-result v7
 
-    if-le v7, v11, :cond_12
+    if-le v7, v12, :cond_12
 
     const-string v7, "en"
 
@@ -2400,7 +2394,7 @@
 
     move-result v7
 
-    if-le v7, v10, :cond_13
+    if-le v7, v11, :cond_13
 
     const-string v7, "zh"
 
@@ -2419,7 +2413,7 @@
 
     move-result v7
 
-    if-le v7, v11, :cond_14
+    if-le v7, v12, :cond_14
 
     const-string v7, "en"
 
@@ -2438,7 +2432,7 @@
 
     move-result v7
 
-    if-le v7, v10, :cond_16
+    if-le v7, v11, :cond_16
 
     const-string v7, "zh"
 
@@ -2521,15 +2515,11 @@
 
     move-object/from16 v17, v0
 
-    const-string v18, "contentPanel"
+    const-string v18, "id"
 
-    const/16 v19, 0x0
+    const-string v19, "contentPanel"
 
-    move/from16 v0, v19
-
-    move-object/from16 v1, v18
-
-    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    invoke-static/range {v18 .. v19}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v18
 
@@ -2572,7 +2562,7 @@
 
     move-object/from16 v17, v0
 
-    const v18, 0x102000b
+    const v18, #android:id@message#t
 
     invoke-virtual/range {v17 .. v18}, Landroid/view/Window;->findViewById(I)Landroid/view/View;
 
@@ -2641,7 +2631,7 @@
 
     const/16 v19, 0x0
 
-    const v20, 0x101005b
+    const v20, #android:attr@windowTitleStyle#t
 
     const/16 v21, 0x0
 
@@ -3173,17 +3163,19 @@
     .locals 9
 
     .prologue
-    const/4 v5, 0x0
+    const/4 v4, 0x0
 
-    iget-object v4, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
+    iget-object v5, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v6, "customPanel"
+    const-string v6, "id"
 
-    invoke-static {v5, v6}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v7, "customPanel"
+
+    invoke-static {v6, v7}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v6
 
-    invoke-virtual {v4, v6}, Landroid/view/Window;->findViewById(I)Landroid/view/View;
+    invoke-virtual {v5, v6}, Landroid/view/Window;->findViewById(I)Landroid/view/View;
 
     move-result-object v1
 
@@ -3192,20 +3184,22 @@
     .local v1, "customPanel":Landroid/widget/FrameLayout;
     invoke-virtual {v1}, Landroid/widget/FrameLayout;->getVisibility()I
 
-    move-result v4
+    move-result v5
 
-    if-nez v4, :cond_1
+    if-nez v5, :cond_0
 
     const/4 v4, 0x1
 
-    :goto_0
+    :cond_0
     iput-boolean v4, p0, Lcom/android/internal/app/AlertControllerExt;->mCustomVisible:Z
 
     iget-object v4, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
+    const-string v5, "id"
+
     const-string v6, "custom"
 
-    invoke-static {v5, v6}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    invoke-static {v5, v6}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v5
 
@@ -3228,11 +3222,11 @@
     check-cast v2, Landroid/widget/FrameLayout$LayoutParams;
 
     .local v2, "flp":Landroid/widget/FrameLayout$LayoutParams;
-    if-lez v3, :cond_0
+    if-lez v3, :cond_1
 
     iget-boolean v4, p0, Lcom/android/internal/app/AlertControllerExt;->mCustEditHasMargin:Z
 
-    if-eqz v4, :cond_0
+    if-eqz v4, :cond_1
 
     iget-object v4, p0, Lcom/android/internal/app/AlertControllerExt;->mContext:Landroid/content/Context;
 
@@ -3274,33 +3268,27 @@
 
     invoke-virtual {v2, v4, v5, v6, v7}, Landroid/widget/FrameLayout$LayoutParams;->setMargins(IIII)V
 
-    :cond_0
-    return-void
-
-    .end local v0    # "custom":Landroid/widget/FrameLayout;
-    .end local v2    # "flp":Landroid/widget/FrameLayout$LayoutParams;
-    .end local v3    # "hasEditTextCount":I
     :cond_1
-    move v4, v5
-
-    goto :goto_0
+    return-void
 .end method
 
 .method private setupTitle()V
-    .locals 7
+    .locals 8
 
     .prologue
     const/4 v3, 0x1
 
-    const/16 v6, 0x8
+    const/16 v7, 0x8
 
     const/4 v4, 0x0
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v5, "topPanel"
+    const-string v5, "id"
 
-    invoke-static {v4, v5}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v6, "topPanel"
+
+    invoke-static {v5, v6}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v5
 
@@ -3314,9 +3302,11 @@
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v5, "title_template"
+    const-string v5, "id"
 
-    invoke-static {v4, v5}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v6, "title_template"
+
+    invoke-static {v5, v6}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v5
 
@@ -3343,7 +3333,7 @@
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const v5, 0x1020006
+    const v5, #android:id@icon#t
 
     invoke-virtual {v2, v5}, Landroid/view/Window;->findViewById(I)Landroid/view/View;
 
@@ -3355,9 +3345,11 @@
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v5, "contentPanel"
+    const-string v5, "id"
 
-    invoke-static {v4, v5}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v6, "contentPanel"
+
+    invoke-static {v5, v6}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v5
 
@@ -3371,9 +3363,11 @@
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v5, "buttonPanel"
+    const-string v5, "id"
 
-    invoke-static {v4, v5}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v6, "buttonPanel"
+
+    invoke-static {v5, v6}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v5
 
@@ -3399,14 +3393,16 @@
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mIconView:Landroid/widget/ImageView;
 
-    invoke-virtual {v2, v6}, Landroid/widget/ImageView;->setVisibility(I)V
+    invoke-virtual {v2, v7}, Landroid/widget/ImageView;->setVisibility(I)V
 
     :cond_0
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mTopPanel:Landroid/widget/LinearLayout;
 
-    const-string v3, "titleDividerTop"
+    const-string v3, "id"
 
-    invoke-static {v4, v3}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v4, "titleDividerTop"
+
+    invoke-static {v3, v4}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v3
 
@@ -3418,9 +3414,11 @@
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mTopPanel:Landroid/widget/LinearLayout;
 
-    const-string v3, "titleDivider"
+    const-string v3, "id"
 
-    invoke-static {v4, v3}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v4, "titleDivider"
+
+    invoke-static {v3, v4}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v3
 
@@ -3436,7 +3434,7 @@
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mTitleDividerTop:Landroid/view/View;
 
-    invoke-virtual {v2, v6}, Landroid/view/View;->setVisibility(I)V
+    invoke-virtual {v2, v7}, Landroid/view/View;->setVisibility(I)V
 
     :cond_1
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mTitleDivider:Landroid/view/View;
@@ -3445,7 +3443,7 @@
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mTitleDivider:Landroid/view/View;
 
-    invoke-virtual {v2, v6}, Landroid/view/View;->setVisibility(I)V
+    invoke-virtual {v2, v7}, Landroid/view/View;->setVisibility(I)V
 
     :cond_2
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mTitle:Ljava/lang/CharSequence;
@@ -3464,9 +3462,11 @@
 
     iget-object v2, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v3, "alertTitle"
+    const-string v3, "id"
 
-    invoke-static {v4, v3}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v4, "alertTitle"
+
+    invoke-static {v3, v4}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v3
 
@@ -3522,7 +3522,7 @@
 
     iget-object v3, p0, Lcom/android/internal/app/AlertControllerExt;->mContext:Landroid/content/Context;
 
-    const v4, 0x10301b3
+    const v4, #android:style@TextAppearance.DeviceDefault.Small#t
 
     invoke-virtual {v2, v3, v4}, Landroid/widget/TextView;->setTextAppearance(Landroid/content/Context;I)V
 
@@ -3542,6 +3542,8 @@
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setGravity(I)V
 
     goto :goto_3
+
+    nop
 
     :sswitch_data_0
     .sparse-switch
@@ -3610,15 +3612,11 @@
 
     move-result-object v20
 
-    const-string v21, "status_bar_height"
+    const-string v21, "dimen"
 
-    const/16 v22, 0x1
+    const-string v22, "status_bar_height"
 
-    move/from16 v0, v22
-
-    move-object/from16 v1, v21
-
-    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    invoke-static/range {v21 .. v22}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v21
 
@@ -3641,15 +3639,11 @@
 
     move-object/from16 v20, v0
 
-    const-string v21, "parentPanel"
+    const-string v21, "id"
 
-    const/16 v22, 0x0
+    const-string v22, "parentPanel"
 
-    move/from16 v0, v22
-
-    move-object/from16 v1, v21
-
-    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    invoke-static/range {v21 .. v22}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v21
 
@@ -3759,15 +3753,11 @@
 
     move-object/from16 v20, v0
 
-    const-string v21, "extractArea"
+    const-string v21, "id"
 
-    const/16 v22, 0x0
+    const-string v22, "extractArea"
 
-    move/from16 v0, v22
-
-    move-object/from16 v1, v21
-
-    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    invoke-static/range {v21 .. v22}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v21
 
@@ -4757,8 +4747,6 @@
     .param p1, "width"    # I
 
     .prologue
-    const/4 v12, 0x0
-
     iput p1, p0, Lcom/android/internal/app/AlertControllerExt;->mWidth:I
 
     iget-object v10, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
@@ -4774,9 +4762,11 @@
     :cond_0
     iget-object v10, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v11, "mask"
+    const-string v11, "id"
 
-    invoke-static {v12, v11}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v12, "mask"
+
+    invoke-static {v11, v12}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v11
 
@@ -4787,9 +4777,11 @@
     .local v5, "idView":Landroid/view/View;
     iget-object v10, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v11, "parentPanel"
+    const-string v11, "id"
 
-    invoke-static {v12, v11}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v12, "parentPanel"
+
+    invoke-static {v11, v12}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v11
 
@@ -4851,9 +4843,11 @@
     :cond_2
     iget-object v10, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const-string v11, "buttonPanel"
+    const-string v11, "id"
 
-    invoke-static {v12, v11}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v12, "buttonPanel"
+
+    invoke-static {v11, v12}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v11
 
@@ -4932,7 +4926,7 @@
 
     iget-object v0, p0, Lcom/android/internal/app/AlertControllerExt;->mWindow:Landroid/view/Window;
 
-    const v1, 0x102002e
+    const v1, #android:id@mask#t
 
     invoke-virtual {v0, v1}, Landroid/view/Window;->findViewById(I)Landroid/view/View;
 

@@ -58,11 +58,11 @@
 
     const/4 v11, 0x3
 
-    const/4 v10, 0x1
+    const/4 v10, 0x2
+
+    const/4 v9, 0x1
 
     const/4 v2, 0x0
-
-    const/4 v9, 0x2
 
     new-instance v0, Lcom/android/internal/app/MzResolverActivity$ActionTitle;
 
@@ -70,15 +70,19 @@
 
     const-string v3, "android.intent.action.VIEW"
 
-    const-string v4, "whichViewApplication"
+    const-string v4, "string"
 
-    invoke-static {v9, v4}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v5, "whichViewApplication"
+
+    invoke-static {v4, v5}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v4
 
-    const-string v5, "whichViewApplicationNamed"
+    const-string v5, "string"
 
-    invoke-static {v9, v5}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v6, "whichViewApplicationNamed"
+
+    invoke-static {v5, v6}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v5
 
@@ -92,19 +96,23 @@
 
     const-string v6, "android.intent.action.EDIT"
 
-    const-string v0, "whichEditApplication"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichEditApplication"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v7
 
-    const-string v0, "whichEditApplicationNamed"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichEditApplicationNamed"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v8
 
-    move v5, v10
+    move v5, v9
 
     invoke-direct/range {v3 .. v8}, Lcom/android/internal/app/MzResolverActivity$ActionTitle;-><init>(Ljava/lang/String;ILjava/lang/String;II)V
 
@@ -116,19 +124,23 @@
 
     const-string v6, "android.intent.action.SEND"
 
-    const-string v0, "whichSendApplication"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichSendApplication"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v7
 
-    const-string v0, "whichSendApplicationNamed"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichSendApplicationNamed"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v8
 
-    move v5, v9
+    move v5, v10
 
     invoke-direct/range {v3 .. v8}, Lcom/android/internal/app/MzResolverActivity$ActionTitle;-><init>(Ljava/lang/String;ILjava/lang/String;II)V
 
@@ -140,15 +152,19 @@
 
     const-string v6, "android.intent.action.SENDTO"
 
-    const-string v0, "whichSendApplication"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichSendApplication"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v7
 
-    const-string v0, "whichSendApplicationNamed"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichSendApplicationNamed"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v8
 
@@ -164,15 +180,19 @@
 
     const-string v6, "android.intent.action.SEND_MULTIPLE"
 
-    const-string v0, "whichSendApplication"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichSendApplication"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v7
 
-    const-string v0, "whichSendApplicationNamed"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichSendApplicationNamed"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v8
 
@@ -186,15 +206,19 @@
 
     const-string v4, "DEFAULT"
 
-    const-string v0, "whichApplication"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichApplication"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v7
 
-    const-string v0, "whichApplicationNamed"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichApplicationNamed"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v8
 
@@ -212,15 +236,19 @@
 
     const-string v6, "android.intent.action.MAIN"
 
-    const-string v0, "whichHomeApplication"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichHomeApplication"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v7
 
-    const-string v0, "whichHomeApplicationNamed"
+    const-string v0, "string"
 
-    invoke-static {v9, v0}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v1, "whichHomeApplicationNamed"
+
+    invoke-static {v0, v1}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v8
 
@@ -240,11 +268,11 @@
 
     sget-object v1, Lcom/android/internal/app/MzResolverActivity$ActionTitle;->EDIT:Lcom/android/internal/app/MzResolverActivity$ActionTitle;
 
-    aput-object v1, v0, v10
+    aput-object v1, v0, v9
 
     sget-object v1, Lcom/android/internal/app/MzResolverActivity$ActionTitle;->SEND:Lcom/android/internal/app/MzResolverActivity$ActionTitle;
 
-    aput-object v1, v0, v9
+    aput-object v1, v0, v10
 
     sget-object v1, Lcom/android/internal/app/MzResolverActivity$ActionTitle;->SENDTO:Lcom/android/internal/app/MzResolverActivity$ActionTitle;
 

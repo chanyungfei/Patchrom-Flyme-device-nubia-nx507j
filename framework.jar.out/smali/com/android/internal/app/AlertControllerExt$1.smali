@@ -47,10 +47,10 @@
 
 # virtual methods
 .method public onPreDraw()Z
-    .locals 14
+    .locals 15
 
     .prologue
-    const/4 v13, 0x0
+    const/4 v14, 0x0
 
     iget-object v11, p0, Lcom/android/internal/app/AlertControllerExt$1;->val$parentPanel:Landroid/widget/LinearLayout;
 
@@ -67,9 +67,11 @@
 
     move-result-object v11
 
-    const-string v12, "buttonPanel"
+    const-string v12, "id"
 
-    invoke-static {v13, v12}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v13, "buttonPanel"
+
+    invoke-static {v12, v13}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v12
 
@@ -86,9 +88,11 @@
 
     move-result-object v11
 
-    const-string v12, "contentPanel"
+    const-string v12, "id"
 
-    invoke-static {v13, v12}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v13, "contentPanel"
+
+    invoke-static {v12, v13}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v12
 
@@ -105,9 +109,11 @@
 
     move-result-object v11
 
-    const-string v12, "topPanel"
+    const-string v12, "id"
 
-    invoke-static {v13, v12}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v13, "topPanel"
+
+    invoke-static {v12, v13}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v12
 
@@ -124,9 +130,11 @@
 
     move-result-object v11
 
-    const-string v12, "extractArea"
+    const-string v12, "id"
 
-    invoke-static {v13, v12}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v13, "extractArea"
+
+    invoke-static {v12, v13}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v12
 
@@ -227,7 +235,7 @@
 
     sub-int/2addr v11, v1
 
-    invoke-static {v13, v11}, Ljava/lang/Math;->max(II)I
+    invoke-static {v14, v11}, Ljava/lang/Math;->max(II)I
 
     move-result v7
 
@@ -251,7 +259,7 @@
     goto :goto_0
 
     :cond_1
-    invoke-virtual {v2, v13}, Lcom/meizu/widget/LimitedHeightLinearLayout;->setMaxHeight(I)V
+    invoke-virtual {v2, v14}, Lcom/meizu/widget/LimitedHeightLinearLayout;->setMaxHeight(I)V
 
     goto :goto_1
 .end method

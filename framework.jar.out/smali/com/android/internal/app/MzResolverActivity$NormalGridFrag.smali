@@ -530,12 +530,10 @@
 .end method
 
 .method private initViewPager()V
-    .locals 13
+    .locals 12
 
     .prologue
-    const/16 v12, 0x1e
-
-    const/4 v11, 0x2
+    const/16 v11, 0x1e
 
     const/4 v10, 0x1
 
@@ -843,7 +841,7 @@
 
     invoke-virtual {v6, v4}, Landroid/widget/GridView;->setBackgroundColor(I)V
 
-    invoke-virtual {v6, v12, v4, v12, v4}, Landroid/widget/GridView;->setPadding(IIII)V
+    invoke-virtual {v6, v11, v4, v11, v4}, Landroid/widget/GridView;->setPadding(IIII)V
 
     const/16 v1, 0xf
 
@@ -851,7 +849,9 @@
 
     invoke-virtual {v6, v10}, Landroid/widget/GridView;->setGravity(I)V
 
-    invoke-virtual {v6, v11}, Landroid/widget/GridView;->setStretchMode(I)V
+    const/4 v1, 0x2
+
+    invoke-virtual {v6, v1}, Landroid/widget/GridView;->setStretchMode(I)V
 
     new-instance v1, Landroid/graphics/drawable/ColorDrawable;
 
@@ -900,9 +900,11 @@
 
     move-result-object v2
 
-    const-string v5, "noApplications"
+    const-string v5, "string"
 
-    invoke-static {v11, v5}, Lcom/meizu/util/InternalResUtils;->getInternalResId(ILjava/lang/String;)I
+    const-string v10, "noApplications"
+
+    invoke-static {v5, v10}, Lcom/meizu/util/InternalResUtils;->getInternalResId(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v5
 
