@@ -1118,8 +1118,6 @@
 
     invoke-direct {p0}, Lcom/android/server/shrinker/LowMemoryScanner;->killList()V
 
-    invoke-direct {p0}, Lcom/android/server/shrinker/LowMemoryScanner;->scheduleTrimMemory()V
-
     iget-object v0, p0, Lcom/android/server/shrinker/LowMemoryScanner;->mRunningAppList:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
