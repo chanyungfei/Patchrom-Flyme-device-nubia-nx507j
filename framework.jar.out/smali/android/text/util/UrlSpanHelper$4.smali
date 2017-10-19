@@ -78,7 +78,7 @@
     invoke-direct {v1, v2, v3}, Landroid/content/Intent;-><init>(Ljava/lang/String;Landroid/net/Uri;)V
 
     .local v1, "intent":Landroid/content/Intent;
-    invoke-static {v0, v1}, Landroid/text/util/UrlSpanHelper;->-wrap10(Landroid/content/Context;Landroid/content/Intent;)V
+    invoke-static {v0, v1}, Landroid/text/util/UrlSpanHelper;->-wrap9(Landroid/content/Context;Landroid/content/Intent;)V
 
     goto :goto_0
 
@@ -105,7 +105,7 @@
     invoke-direct {v1, v2, v3}, Landroid/content/Intent;-><init>(Ljava/lang/String;Landroid/net/Uri;)V
 
     .restart local v1    # "intent":Landroid/content/Intent;
-    invoke-static {v0, v1}, Landroid/text/util/UrlSpanHelper;->-wrap10(Landroid/content/Context;Landroid/content/Intent;)V
+    invoke-static {v0, v1}, Landroid/text/util/UrlSpanHelper;->-wrap9(Landroid/content/Context;Landroid/content/Intent;)V
 
     goto :goto_0
 
@@ -115,7 +115,7 @@
 
     iget-object v3, p0, Landroid/text/util/UrlSpanHelper$4;->val$widget:Landroid/view/View;
 
-    invoke-static {v2, v3}, Landroid/text/util/UrlSpanHelper;->-wrap8(Ljava/lang/CharSequence;Landroid/view/View;)V
+    invoke-static {v2, v3}, Landroid/text/util/UrlSpanHelper;->-wrap7(Ljava/lang/CharSequence;Landroid/view/View;)V
 
     goto :goto_0
 
@@ -135,7 +135,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/CharSequence;)Landroid/content/Intent;
 
-    invoke-static {v0, v1}, Landroid/text/util/UrlSpanHelper;->-wrap10(Landroid/content/Context;Landroid/content/Intent;)V
+    invoke-static {v0, v1}, Landroid/text/util/UrlSpanHelper;->-wrap9(Landroid/content/Context;Landroid/content/Intent;)V
 
     goto :goto_0
 
@@ -158,7 +158,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/CharSequence;)Landroid/content/Intent;
 
-    invoke-static {v0, v1}, Landroid/text/util/UrlSpanHelper;->-wrap10(Landroid/content/Context;Landroid/content/Intent;)V
+    invoke-static {v0, v1}, Landroid/text/util/UrlSpanHelper;->-wrap9(Landroid/content/Context;Landroid/content/Intent;)V
 
     goto :goto_0
 

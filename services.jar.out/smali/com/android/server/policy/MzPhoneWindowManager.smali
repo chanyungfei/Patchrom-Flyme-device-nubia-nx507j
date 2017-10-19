@@ -77,6 +77,8 @@
 
 
 # instance fields
+.field private final ACTION_SHOW_MEIZU_PAY_PAGE:Ljava/lang/String;
+
 .field private final Back_GESTURE_KEY_CLICK_TIMEOUT:I
 
 .field private final FINGERKEY_HOMEKEY_TIMEOUT:J
@@ -88,6 +90,8 @@
 .field private final MSG_ENABLE_POINTER_LOCATION:I
 
 .field private final MSG_SEND_BACK_KEY:I
+
+.field private final PKG_MEIZU_NFC_PAY:Ljava/lang/String;
 
 .field private final PLAY_TOUCH_HOME_AUDIO:I
 
@@ -330,7 +334,7 @@
 .method static synthetic -wrap8(Lcom/android/server/policy/MzPhoneWindowManager;)V
     .locals 0
 
-    invoke-direct {p0}, Lcom/android/server/policy/MzPhoneWindowManager;->playHomeEffect()V
+    invoke-direct {p0}, Lcom/android/server/policy/MzPhoneWindowManager;->onGameModeDisableBackChanged()V
 
     return-void
 .end method
@@ -423,6 +427,14 @@
 
     iput v2, p0, Lcom/android/server/policy/MzPhoneWindowManager;->mFlymeVersionSettingUp:I
 
+    const-string v0, "com.meizu.mznfcpay"
+
+    iput-object v0, p0, Lcom/android/server/policy/MzPhoneWindowManager;->PKG_MEIZU_NFC_PAY:Ljava/lang/String;
+
+    const-string v0, "com.meizu.mznfcpay.SHOW_PAY_PAGE_ACTION"
+
+    iput-object v0, p0, Lcom/android/server/policy/MzPhoneWindowManager;->ACTION_SHOW_MEIZU_PAY_PAGE:Ljava/lang/String;
+
     new-instance v0, Lcom/android/server/policy/MzPhoneWindowManager$1;
 
     invoke-direct {v0, p0}, Lcom/android/server/policy/MzPhoneWindowManager$1;-><init>(Lcom/android/server/policy/MzPhoneWindowManager;)V
@@ -505,7 +517,9 @@
 
     invoke-direct {p0}, Lcom/android/server/policy/MzPhoneWindowManager;->onFlymeVersionSettingUpChanged()V
 
-    invoke-direct {p0}, Lcom/android/server/policy/MzPhoneWindowManager;->registerFlymeVersionSettingUpObserver()V
+    invoke-direct {p0}, Lcom/android/server/policy/MzPhoneWindowManager;->registerSettingsObserver()V
+
+    invoke-direct {p0}, Lcom/android/server/policy/MzPhoneWindowManager;->onGameModeDisableBackChanged()V
 
     return-void
 .end method
@@ -1206,30 +1220,6 @@
 
     iput v0, p0, Lcom/android/server/policy/MzPhoneWindowManager;->mFlymeVersionSettingUp:I
 
-    iget-object v0, p0, Lcom/android/server/policy/MzPhoneWindowManager;->TAG:Ljava/lang/String;
-
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v2, "onFlymeVersionSettingUpChanged mFlymeVersionSettingUp = "
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    iget v2, p0, Lcom/android/server/policy/MzPhoneWindowManager;->mFlymeVersionSettingUp:I
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
-
     return-void
 .end method
 
@@ -1324,40 +1314,6 @@
     .locals 0
 
     .prologue
-    return-void
-.end method
-
-.method private registerFlymeVersionSettingUpObserver()V
-    .locals 4
-
-    .prologue
-    iget-object v1, p0, Lcom/android/server/policy/MzPhoneWindowManager;->pw:Lcom/android/server/policy/PhoneWindowManager;
-
-    iget-object v1, v1, Lcom/android/server/policy/PhoneWindowManager;->mContext:Landroid/content/Context;
-
-    invoke-virtual {v1}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
-
-    move-result-object v0
-
-    .local v0, "resolver":Landroid/content/ContentResolver;
-    const-string v1, "flyme_version_setting_up"
-
-    invoke-static {v1}, Landroid/provider/Settings$System;->getUriFor(Ljava/lang/String;)Landroid/net/Uri;
-
-    move-result-object v1
-
-    new-instance v2, Lcom/android/server/policy/MzPhoneWindowManager$8;
-
-    new-instance v3, Landroid/os/Handler;
-
-    invoke-direct {v3}, Landroid/os/Handler;-><init>()V
-
-    invoke-direct {v2, p0, v3}, Lcom/android/server/policy/MzPhoneWindowManager$8;-><init>(Lcom/android/server/policy/MzPhoneWindowManager;Landroid/os/Handler;)V
-
-    const/4 v3, 0x0
-
-    invoke-virtual {v0, v1, v3, v2}, Landroid/content/ContentResolver;->registerContentObserver(Landroid/net/Uri;ZLandroid/database/ContentObserver;)V
-
     return-void
 .end method
 
@@ -3090,6 +3046,114 @@
     move-result-object v0
 
     invoke-virtual {v0}, Landroid/os/Message;->sendToTarget()V
+
+    return-void
+.end method
+
+.method static synthetic -wrap9(Lcom/android/server/policy/MzPhoneWindowManager;)V
+    .locals 0
+
+    invoke-direct {p0}, Lcom/android/server/policy/MzPhoneWindowManager;->playHomeEffect()V
+
+    return-void
+.end method
+
+.method private onGameModeDisableBackChanged()V
+    .locals 4
+
+    .prologue
+    const/4 v1, 0x0
+
+    iget-object v2, p0, Lcom/android/server/policy/MzPhoneWindowManager;->pw:Lcom/android/server/policy/PhoneWindowManager;
+
+    iget-object v2, v2, Lcom/android/server/policy/PhoneWindowManager;->mContext:Landroid/content/Context;
+
+    invoke-virtual {v2}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+
+    move-result-object v2
+
+    const-string v3, "mz_game_mode_disable_mback"
+
+    invoke-static {v2, v3, v1}, Landroid/provider/Settings$Secure;->getInt(Landroid/content/ContentResolver;Ljava/lang/String;I)I
+
+    move-result v2
+
+    const/4 v3, 0x1
+
+    if-ne v2, v3, :cond_0
+
+    const/4 v0, 0x1
+
+    .local v0, "disableBack":Z
+    :goto_0
+    iget-boolean v2, p0, Lcom/android/server/policy/MzPhoneWindowManager;->mGameMode:Z
+
+    if-eqz v2, :cond_1
+
+    .end local v0    # "disableBack":Z
+    :goto_1
+    iput-boolean v0, p0, Lcom/android/server/policy/MzPhoneWindowManager;->mDisableInGameMode:Z
+
+    return-void
+
+    :cond_0
+    const/4 v0, 0x0
+
+    .restart local v0    # "disableBack":Z
+    goto :goto_0
+
+    :cond_1
+    move v0, v1
+
+    goto :goto_1
+.end method
+
+.method private registerSettingsObserver()V
+    .locals 5
+
+    .prologue
+    const/4 v4, 0x0
+
+    iget-object v1, p0, Lcom/android/server/policy/MzPhoneWindowManager;->pw:Lcom/android/server/policy/PhoneWindowManager;
+
+    iget-object v1, v1, Lcom/android/server/policy/PhoneWindowManager;->mContext:Landroid/content/Context;
+
+    invoke-virtual {v1}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+
+    move-result-object v0
+
+    .local v0, "resolver":Landroid/content/ContentResolver;
+    const-string v1, "flyme_version_setting_up"
+
+    invoke-static {v1}, Landroid/provider/Settings$System;->getUriFor(Ljava/lang/String;)Landroid/net/Uri;
+
+    move-result-object v1
+
+    new-instance v2, Lcom/android/server/policy/MzPhoneWindowManager$8;
+
+    new-instance v3, Landroid/os/Handler;
+
+    invoke-direct {v3}, Landroid/os/Handler;-><init>()V
+
+    invoke-direct {v2, p0, v3}, Lcom/android/server/policy/MzPhoneWindowManager$8;-><init>(Lcom/android/server/policy/MzPhoneWindowManager;Landroid/os/Handler;)V
+
+    invoke-virtual {v0, v1, v4, v2}, Landroid/content/ContentResolver;->registerContentObserver(Landroid/net/Uri;ZLandroid/database/ContentObserver;)V
+
+    const-string v1, "mz_game_mode_disable_mback"
+
+    invoke-static {v1}, Landroid/provider/Settings$Secure;->getUriFor(Ljava/lang/String;)Landroid/net/Uri;
+
+    move-result-object v1
+
+    new-instance v2, Lcom/android/server/policy/MzPhoneWindowManager$9;
+
+    new-instance v3, Landroid/os/Handler;
+
+    invoke-direct {v3}, Landroid/os/Handler;-><init>()V
+
+    invoke-direct {v2, p0, v3}, Lcom/android/server/policy/MzPhoneWindowManager$9;-><init>(Lcom/android/server/policy/MzPhoneWindowManager;Landroid/os/Handler;)V
+
+    invoke-virtual {v0, v1, v4, v2}, Landroid/content/ContentResolver;->registerContentObserver(Landroid/net/Uri;ZLandroid/database/ContentObserver;)V
 
     return-void
 .end method

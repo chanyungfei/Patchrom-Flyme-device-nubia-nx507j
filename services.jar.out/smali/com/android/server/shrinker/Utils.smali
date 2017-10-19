@@ -205,9 +205,9 @@
     move-result v3
 
     .local v3, "total":I
-    if-lt v3, v7, :cond_2
+    if-le v3, v7, :cond_2
 
-    const v1, 0x7d000
+    const v1, 0xc8000
 
     :goto_3
     const-string v4, "persist.sys.shrink_mem_level"
@@ -258,15 +258,22 @@
     .restart local v1    # "defaultLowSize":I
     .restart local v3    # "total":I
     :cond_2
+    if-ne v3, v7, :cond_3
+
+    const v1, 0x7d000
+
+    goto :goto_3
+
+    :cond_3
     const/4 v4, 0x3
 
-    if-ne v3, v4, :cond_3
+    if-ne v3, v4, :cond_4
 
     const v1, 0x64000
 
     goto :goto_3
 
-    :cond_3
+    :cond_4
     const v1, 0x3e800
 
     goto :goto_3

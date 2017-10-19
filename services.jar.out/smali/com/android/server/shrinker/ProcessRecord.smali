@@ -230,6 +230,23 @@
     return-void
 
     :cond_1
+    iget v1, p0, Lcom/android/server/shrinker/ProcessRecord;->pid:I
+
+    invoke-static {v1}, Landroid/os/Process;->getUidForPid(I)I
+
+    move-result v1
+
+    iget-object v2, p0, Lcom/android/server/shrinker/ProcessRecord;->parent:Lcom/android/server/shrinker/PackageRecord;
+
+    iget-object v2, v2, Lcom/android/server/shrinker/PackageRecord;->info:Landroid/content/pm/ApplicationInfo;
+
+    iget v2, v2, Landroid/content/pm/ApplicationInfo;->uid:I
+
+    if-eq v1, v2, :cond_2
+
+    return-void
+
+    :cond_2
     sget-object v0, Lcom/android/server/am/Ams_Interface;->AMS:Lcom/android/server/am/ActivityManagerService;
 
     .local v0, "sync":Ljava/lang/Object;

@@ -9,7 +9,8 @@
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
-        Lcom/android/server/notification/RankingControllerImpl$H;
+        Lcom/android/server/notification/RankingControllerImpl$H;,
+        Lcom/android/server/notification/RankingControllerImpl$1;
     }
 .end annotation
 
@@ -35,7 +36,7 @@
 
 .field private static final MSG_REMOVE:I = 0x7
 
-.field private static final PRUNE_MIN_DELAY_MS:J = 0x5265c00L
+.field private static final ONE_DAY_TIME:J = 0x5265c00L
 
 .field private static SCORE_SCALE:F = 0.0f
 
@@ -73,88 +74,11 @@
 
 .field private final mHandler:Lcom/android/server/notification/RankingControllerImpl$H;
 
-.field private mLastClearTime:J
-
-.field private mLastUpdateTime:J
-
 .field mNotificationFirewall:Lcom/android/server/notification/NotificationFirewall;
 
+.field private mRecordCurrentTime:J
 
-# direct methods
-.method static synthetic -get0()Ljava/lang/String;
-    .locals 1
-
-    sget-object v0, Lcom/android/server/notification/RankingControllerImpl;->TAG:Ljava/lang/String;
-
-    return-object v0
-.end method
-
-.method static synthetic -get1(Lcom/android/server/notification/RankingControllerImpl;)Landroid/util/ArrayMap;
-    .locals 1
-
-    iget-object v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
-
-    return-object v0
-.end method
-
-.method static synthetic -get2(Lcom/android/server/notification/RankingControllerImpl;)Landroid/util/ArrayMap;
-    .locals 1
-
-    iget-object v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppResultMap:Landroid/util/ArrayMap;
-
-    return-object v0
-.end method
-
-.method static synthetic -get3(Lcom/android/server/notification/RankingControllerImpl;)Lcom/flyme/server/notfication/DatabaseHelper;
-    .locals 1
-
-    iget-object v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mDataHelper:Lcom/flyme/server/notfication/DatabaseHelper;
-
-    return-object v0
-.end method
-
-.method static synthetic -wrap0(Lcom/android/server/notification/RankingControllerImpl;Lcom/android/server/notification/NotificationRecord;I)Lmeizu/notification/RankingDaily;
-    .locals 1
-    .param p1, "r"    # Lcom/android/server/notification/NotificationRecord;
-    .param p2, "eventType"    # I
-
-    .prologue
-    invoke-direct {p0, p1, p2}, Lcom/android/server/notification/RankingControllerImpl;->parseNotificationRecord(Lcom/android/server/notification/NotificationRecord;I)Lmeizu/notification/RankingDaily;
-
-    move-result-object v0
-
-    return-object v0
-.end method
-
-.method static synthetic -wrap1(Lcom/android/server/notification/RankingControllerImpl;)V
-    .locals 0
-
-    invoke-direct {p0}, Lcom/android/server/notification/RankingControllerImpl;->computingDailyResult()V
-
-    return-void
-.end method
-
-.method static synthetic -wrap2(Lcom/android/server/notification/RankingControllerImpl;Lmeizu/notification/RankingDaily;Z)V
-    .locals 0
-    .param p1, "RankingDaily"    # Lmeizu/notification/RankingDaily;
-    .param p2, "addMode"    # Z
-
-    .prologue
-    invoke-direct {p0, p1, p2}, Lcom/android/server/notification/RankingControllerImpl;->updateAppDaily(Lmeizu/notification/RankingDaily;Z)V
-
-    return-void
-.end method
-
-.method static synthetic -wrap3(Lcom/android/server/notification/RankingControllerImpl;ILmeizu/notification/RankingDaily;)V
-    .locals 0
-    .param p1, "eventType"    # I
-    .param p2, "rankingDaily"    # Lmeizu/notification/RankingDaily;
-
-    .prologue
-    invoke-direct {p0, p1, p2}, Lcom/android/server/notification/RankingControllerImpl;->writeEvent(ILmeizu/notification/RankingDaily;)V
-
-    return-void
-.end method
+.field private mTimeSetReceive:Landroid/content/BroadcastReceiver;
 
 .method static constructor <clinit>()V
     .locals 1
@@ -197,19 +121,13 @@
 
     move-result-wide v0
 
-    iput-wide v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mLastClearTime:J
+    iput-wide v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mRecordCurrentTime:J
 
-    iget-wide v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mLastClearTime:J
+    new-instance v0, Lcom/android/server/notification/RankingControllerImpl$1;
 
-    invoke-static {v0, v1}, Lcom/flyme/server/notfication/MyDateUtils;->getDate(J)Ljava/lang/Long;
+    invoke-direct {v0, p0}, Lcom/android/server/notification/RankingControllerImpl$1;-><init>(Lcom/android/server/notification/RankingControllerImpl;)V
 
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/Long;->longValue()J
-
-    move-result-wide v0
-
-    iput-wide v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mLastUpdateTime:J
+    iput-object v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mTimeSetReceive:Landroid/content/BroadcastReceiver;
 
     new-instance v0, Lcom/flyme/server/notfication/DatabaseHelper;
 
@@ -229,270 +147,8 @@
 
     invoke-direct {p0, v0, v2}, Lcom/android/server/notification/RankingControllerImpl;->sendHandlerMessage(ILjava/lang/Object;)V
 
-    return-void
-.end method
+    invoke-direct {p0, p1}, Lcom/android/server/notification/RankingControllerImpl;->initTimeSetReceive(Landroid/content/Context;)V
 
-.method private computingDailyResult()V
-    .locals 7
-
-    .prologue
-    iget-object v4, p0, Lcom/android/server/notification/RankingControllerImpl;->mDataHelper:Lcom/flyme/server/notfication/DatabaseHelper;
-
-    invoke-virtual {v4}, Lcom/flyme/server/notfication/DatabaseHelper;->getMustUpdateDate()Ljava/util/List;
-
-    move-result-object v3
-
-    .local v3, "list":Ljava/util/List;, "Ljava/util/List<Ljava/lang/Long;>;"
-    sget-object v4, Lcom/android/server/notification/RankingControllerImpl;->TAG:Ljava/lang/String;
-
-    new-instance v5, Ljava/lang/StringBuilder;
-
-    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, "computingDailyResult list size="
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-interface {v3}, Ljava/util/List;->size()I
-
-    move-result v6
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v5
-
-    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v5
-
-    invoke-static {v4, v5}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
-
-    invoke-interface {v3}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
-
-    move-result-object v2
-
-    .local v2, "item$iterator":Ljava/util/Iterator;
-    :goto_0
-    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v4
-
-    if-eqz v4, :cond_0
-
-    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v4
-
-    check-cast v4, Ljava/lang/Long;
-
-    invoke-virtual {v4}, Ljava/lang/Long;->longValue()J
-
-    move-result-wide v0
-
-    .local v0, "item":J
-    invoke-direct {p0, v0, v1}, Lcom/android/server/notification/RankingControllerImpl;->computingDailyResult(J)V
-
-    goto :goto_0
-
-    .end local v0    # "item":J
-    :cond_0
-    return-void
-.end method
-
-.method private computingDailyResult(J)V
-    .locals 7
-    .param p1, "updateDate"    # J
-
-    .prologue
-    sget-object v1, Lcom/android/server/notification/RankingControllerImpl;->TAG:Ljava/lang/String;
-
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v3, "computingDailyResult updateDate"
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    new-instance v3, Ljava/util/Date;
-
-    invoke-direct {v3, p1, p2}, Ljava/util/Date;-><init>(J)V
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-static {v1, v2}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
-
-    iget-object v1, p0, Lcom/android/server/notification/RankingControllerImpl;->mDataHelper:Lcom/flyme/server/notfication/DatabaseHelper;
-
-    const-string v2, "update_date=?"
-
-    const/4 v3, 0x1
-
-    new-array v3, v3, [Ljava/lang/String;
-
-    invoke-static {p1, p2}, Ljava/lang/String;->valueOf(J)Ljava/lang/String;
-
-    move-result-object v4
-
-    const/4 v5, 0x0
-
-    aput-object v4, v3, v5
-
-    const/4 v4, 0x0
-
-    invoke-virtual {v1, v2, v3, v4}, Lcom/flyme/server/notfication/DatabaseHelper;->queryDaily(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;)Ljava/util/List;
-
-    move-result-object v0
-
-    .local v0, "dailyList":Ljava/util/List;, "Ljava/util/List<Lmeizu/notification/RankingDaily;>;"
-    invoke-direct {p0, v0}, Lcom/android/server/notification/RankingControllerImpl;->computingDailyResult(Ljava/util/List;)V
-
-    return-void
-.end method
-
-.method private computingDailyResult(Ljava/util/List;)V
-    .locals 7
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "(",
-            "Ljava/util/List",
-            "<",
-            "Lmeizu/notification/RankingDaily;",
-            ">;)V"
-        }
-    .end annotation
-
-    .prologue
-    .local p1, "dailyList":Ljava/util/List;, "Ljava/util/List<Lmeizu/notification/RankingDaily;>;"
-    const/4 v6, 0x0
-
-    new-instance v2, Lcom/android/server/notification/RankingControllerImpl$1;
-
-    invoke-direct {v2, p0}, Lcom/android/server/notification/RankingControllerImpl$1;-><init>(Lcom/android/server/notification/RankingControllerImpl;)V
-
-    invoke-static {p1, v2}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
-
-    const/4 v1, 0x0
-
-    .local v1, "i":I
-    :goto_0
-    invoke-interface {p1}, Ljava/util/List;->size()I
-
-    move-result v2
-
-    if-ge v1, v2, :cond_0
-
-    invoke-interface {p1, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Lmeizu/notification/RankingDaily;
-
-    iput v1, v2, Lmeizu/notification/RankingDaily;->send_ranking:I
-
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_0
-
-    :cond_0
-    new-instance v2, Lcom/android/server/notification/RankingControllerImpl$2;
-
-    invoke-direct {v2, p0}, Lcom/android/server/notification/RankingControllerImpl$2;-><init>(Lcom/android/server/notification/RankingControllerImpl;)V
-
-    invoke-static {p1, v2}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
-
-    const/4 v1, 0x0
-
-    :goto_1
-    invoke-interface {p1}, Ljava/util/List;->size()I
-
-    move-result v2
-
-    if-ge v1, v2, :cond_1
-
-    invoke-interface {p1, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lmeizu/notification/RankingDaily;
-
-    .local v0, "RankingDaily":Lmeizu/notification/RankingDaily;
-    iput v1, v0, Lmeizu/notification/RankingDaily;->click_ranking:I
-
-    invoke-interface {p1, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Lmeizu/notification/RankingDaily;
-
-    iget v2, v2, Lmeizu/notification/RankingDaily;->click_ranking:I
-
-    rsub-int/lit8 v2, v2, 0x64
-
-    invoke-static {v6, v2}, Ljava/lang/Math;->max(II)I
-
-    move-result v2
-
-    int-to-float v2, v2
-
-    sget v3, Lcom/android/server/notification/RankingControllerImpl;->SCORE_SCALE:F
-
-    mul-float/2addr v3, v2
-
-    invoke-interface {p1, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v2
-
-    check-cast v2, Lmeizu/notification/RankingDaily;
-
-    iget v2, v2, Lmeizu/notification/RankingDaily;->send_ranking:I
-
-    rsub-int/lit8 v2, v2, 0x64
-
-    invoke-static {v6, v2}, Ljava/lang/Math;->max(II)I
-
-    move-result v2
-
-    int-to-float v2, v2
-
-    sget v4, Lcom/android/server/notification/RankingControllerImpl;->SCORE_SCALE:F
-
-    const/high16 v5, 0x3f800000    # 1.0f
-
-    sub-float v4, v5, v4
-
-    mul-float/2addr v2, v4
-
-    add-float/2addr v2, v3
-
-    iput v2, v0, Lmeizu/notification/RankingDaily;->score:F
-
-    iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mDataHelper:Lcom/flyme/server/notfication/DatabaseHelper;
-
-    const/4 v3, 0x1
-
-    invoke-virtual {v2, v0, v3}, Lcom/flyme/server/notfication/DatabaseHelper;->insertOrUpdateDaily(Lmeizu/notification/RankingDaily;Z)J
-
-    move-result-wide v2
-
-    iput-wide v2, v0, Lmeizu/notification/RankingDaily;->key:J
-
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_1
-
-    .end local v0    # "RankingDaily":Lmeizu/notification/RankingDaily;
-    :cond_1
     return-void
 .end method
 
@@ -535,8 +191,6 @@
 
     iput v3, v0, Lmeizu/notification/RankingDaily;->removeNum:I
 
-    iput v3, v0, Lmeizu/notification/RankingDaily;->score_adjust:I
-
     packed-switch p2, :pswitch_data_0
 
     :goto_0
@@ -560,9 +214,9 @@
 
     iget-object v1, v1, Landroid/service/notification/StatusBarNotification;->mFlymeFilter:Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;
 
-    iget v1, v1, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->correct_score:F
+    iget v1, v1, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->score_scale:F
 
-    iput v1, v0, Lmeizu/notification/RankingDaily;->correct_score:F
+    iput v1, v0, Lmeizu/notification/RankingDaily;->score_scale:F
 
     iget-object v1, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
 
@@ -583,6 +237,12 @@
     return-object v0
 
     :pswitch_0
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v2
+
+    iput-wide v2, v0, Lmeizu/notification/RankingDaily;->postDate:J
+
     iget-object v1, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
 
     invoke-virtual {v1}, Landroid/service/notification/StatusBarNotification;->getPostTime()J
@@ -674,29 +334,11 @@
 
     iput-wide v2, p1, Lmeizu/notification/RankingDaily;->updateDate:J
 
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
-
-    iget-object v3, p1, Lmeizu/notification/RankingDaily;->packageName:Ljava/lang/String;
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    const-string v3, "$"
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
+    iget-object v2, p1, Lmeizu/notification/RankingDaily;->packageName:Ljava/lang/String;
 
     iget-object v3, p1, Lmeizu/notification/RankingDaily;->category:Ljava/lang/String;
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-direct {p0, v2, v3}, Lcom/android/server/notification/RankingControllerImpl;->getRankingDailyKey(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
@@ -753,9 +395,9 @@
 
     iput-object v2, p1, Lmeizu/notification/RankingDaily;->category:Ljava/lang/String;
 
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
+    iget v2, v1, Lmeizu/notification/RankingDaily;->score_scale:F
 
-    iput v2, p1, Lmeizu/notification/RankingDaily;->score_adjust:I
+    iput v2, p1, Lmeizu/notification/RankingDaily;->score_scale:F
 
     iget v2, v1, Lmeizu/notification/RankingDaily;->notification_priority:I
 
@@ -804,48 +446,16 @@
 .end method
 
 .method private writeEvent(ILmeizu/notification/RankingDaily;)V
-    .locals 8
+    .locals 6
     .param p1, "eventType"    # I
     .param p2, "rankingDaily"    # Lmeizu/notification/RankingDaily;
 
     .prologue
-    const/4 v5, 0x1
-
-    iget-wide v2, p2, Lmeizu/notification/RankingDaily;->updateDate:J
-
-    invoke-static {v2, v3}, Lcom/flyme/server/notfication/MyDateUtils;->getDate(J)Ljava/lang/Long;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/Long;->longValue()J
-
-    move-result-wide v2
-
-    iput-wide v2, p2, Lmeizu/notification/RankingDaily;->updateDate:J
-
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
-
-    iget-object v3, p2, Lmeizu/notification/RankingDaily;->packageName:Ljava/lang/String;
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    const-string v3, "$"
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
+    iget-object v2, p2, Lmeizu/notification/RankingDaily;->packageName:Ljava/lang/String;
 
     iget-object v3, p2, Lmeizu/notification/RankingDaily;->category:Ljava/lang/String;
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-direct {p0, v2, v3}, Lcom/android/server/notification/RankingControllerImpl;->getRankingDailyKey(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
@@ -856,7 +466,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_2
+    if-eqz v2, :cond_1
 
     iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
 
@@ -867,9 +477,8 @@
     check-cast v1, Lmeizu/notification/RankingDaily;
 
     .local v1, "oldDaily":Lmeizu/notification/RankingDaily;
-    :cond_0
     :goto_0
-    if-eqz v1, :cond_1
+    if-eqz v1, :cond_0
 
     iget-wide v2, v1, Lmeizu/notification/RankingDaily;->key:J
 
@@ -877,7 +486,7 @@
 
     packed-switch p1, :pswitch_data_0
 
-    :cond_1
+    :cond_0
     :goto_1
     iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
 
@@ -885,7 +494,9 @@
 
     iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mDataHelper:Lcom/flyme/server/notfication/DatabaseHelper;
 
-    invoke-virtual {v2, p2, v5}, Lcom/flyme/server/notfication/DatabaseHelper;->insertOrUpdateDaily(Lmeizu/notification/RankingDaily;Z)J
+    const/4 v3, 0x1
+
+    invoke-virtual {v2, p2, v3}, Lcom/flyme/server/notfication/DatabaseHelper;->insertOrUpdateDaily(Lmeizu/notification/RankingDaily;Z)J
 
     move-result-wide v2
 
@@ -896,44 +507,18 @@
     return-void
 
     .end local v1    # "oldDaily":Lmeizu/notification/RankingDaily;
-    :cond_2
+    :cond_1
     iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mDataHelper:Lcom/flyme/server/notfication/DatabaseHelper;
 
     iget-object v3, p2, Lmeizu/notification/RankingDaily;->packageName:Ljava/lang/String;
 
     iget-object v4, p2, Lmeizu/notification/RankingDaily;->category:Ljava/lang/String;
 
-    iget-wide v6, p2, Lmeizu/notification/RankingDaily;->updateDate:J
-
-    invoke-virtual {v2, v3, v4, v6, v7}, Lcom/flyme/server/notfication/DatabaseHelper;->getDaily(Ljava/lang/String;Ljava/lang/String;J)Lmeizu/notification/RankingDaily;
+    invoke-virtual {v2, v3, v4}, Lcom/flyme/server/notfication/DatabaseHelper;->getDaily(Ljava/lang/String;Ljava/lang/String;)Lmeizu/notification/RankingDaily;
 
     move-result-object v1
 
     .restart local v1    # "oldDaily":Lmeizu/notification/RankingDaily;
-    if-eqz v1, :cond_0
-
-    if-ne p1, v5, :cond_0
-
-    iget v2, p2, Lmeizu/notification/RankingDaily;->correct_score:F
-
-    iget v3, v1, Lmeizu/notification/RankingDaily;->correct_score:F
-
-    cmpl-float v2, v2, v3
-
-    if-eqz v2, :cond_0
-
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score:F
-
-    iget v3, v1, Lmeizu/notification/RankingDaily;->correct_score:F
-
-    sub-float/2addr v2, v3
-
-    iget v3, p2, Lmeizu/notification/RankingDaily;->correct_score:F
-
-    add-float/2addr v2, v3
-
-    iput v2, p2, Lmeizu/notification/RankingDaily;->score:F
-
     goto :goto_0
 
     :pswitch_0
@@ -953,33 +538,19 @@
 
     iput v2, p2, Lmeizu/notification/RankingDaily;->removeNum:I
 
-    iget v2, p2, Lmeizu/notification/RankingDaily;->notification_priority:I
+    iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mNotificationFirewall:Lcom/android/server/notification/NotificationFirewall;
 
-    iget v3, v1, Lmeizu/notification/RankingDaily;->notification_priority:I
+    iget-wide v4, p2, Lmeizu/notification/RankingDaily;->postDate:J
 
-    if-ne v2, v3, :cond_1
+    invoke-interface {v2, v1, v4, v5}, Lcom/android/server/notification/NotificationFirewall;->offsetScore(Lmeizu/notification/RankingDaily;J)F
 
-    iget v2, p2, Lmeizu/notification/RankingDaily;->category_priority:I
-
-    iget v3, v1, Lmeizu/notification/RankingDaily;->category_priority:I
-
-    if-ne v2, v3, :cond_1
-
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    iput v2, p2, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    iget v2, p2, Lmeizu/notification/RankingDaily;->correct_score:F
-
-    iget v3, v1, Lmeizu/notification/RankingDaily;->correct_score:F
-
-    cmpl-float v2, v2, v3
-
-    if-nez v2, :cond_1
-
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score:F
+    move-result v2
 
     iput v2, p2, Lmeizu/notification/RankingDaily;->score:F
+
+    iget v2, v1, Lmeizu/notification/RankingDaily;->score_scale:F
+
+    iput v2, p2, Lmeizu/notification/RankingDaily;->score_scale:F
 
     goto :goto_1
 
@@ -1000,13 +571,6 @@
 
     iput v2, p2, Lmeizu/notification/RankingDaily;->removeNum:I
 
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    if-gez v2, :cond_3
-
-    iput v5, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    :goto_2
     iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mNotificationFirewall:Lcom/android/server/notification/NotificationFirewall;
 
     invoke-interface {v2, v1}, Lcom/android/server/notification/NotificationFirewall;->increaseScore(Lmeizu/notification/RankingDaily;)F
@@ -1015,20 +579,11 @@
 
     iput v2, p2, Lmeizu/notification/RankingDaily;->score:F
 
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
+    iget v2, v1, Lmeizu/notification/RankingDaily;->score_scale:F
 
-    iput v2, p2, Lmeizu/notification/RankingDaily;->score_adjust:I
+    iput v2, p2, Lmeizu/notification/RankingDaily;->score_scale:F
 
-    goto/16 :goto_1
-
-    :cond_3
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    add-int/lit8 v2, v2, 0x1
-
-    iput v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    goto :goto_2
+    goto :goto_1
 
     :pswitch_2
     iget v2, v1, Lmeizu/notification/RankingDaily;->allNum:I
@@ -1047,39 +602,11 @@
 
     iput v2, p2, Lmeizu/notification/RankingDaily;->removeNum:I
 
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
+    iget v2, v1, Lmeizu/notification/RankingDaily;->score_scale:F
 
-    if-lez v2, :cond_4
+    iput v2, p2, Lmeizu/notification/RankingDaily;->score_scale:F
 
-    const/4 v2, -0x1
-
-    iput v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    :goto_3
-    iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mNotificationFirewall:Lcom/android/server/notification/NotificationFirewall;
-
-    invoke-interface {v2, v1}, Lcom/android/server/notification/NotificationFirewall;->decreaseScore(Lmeizu/notification/RankingDaily;)F
-
-    move-result v2
-
-    iput v2, p2, Lmeizu/notification/RankingDaily;->score:F
-
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    iput v2, p2, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    goto/16 :goto_1
-
-    :cond_4
-    iget v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    add-int/lit8 v2, v2, -0x1
-
-    iput v2, v1, Lmeizu/notification/RankingDaily;->score_adjust:I
-
-    goto :goto_3
-
-    nop
+    goto :goto_1
 
     :pswitch_data_0
     .packed-switch 0x1
@@ -1214,145 +741,127 @@
 .end method
 
 .method public getPackageCategoryScore(Lcom/android/server/notification/NotificationRecord;)F
-    .locals 6
+    .locals 5
     .param p1, "r"    # Lcom/android/server/notification/NotificationRecord;
 
     .prologue
-    new-instance v3, Ljava/lang/StringBuilder;
+    iget-object v2, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
 
-    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-virtual {v2}, Landroid/service/notification/StatusBarNotification;->getNotification()Landroid/app/Notification;
 
-    iget-object v4, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
+    move-result-object v2
 
-    invoke-virtual {v4}, Landroid/service/notification/StatusBarNotification;->getNotification()Landroid/app/Notification;
+    iget-object v3, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
 
-    move-result-object v4
-
-    iget-object v5, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
-
-    invoke-virtual {v5}, Landroid/service/notification/StatusBarNotification;->getPackageName()Ljava/lang/String;
-
-    move-result-object v5
-
-    invoke-static {v4, v5}, Lcom/android/server/notification/CloudNotificationHelper;->getOrigPackageName(Landroid/app/Notification;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3}, Landroid/service/notification/StatusBarNotification;->getPackageName()Ljava/lang/String;
 
     move-result-object v3
 
-    const-string v4, "$"
+    invoke-static {v2, v3}, Lcom/android/server/notification/CloudNotificationHelper;->getOrigPackageName(Landroid/app/Notification;Ljava/lang/String;)Ljava/lang/String;
 
-    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    move-result-object v2
 
-    move-result-object v3
+    iget-object v3, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
 
-    iget-object v4, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
+    iget-object v3, v3, Landroid/service/notification/StatusBarNotification;->mFlymeFilter:Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;
 
-    iget-object v4, v4, Landroid/service/notification/StatusBarNotification;->mFlymeFilter:Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;
+    iget-object v3, v3, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->category:Ljava/lang/String;
 
-    iget-object v4, v4, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->category:Ljava/lang/String;
-
-    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-direct {p0, v2, v3}, Lcom/android/server/notification/RankingControllerImpl;->getRankingDailyKey(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
     .local v1, "key":Ljava/lang/String;
-    iget-object v4, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
+    iget-object v3, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
 
-    monitor-enter v4
+    monitor-enter v3
 
     :try_start_0
-    iget-object v3, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
+    iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
 
-    invoke-virtual {v3, v1}, Landroid/util/ArrayMap;->containsKey(Ljava/lang/Object;)Z
+    invoke-virtual {v2, v1}, Landroid/util/ArrayMap;->containsKey(Ljava/lang/Object;)Z
 
-    move-result v3
+    move-result v2
 
-    if-eqz v3, :cond_1
+    if-eqz v2, :cond_0
 
-    iget-object v3, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
+    iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
 
-    invoke-virtual {v3, v1}, Landroid/util/ArrayMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-virtual {v2, v1}, Landroid/util/ArrayMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lmeizu/notification/RankingDaily;
 
     .local v0, "daily":Lmeizu/notification/RankingDaily;
-    iget-object v3, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
+    if-eqz v0, :cond_0
 
-    iget-object v3, v3, Landroid/service/notification/StatusBarNotification;->mFlymeFilter:Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;
+    iget-object v2, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
 
-    iget v3, v3, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->correct_score:F
+    iget-object v2, v2, Landroid/service/notification/StatusBarNotification;->mFlymeFilter:Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;
 
-    iget v5, v0, Lmeizu/notification/RankingDaily;->correct_score:F
+    iget v2, v2, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->score_scale:F
 
-    cmpl-float v3, v3, v5
+    iput v2, v0, Lmeizu/notification/RankingDaily;->score_scale:F
 
-    if-eqz v3, :cond_0
+    iget-object v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mNotificationFirewall:Lcom/android/server/notification/NotificationFirewall;
 
-    iget v3, v0, Lmeizu/notification/RankingDaily;->score:F
+    invoke-interface {v2, v0}, Lcom/android/server/notification/NotificationFirewall;->decreaseScore(Lmeizu/notification/RankingDaily;)F
 
-    iget v5, v0, Lmeizu/notification/RankingDaily;->correct_score:F
+    move-result v2
 
-    sub-float/2addr v3, v5
+    iput v2, v0, Lmeizu/notification/RankingDaily;->score:F
 
-    iget-object v5, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
+    const/4 v2, 0x0
 
-    iget-object v5, v5, Landroid/service/notification/StatusBarNotification;->mFlymeFilter:Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;
+    iget v4, v0, Lmeizu/notification/RankingDaily;->score:F
 
-    iget v5, v5, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->correct_score:F
-
-    add-float v2, v3, v5
-
-    .local v2, "score":F
-    const/4 v3, 0x0
-
-    invoke-static {v3, v2}, Ljava/lang/Math;->max(FF)F
+    invoke-static {v2, v4}, Ljava/lang/Math;->max(FF)F
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    move-result v3
+    move-result v2
 
-    monitor-exit v4
+    monitor-exit v3
 
-    return v3
-
-    .end local v2    # "score":F
-    :cond_0
-    :try_start_1
-    iget v3, v0, Lmeizu/notification/RankingDaily;->score:F
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
-
-    monitor-exit v4
-
-    return v3
+    return v2
 
     .end local v0    # "daily":Lmeizu/notification/RankingDaily;
-    :cond_1
-    monitor-exit v4
+    :cond_0
+    monitor-exit v3
 
-    iget-object v3, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
+    iget-object v2, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
 
-    iget-object v3, v3, Landroid/service/notification/StatusBarNotification;->mFlymeFilter:Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;
+    iget-object v2, v2, Landroid/service/notification/StatusBarNotification;->mFlymeFilter:Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;
 
-    iget v3, v3, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->score:F
+    iget-object v3, p0, Lcom/android/server/notification/RankingControllerImpl;->mNotificationFirewall:Lcom/android/server/notification/NotificationFirewall;
 
-    return v3
+    const/4 v4, 0x0
+
+    invoke-direct {p0, p1, v4}, Lcom/android/server/notification/RankingControllerImpl;->parseNotificationRecord(Lcom/android/server/notification/NotificationRecord;I)Lmeizu/notification/RankingDaily;
+
+    move-result-object v4
+
+    invoke-interface {v3, v4}, Lcom/android/server/notification/NotificationFirewall;->decreaseScore(Lmeizu/notification/RankingDaily;)F
+
+    move-result v3
+
+    iput v3, v2, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->score:F
+
+    iget-object v2, p1, Lcom/android/server/notification/NotificationRecord;->sbn:Landroid/service/notification/StatusBarNotification;
+
+    iget-object v2, v2, Landroid/service/notification/StatusBarNotification;->mFlymeFilter:Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;
+
+    iget v2, v2, Landroid/service/notification/StatusBarNotification$FlymeNotificationFilter;->score:F
+
+    return v2
 
     :catchall_0
-    move-exception v3
+    move-exception v2
 
-    monitor-exit v4
+    monitor-exit v3
 
-    throw v3
+    throw v2
 .end method
 
 .method public getPackageClickPercentage(Ljava/lang/String;Ljava/lang/String;)F
@@ -1497,6 +1006,225 @@
 
     .prologue
     iput-object p1, p0, Lcom/android/server/notification/RankingControllerImpl;->mNotificationFirewall:Lcom/android/server/notification/NotificationFirewall;
+
+    return-void
+.end method
+
+
+# direct methods
+.method static synthetic -get0(Lcom/android/server/notification/RankingControllerImpl;)Landroid/util/ArrayMap;
+    .locals 1
+
+    iget-object v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
+
+    return-object v0
+.end method
+
+.method static synthetic -get1(Lcom/android/server/notification/RankingControllerImpl;)Lcom/flyme/server/notfication/DatabaseHelper;
+    .locals 1
+
+    iget-object v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mDataHelper:Lcom/flyme/server/notfication/DatabaseHelper;
+
+    return-object v0
+.end method
+
+.method static synthetic -get2(Lcom/android/server/notification/RankingControllerImpl;)J
+    .locals 2
+
+    iget-wide v0, p0, Lcom/android/server/notification/RankingControllerImpl;->mRecordCurrentTime:J
+
+    return-wide v0
+.end method
+
+.method static synthetic -set0(Lcom/android/server/notification/RankingControllerImpl;J)J
+    .locals 1
+
+    iput-wide p1, p0, Lcom/android/server/notification/RankingControllerImpl;->mRecordCurrentTime:J
+
+    return-wide p1
+.end method
+
+.method static synthetic -wrap0(Lcom/android/server/notification/RankingControllerImpl;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .locals 1
+    .param p1, "packageName"    # Ljava/lang/String;
+    .param p2, "category"    # Ljava/lang/String;
+
+    .prologue
+    invoke-direct {p0, p1, p2}, Lcom/android/server/notification/RankingControllerImpl;->getRankingDailyKey(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method static synthetic -wrap1(Lcom/android/server/notification/RankingControllerImpl;Lcom/android/server/notification/NotificationRecord;I)Lmeizu/notification/RankingDaily;
+    .locals 1
+    .param p1, "r"    # Lcom/android/server/notification/NotificationRecord;
+    .param p2, "eventType"    # I
+
+    .prologue
+    invoke-direct {p0, p1, p2}, Lcom/android/server/notification/RankingControllerImpl;->parseNotificationRecord(Lcom/android/server/notification/NotificationRecord;I)Lmeizu/notification/RankingDaily;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method static synthetic -wrap2(Lcom/android/server/notification/RankingControllerImpl;)V
+    .locals 0
+
+    invoke-direct {p0}, Lcom/android/server/notification/RankingControllerImpl;->clearAllPostDate()V
+
+    return-void
+.end method
+
+.method static synthetic -wrap3(Lcom/android/server/notification/RankingControllerImpl;Lmeizu/notification/RankingDaily;Z)V
+    .locals 0
+    .param p1, "RankingDaily"    # Lmeizu/notification/RankingDaily;
+    .param p2, "addMode"    # Z
+
+    .prologue
+    invoke-direct {p0, p1, p2}, Lcom/android/server/notification/RankingControllerImpl;->updateAppDaily(Lmeizu/notification/RankingDaily;Z)V
+
+    return-void
+.end method
+
+.method static synthetic -wrap4(Lcom/android/server/notification/RankingControllerImpl;ILmeizu/notification/RankingDaily;)V
+    .locals 0
+    .param p1, "eventType"    # I
+    .param p2, "rankingDaily"    # Lmeizu/notification/RankingDaily;
+
+    .prologue
+    invoke-direct {p0, p1, p2}, Lcom/android/server/notification/RankingControllerImpl;->writeEvent(ILmeizu/notification/RankingDaily;)V
+
+    return-void
+.end method
+
+.method private clearAllPostDate()V
+    .locals 6
+
+    .prologue
+    iget-object v3, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
+
+    invoke-virtual {v3}, Landroid/util/ArrayMap;->keySet()Ljava/util/Set;
+
+    move-result-object v3
+
+    invoke-interface {v3}, Ljava/lang/Iterable;->iterator()Ljava/util/Iterator;
+
+    move-result-object v1
+
+    .local v1, "key$iterator":Ljava/util/Iterator;
+    :cond_0
+    :goto_0
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_1
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/String;
+
+    .local v0, "key":Ljava/lang/String;
+    iget-object v3, p0, Lcom/android/server/notification/RankingControllerImpl;->mAppDailyMap:Landroid/util/ArrayMap;
+
+    invoke-virtual {v3, v0}, Landroid/util/ArrayMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Lmeizu/notification/RankingDaily;
+
+    .local v2, "rankingDaily":Lmeizu/notification/RankingDaily;
+    if-eqz v2, :cond_0
+
+    const-wide/16 v4, 0x0
+
+    iput-wide v4, v2, Lmeizu/notification/RankingDaily;->postDate:J
+
+    iget-object v3, p0, Lcom/android/server/notification/RankingControllerImpl;->mDataHelper:Lcom/flyme/server/notfication/DatabaseHelper;
+
+    const/4 v4, 0x1
+
+    invoke-virtual {v3, v2, v4}, Lcom/flyme/server/notfication/DatabaseHelper;->insertOrUpdateDaily(Lmeizu/notification/RankingDaily;Z)J
+
+    move-result-wide v4
+
+    iput-wide v4, v2, Lmeizu/notification/RankingDaily;->key:J
+
+    goto :goto_0
+
+    .end local v0    # "key":Ljava/lang/String;
+    .end local v2    # "rankingDaily":Lmeizu/notification/RankingDaily;
+    :cond_1
+    return-void
+.end method
+
+.method private getRankingDailyKey(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .locals 2
+    .param p1, "packageName"    # Ljava/lang/String;
+    .param p2, "category"    # Ljava/lang/String;
+
+    .prologue
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, "$"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method private initTimeSetReceive(Landroid/content/Context;)V
+    .locals 4
+    .param p1, "context"    # Landroid/content/Context;
+
+    .prologue
+    new-instance v0, Landroid/content/IntentFilter;
+
+    invoke-direct {v0}, Landroid/content/IntentFilter;-><init>()V
+
+    .local v0, "filter":Landroid/content/IntentFilter;
+    const-string v1, "android.intent.action.TIME_SET"
+
+    invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
+
+    const-string v1, "android.intent.action.TIMEZONE_CHANGED"
+
+    invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
+
+    const-string v1, "android.intent.action.TIME_TICK"
+
+    invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
+
+    iget-object v1, p0, Lcom/android/server/notification/RankingControllerImpl;->mTimeSetReceive:Landroid/content/BroadcastReceiver;
+
+    invoke-virtual {p1, v1, v0}, Landroid/content/Context;->registerReceiver(Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;)Landroid/content/Intent;
+
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v2
+
+    iput-wide v2, p0, Lcom/android/server/notification/RankingControllerImpl;->mRecordCurrentTime:J
 
     return-void
 .end method
